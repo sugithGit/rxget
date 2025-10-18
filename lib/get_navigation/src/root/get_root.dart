@@ -1,13 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/routes/test_kit.dart';
 
 import '../../../get.dart';
 import '../router_report.dart';
 
 class ConfigData {
-  final ValueChanged<Routing?>? routingCallback;
-  final Transition? defaultTransition;
   final VoidCallback? onInit;
   final VoidCallback? onReady;
   final VoidCallback? onDispose;
@@ -17,8 +14,6 @@ class ConfigData {
   final List<Bind> binds;
   final Duration? transitionDuration;
   final bool? defaultGlobalState;
-  final List<GetPage>? getPages;
-  final GetPage? unknownRoute;
   final RouteInformationProvider? routeInformationProvider;
   final RouteInformationParser<Object>? routeInformationParser;
   final RouterDelegate<Object>? routerDelegate;
@@ -31,7 +26,6 @@ class ConfigData {
   final Locale? locale;
   final Locale? fallbackLocale;
   final String? initialRoute;
-  final CustomTransition? customTransition;
   final Widget? home;
   final bool testMode;
   final Key? unikey;
@@ -44,13 +38,9 @@ class ConfigData {
   final Curve defaultTransitionCurve;
   final Curve defaultDialogTransitionCurve;
   final Duration defaultDialogTransitionDuration;
-  final Routing routing;
   final Map<String, String?> parameters;
-  final SnackBarQueue snackBarQueue = SnackBarQueue();
 
   ConfigData({
-    required this.routingCallback,
-    required this.defaultTransition,
     required this.onInit,
     required this.onReady,
     required this.onDispose,
@@ -60,8 +50,6 @@ class ConfigData {
     required this.binds,
     required this.transitionDuration,
     required this.defaultGlobalState,
-    required this.getPages,
-    required this.unknownRoute,
     required this.routeInformationProvider,
     required this.routeInformationParser,
     required this.routerDelegate,
@@ -74,7 +62,6 @@ class ConfigData {
     required this.locale,
     required this.fallbackLocale,
     required this.initialRoute,
-    required this.customTransition,
     required this.home,
     this.theme,
     this.darkTheme,
@@ -88,12 +75,9 @@ class ConfigData {
     this.defaultDialogTransitionDuration = const Duration(milliseconds: 300),
     this.parameters = const {},
     required this.defaultPopGesture,
-    Routing? routing,
-  }) : routing = routing ?? Routing();
+  });
 
   ConfigData copyWith({
-    ValueChanged<Routing?>? routingCallback,
-    Transition? defaultTransition,
     VoidCallback? onInit,
     VoidCallback? onReady,
     VoidCallback? onDispose,
@@ -103,8 +87,6 @@ class ConfigData {
     List<Bind>? binds,
     Duration? transitionDuration,
     bool? defaultGlobalState,
-    List<GetPage>? getPages,
-    GetPage? unknownRoute,
     RouteInformationProvider? routeInformationProvider,
     RouteInformationParser<Object>? routeInformationParser,
     RouterDelegate<Object>? routerDelegate,
@@ -117,7 +99,6 @@ class ConfigData {
     Locale? locale,
     Locale? fallbackLocale,
     String? initialRoute,
-    CustomTransition? customTransition,
     Widget? home,
     bool? testMode,
     Key? unikey,
@@ -130,12 +111,9 @@ class ConfigData {
     Curve? defaultTransitionCurve,
     Curve? defaultDialogTransitionCurve,
     Duration? defaultDialogTransitionDuration,
-    Routing? routing,
     Map<String, String?>? parameters,
   }) {
     return ConfigData(
-      routingCallback: routingCallback ?? this.routingCallback,
-      defaultTransition: defaultTransition ?? this.defaultTransition,
       onInit: onInit ?? this.onInit,
       onReady: onReady ?? this.onReady,
       onDispose: onDispose ?? this.onDispose,
@@ -145,8 +123,6 @@ class ConfigData {
       binds: binds ?? this.binds,
       transitionDuration: transitionDuration ?? this.transitionDuration,
       defaultGlobalState: defaultGlobalState ?? this.defaultGlobalState,
-      getPages: getPages ?? this.getPages,
-      unknownRoute: unknownRoute ?? this.unknownRoute,
       routeInformationProvider:
           routeInformationProvider ?? this.routeInformationProvider,
       routeInformationParser:
@@ -161,7 +137,6 @@ class ConfigData {
       locale: locale ?? this.locale,
       fallbackLocale: fallbackLocale ?? this.fallbackLocale,
       initialRoute: initialRoute ?? this.initialRoute,
-      customTransition: customTransition ?? this.customTransition,
       home: home ?? this.home,
       testMode: testMode ?? this.testMode,
       unikey: unikey ?? this.unikey,
@@ -178,7 +153,6 @@ class ConfigData {
           defaultDialogTransitionCurve ?? this.defaultDialogTransitionCurve,
       defaultDialogTransitionDuration: defaultDialogTransitionDuration ??
           this.defaultDialogTransitionDuration,
-      routing: routing ?? this.routing,
       parameters: parameters ?? this.parameters,
     );
   }
@@ -188,8 +162,6 @@ class ConfigData {
     if (identical(this, other)) return true;
 
     return other is ConfigData &&
-        other.routingCallback == routingCallback &&
-        other.defaultTransition == defaultTransition &&
         other.onInit == onInit &&
         other.onReady == onReady &&
         other.onDispose == onDispose &&
@@ -199,8 +171,6 @@ class ConfigData {
         listEquals(other.binds, binds) &&
         other.transitionDuration == transitionDuration &&
         other.defaultGlobalState == defaultGlobalState &&
-        listEquals(other.getPages, getPages) &&
-        other.unknownRoute == unknownRoute &&
         other.routeInformationProvider == routeInformationProvider &&
         other.routeInformationParser == routeInformationParser &&
         other.routerDelegate == routerDelegate &&
@@ -213,7 +183,6 @@ class ConfigData {
         other.locale == locale &&
         other.fallbackLocale == fallbackLocale &&
         other.initialRoute == initialRoute &&
-        other.customTransition == customTransition &&
         other.home == home &&
         other.testMode == testMode &&
         other.unikey == unikey &&
@@ -227,15 +196,12 @@ class ConfigData {
         other.defaultDialogTransitionCurve == defaultDialogTransitionCurve &&
         other.defaultDialogTransitionDuration ==
             defaultDialogTransitionDuration &&
-        other.routing == routing &&
         mapEquals(other.parameters, parameters);
   }
 
   @override
   int get hashCode {
-    return routingCallback.hashCode ^
-        defaultTransition.hashCode ^
-        onInit.hashCode ^
+    return onInit.hashCode ^
         onReady.hashCode ^
         onDispose.hashCode ^
         enableLog.hashCode ^
@@ -244,8 +210,6 @@ class ConfigData {
         binds.hashCode ^
         transitionDuration.hashCode ^
         defaultGlobalState.hashCode ^
-        getPages.hashCode ^
-        unknownRoute.hashCode ^
         routeInformationProvider.hashCode ^
         routeInformationParser.hashCode ^
         routerDelegate.hashCode ^
@@ -258,7 +222,6 @@ class ConfigData {
         locale.hashCode ^
         fallbackLocale.hashCode ^
         initialRoute.hashCode ^
-        customTransition.hashCode ^
         home.hashCode ^
         testMode.hashCode ^
         unikey.hashCode ^
@@ -271,7 +234,6 @@ class ConfigData {
         defaultTransitionCurve.hashCode ^
         defaultDialogTransitionCurve.hashCode ^
         defaultDialogTransitionDuration.hashCode ^
-        routing.hashCode ^
         parameters.hashCode;
   }
 }
@@ -343,7 +305,6 @@ class GetRootState extends State<GetRoot> with WidgetsBindingObserver {
   void onClose() {
     config.onDispose?.call();
     Get.clearTranslations();
-    config.snackBarQueue.disposeControllers();
     RouterReportManager.instance.clearRouteKeys();
     RouterReportManager.dispose();
     Get.resetInstance(clearRouteBindings: true);
@@ -358,43 +319,8 @@ class GetRootState extends State<GetRoot> with WidgetsBindingObserver {
   }
 
   void onInit() {
-    if (config.getPages == null && config.home == null) {
+    if (config.home == null) {
       throw 'You need add pages or home';
-    }
-
-    if (config.routerDelegate == null) {
-      final newDelegate = GetDelegate.createDelegate(
-        pages: config.getPages ??
-            [
-              GetPage(
-                name: cleanRouteName("/${config.home.runtimeType}"),
-                page: () => config.home!,
-              ),
-            ],
-        notFoundRoute: config.unknownRoute,
-        navigatorKey: config.navigatorKey,
-        navigatorObservers: (config.navigatorObservers == null
-            ? <NavigatorObserver>[
-                GetObserver(config.routingCallback, Get.routing)
-              ]
-            : <NavigatorObserver>[
-                GetObserver(config.routingCallback, config.routing),
-                ...config.navigatorObservers!
-              ]),
-      );
-      config = config.copyWith(routerDelegate: newDelegate);
-    }
-
-    if (config.routeInformationParser == null) {
-      final newRouteInformationParser =
-          GetInformationParser.createInformationParser(
-        initialRoute: config.initialRoute ??
-            config.getPages?.first.name ??
-            cleanRouteName("/${config.home.runtimeType}"),
-      );
-
-      config =
-          config.copyWith(routeInformationParser: newRouteInformationParser);
     }
 
     if (config.locale != null) Get.locale = config.locale;
@@ -415,10 +341,6 @@ class GetRootState extends State<GetRoot> with WidgetsBindingObserver {
     Get.isLogEnable = config.enableLog ?? kDebugMode;
     Get.log = config.logWriterCallback ?? defaultLogWriterCallback;
 
-    if (config.defaultTransition == null) {
-      config = config.copyWith(defaultTransition: getThemeTransition());
-    }
-
     // defaultOpaqueRoute = config.opaqueRoute ?? true;
     // defaultPopGesture = config.popGesture ?? GetPlatform.isIOS;
     // defaultTransitionDuration =
@@ -434,40 +356,14 @@ class GetRootState extends State<GetRoot> with WidgetsBindingObserver {
 
   set testMode(bool isTest) {
     config = config.copyWith(testMode: isTest);
-    GetTestMode.active = isTest;
   }
 
   void onReady() {
     config.onReady?.call();
   }
 
-  Transition? getThemeTransition() {
-    final platform = context.theme.platform;
-    final matchingTransition =
-        Get.theme.pageTransitionsTheme.builders[platform];
-    switch (matchingTransition) {
-      case CupertinoPageTransitionsBuilder():
-        return Transition.cupertino;
-      case ZoomPageTransitionsBuilder():
-        return Transition.zoom;
-      case FadeUpwardsPageTransitionsBuilder():
-        return Transition.fade;
-      case OpenUpwardsPageTransitionsBuilder():
-        return Transition.native;
-      default:
-        return null;
-    }
-  }
-
   @override
-  void didChangeLocales(List<Locale>? locales) {
-    Get.asap(() {
-      final locale = Get.deviceLocale;
-      if (locale != null) {
-        Get.updateLocale(locale);
-      }
-    });
-  }
+  void didChangeLocales(List<Locale>? locales) {}
 
   void setTheme(ThemeData value) {
     if (config.darkTheme == null) {
@@ -499,34 +395,8 @@ class GetRootState extends State<GetRoot> with WidgetsBindingObserver {
     });
   }
 
-  GlobalKey<NavigatorState> get key => rootDelegate.navigatorKey;
-
-  GetDelegate get rootDelegate => config.routerDelegate as GetDelegate;
-
   RouteInformationParser<Object> get informationParser =>
       config.routeInformationParser!;
-
-  GlobalKey<NavigatorState>? addKey(GlobalKey<NavigatorState> newKey) {
-    rootDelegate.navigatorKey = newKey;
-    return key;
-  }
-
-  Map<String, GetDelegate> keys = {};
-
-  GetDelegate? nestedKey(String? key) {
-    if (key == null) {
-      return rootDelegate;
-    }
-    keys.putIfAbsent(
-      key,
-      () => GetDelegate(
-        showHashOnUrl: true,
-        //debugLabel: 'Getx nested key: ${key.toString()}',
-        pages: RouteDecoder.fromRoute(key).currentChildren ?? [],
-      ),
-    );
-    return keys[key];
-  }
 
   @override
   Widget build(BuildContext context) {

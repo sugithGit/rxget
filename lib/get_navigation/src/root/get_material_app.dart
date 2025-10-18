@@ -23,7 +23,6 @@ class GetMaterialApp extends StatelessWidget {
   final ThemeData? theme;
   final ThemeData? darkTheme;
   final ThemeMode themeMode;
-  final CustomTransition? customTransition;
   final Color? color;
   final Map<String, Map<String, String>>? translationsKeys;
   final Translations? translations;
@@ -45,8 +44,6 @@ class GetMaterialApp extends StatelessWidget {
   final ThemeData? highContrastDarkTheme;
   final Map<Type, Action<Intent>>? actions;
   final bool debugShowMaterialGrid;
-  final ValueChanged<Routing?>? routingCallback;
-  final Transition? defaultTransition;
   final bool? opaqueRoute;
   final VoidCallback? onInit;
   final VoidCallback? onReady;
@@ -58,8 +55,6 @@ class GetMaterialApp extends StatelessWidget {
   final List<Bind> binds;
   final Duration? transitionDuration;
   final bool? defaultGlobalState;
-  final List<GetPage>? getPages;
-  final GetPage? unknownRoute;
   final RouteInformationProvider? routeInformationProvider;
   final RouteInformationParser<Object>? routeInformationParser;
   final RouterDelegate<Object>? routerDelegate;
@@ -103,15 +98,11 @@ class GetMaterialApp extends StatelessWidget {
     this.debugShowCheckedModeBanner = true,
     this.shortcuts,
     this.scrollBehavior,
-    this.customTransition,
     this.translationsKeys,
     this.translations,
     this.onInit,
     this.onReady,
     this.onDispose,
-    this.routingCallback,
-    this.defaultTransition,
-    this.getPages,
     this.opaqueRoute,
     this.enableLog = kDebugMode,
     this.logWriterCallback,
@@ -120,7 +111,6 @@ class GetMaterialApp extends StatelessWidget {
     this.defaultGlobalState,
     this.smartManagement = SmartManagement.full,
     this.binds = const [],
-    this.unknownRoute,
     this.highContrastTheme,
     this.highContrastDarkTheme,
     this.actions,
@@ -162,13 +152,10 @@ class GetMaterialApp extends StatelessWidget {
     this.shortcuts,
     this.scrollBehavior,
     this.actions,
-    this.customTransition,
     this.translationsKeys,
     this.translations,
     this.textDirection,
     this.fallbackLocale,
-    this.routingCallback,
-    this.defaultTransition,
     this.opaqueRoute,
     this.onInit,
     this.onReady,
@@ -180,9 +167,7 @@ class GetMaterialApp extends StatelessWidget {
     this.binds = const [],
     this.transitionDuration,
     this.defaultGlobalState,
-    this.getPages,
     this.navigatorObservers,
-    this.unknownRoute,
   })  : navigatorKey = null,
         onGenerateRoute = null,
         home = null,
@@ -197,12 +182,9 @@ class GetMaterialApp extends StatelessWidget {
       config: ConfigData(
         backButtonDispatcher: backButtonDispatcher,
         binds: binds,
-        customTransition: customTransition,
         defaultGlobalState: defaultGlobalState,
-        defaultTransition: defaultTransition,
         enableLog: enableLog,
         fallbackLocale: fallbackLocale,
-        getPages: getPages,
         home: home,
         initialRoute: initialRoute,
         locale: locale,
@@ -215,13 +197,11 @@ class GetMaterialApp extends StatelessWidget {
         routeInformationParser: routeInformationParser,
         routeInformationProvider: routeInformationProvider,
         routerDelegate: routerDelegate,
-        routingCallback: routingCallback,
         scaffoldMessengerKey: scaffoldMessengerKey,
         smartManagement: smartManagement,
         transitionDuration: transitionDuration,
         translations: translations,
         translationsKeys: translationsKeys,
-        unknownRoute: unknownRoute,
         theme: theme,
         darkTheme: darkTheme,
         themeMode: themeMode,

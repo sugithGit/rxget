@@ -83,3 +83,6 @@ example/macos/Flutter/GeneratedPluginRegistrant.swift
 
 # Coverage files
 coverage/
+
+# FVM Version Cache
+.fvm/
