@@ -73,6 +73,7 @@ class ValueBuilderState<T> extends State<ValueBuilder<T>> {
   }
 }
 
+/// Element that tracks reactive disposers
 class ObxElement = StatelessElement with StatelessObserverComponent;
 
 // It's a experimental feature

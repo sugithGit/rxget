@@ -6,7 +6,7 @@ typedef EffectCallback = void Function();
 
 /// A Stateless widget that registers reactive reads and runs [effect]
 /// on build and whenever those reads change. Does NOT rebuild the UI.
-class Obl extends ObxStatelessWidget {
+class Obl extends OblStatelessWidget {
   const Obl({
     required this.effect,
     required this.child,
@@ -33,12 +33,19 @@ class Obl extends ObxStatelessWidget {
   }
 }
 
+/// Keep the same base class you provided for compatibility
+abstract class OblStatelessWidget extends StatelessWidget {
+  const OblStatelessWidget({super.key});
+  @override
+  StatelessElement createElement() => OblElement(this);
+}
+
 /// Element that tracks reactive disposers
-class ObxElement = StatelessElement with StatelessObserverComponent;
+class OblElement = StatelessElement with StatelessOblObserverComponent;
 
 /// Component that sets up Notifier tracking and invokes the single `effect`
 /// when observables change.
-mixin StatelessObserverComponent on StatelessElement {
+mixin StatelessOblObserverComponent on StatelessElement {
   List<Disposer>? disposers = <Disposer>[];
 
   void _onReactiveUpdate() {
@@ -85,11 +92,4 @@ mixin StatelessObserverComponent on StatelessElement {
     }
     super.unmount();
   }
-}
-
-/// Keep the same base class you provided for compatibility
-abstract class ObxStatelessWidget extends StatelessWidget {
-  const ObxStatelessWidget({super.key});
-  @override
-  StatelessElement createElement() => ObxElement(this);
 }
