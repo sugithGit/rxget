@@ -1,7 +1,7 @@
 name: get
-description: Open screens/snackbars/dialogs without context, manage states and inject dependencies easily with GetX.
-version: 5.0.0-release-candidate-9.3.2
-homepage: https://github.com/jonataslaw/getx
+description: A lightweight reactive state management and dependency injection library for Dart and Flutter — pure and minimal.
+version: 0.1.0+2
+homepage: https://github.com/sugithGit/rxget
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
