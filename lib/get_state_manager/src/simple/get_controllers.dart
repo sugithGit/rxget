@@ -31,8 +31,46 @@ import 'list_notifier.dart';
 /// }
 /// ```
 // ignore: prefer_mixin
-abstract class GetxController extends ListNotifier with GetLifeCycleMixin {
-  Object get state;
+abstract class GetxController<T extends Object> extends ListNotifier
+    with GetLifeCycleMixin {
+  /// The state object managed by this controller.
+  ///
+  /// Subclasses **must override** this getter to provide a concrete state
+  /// instance (for example, `final _State state = _State();`).
+  ///
+  /// The [state] object should contain your reactive variables (`Rx<T>` or `.obs`)
+  /// that represent the controller’s data layer.
+  ///
+  /// ---
+  /// Example:
+  /// ```dart
+  /// final class _CounterState {
+  ///   final _count = 0.obs;
+  ///
+  ///   int get count => _count.value;
+  /// }
+  ///
+  /// final class CounterController extends GetxController {
+  ///   @override
+  ///   final state = _CounterState();
+  ///
+  ///   void increment() {
+  ///     state._count.value++;
+  ///     update();
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// You can use `Obx` or `GetBuilder` in your UI to reactively rebuild
+  /// widgets when fields inside [state] change.
+  T get state;
+
+  GetxController() {
+    assert(
+      T.toString().startsWith('_'),
+      'State class for $runtimeType must be private (start with "_")',
+    );
+  }
 
   /// Notifies listeners to update the UI.
   ///
