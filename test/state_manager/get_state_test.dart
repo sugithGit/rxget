@@ -96,12 +96,24 @@ class Controller extends GetxController {
     counter++;
     update(['1']);
   }
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }
 
 class Controller2 extends GetxController {
   int test = 0;
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }
 
 class ControllerNonGlobal extends GetxController {
   int nonGlobal = 0;
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }
