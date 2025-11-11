@@ -107,4 +107,8 @@ class Controller extends GetxController {
     count++;
     update();
   }
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }

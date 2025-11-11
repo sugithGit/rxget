@@ -64,4 +64,8 @@ class Controller extends GetxController {
   void increment() {
     counter.value++;
   }
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }

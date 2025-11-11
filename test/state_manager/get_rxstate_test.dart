@@ -75,10 +75,18 @@ void main() {
 
 class Controller2 extends GetxController {
   RxInt lazy = 0.obs;
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }
 
 class ControllerNonGlobal extends GetxController {
   RxInt nonGlobal = 0.obs;
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }
 
 class Controller extends GetxController {
@@ -94,4 +102,8 @@ class Controller extends GetxController {
   void increment() {
     counter.value++;
   }
+
+  @override
+  // TODO: implement state
+  Object get state => throw UnimplementedError();
 }

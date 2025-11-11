@@ -40,7 +40,7 @@ mixin StateMixin<T> on ListNotifier {
     return _status ??= _status = GetStatus.loading();
   }
 
-  T get state => value;
+  T get getState => value;
 
   set status(GetStatus<T> newStatus) {
     if (newStatus == status) return;

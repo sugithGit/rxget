@@ -11,19 +11,29 @@ import 'list_notifier.dart';
 /// state management system. This class provides methods to update the UI
 /// when the controller's state changes.
 ///
+/// ---
 /// Example:
 /// ```dart
-/// class CounterController extends GetxController {
-///   var count = 0;
+/// final class _CounterState {
+///   final _count = 0.obs;
+///
+///   int get count => _count.value;
+/// }
+///
+/// final class CounterController extends GetxController {
+///   @override
+///   final state = _CounterState();
 ///
 ///   void increment() {
-///     count++;
-///     update(); // Triggers UI update
+///     state._count.value++;
+///     update();
 ///   }
 /// }
 /// ```
 // ignore: prefer_mixin
 abstract class GetxController extends ListNotifier with GetLifeCycleMixin {
+  Object get state;
+
   /// Notifies listeners to update the UI.
   ///
   /// When called without parameters, it will update all widgets that depend on
@@ -180,7 +190,7 @@ abstract class StateController<T> extends GetxController with StateMixin<T> {}
 ///       final data = await repository.getData();
 ///       change(HomeState(data: data), status: RxStatus.success());
 ///     } catch (e) {
-///       change(state, status: RxStatus.error(e.toString()));
+///       change(getState, status: RxStatus.error(e.toString()));
 ///     }
 ///   }
 /// }
