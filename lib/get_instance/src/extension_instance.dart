@@ -371,10 +371,6 @@ extension Inst on GetInterface {
     }
     final i = builder.dependency;
 
-    if (i is GetxServiceMixin && !force) {
-      return false;
-    }
-
     if (i is GetLifeCycleMixin) {
       i.onDelete();
       Get.log('"$newKey" onDelete() called');
@@ -443,10 +439,6 @@ extension Inst on GetInterface {
     }
 
     final i = builder.dependency;
-
-    if (i is GetxServiceMixin && !force) {
-      return;
-    }
 
     if (i is GetLifeCycleMixin) {
       i.onDelete();

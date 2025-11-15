@@ -23,7 +23,6 @@ No routing, no UI helpers — just pure state management.
       - [GetResponsiveView](#getresponsiveview)
         - [How to use it](#how-to-use-it)
       - [GetWidget](#getwidget)
-      - [GetxService](#getxservice)
     - [Tests](#tests)
       - [Tips](#tips)
         - [Mockito or mocktail](#mockito-or-mocktail)
@@ -449,57 +448,6 @@ If you use, another "not so common" feature of **GetX**: `Get.create()`.
 That's where `GetWidget` shines... as you can use it, for example,
 to keep a list of Todo items. So, if the widget gets "rebuilt", it will keep the same controller instance.
 
-#### GetxService
-
-This class is like a `GetxController`, it shares the same lifecycle ( `onInit()`, `onReady()`, `onClose()`).
-But has no "logic" inside of it. It just notifies **GetX** Dependency Injection system, that this subclass
-**can not** be removed from memory.
-
-So is super useful to keep your "Services" always reachable and active with `Get.find()`. Like:
-`ApiService`, `StorageService`, `CacheService`.
-
-```dart
-Future<void> main() async {
-  await initServices(); /// AWAIT SERVICES INITIALIZATION.
-  runApp(SomeApp());
-}
-
-/// Is a smart move to make your Services intiialize before you run the Flutter app.
-/// as you can control the execution flow (maybe you need to load some Theme configuration,
-/// apiKey, language defined by the User... so load SettingService before running ApiService.
-/// so GetMaterialApp() doesnt have to rebuild, and takes the values directly.
-void initServices() async {
-  print('starting services ...');
-  /// Here is where you put get_storage, hive, shared_pref initialization.
-  /// or moor connection, or whatever that's async.
-  await Get.putAsync(() => DbService().init());
-  await Get.putAsync(SettingsService()).init();
-  print('All services started...');
-}
-
-class DbService extends GetxService {
-  Future<DbService> init() async {
-    print('$runtimeType delays 2 sec');
-    await 2.delay();
-    print('$runtimeType ready!');
-    return this;
-  }
-}
-
-class SettingsService extends GetxService {
-  void init() async {
-    print('$runtimeType delays 1 sec');
-    await 1.delay();
-    print('$runtimeType ready!');
-  }
-}
-
-```
-
-The only way to actually delete a `GetxService`, is with `Get.reset()` which is like a
-"Hot Reboot" of your app. So remember, if you need absolute persistence of a class instance during the
-lifetime of your app, use `GetxService`.
-
 
 ### Tests
 
@@ -555,10 +503,10 @@ Test the state of the reactive variable "name" across all of its lifecycles''',
 #### Tips
 
 ##### Mockito or mocktail
-If you need to mock your GetxController/GetxService, you should extend GetxController, and mixin it with Mock, that way
+If you need to mock your GetxController, you should extend GetxController, and mixin it with Mock, that way
 
 ```dart
-class NotificationServiceMock extends GetxService with Mock implements NotificationService {}
+class NotificationServiceMock extends GetxController with Mock implements NotificationService {}
 ```
 
 ##### Using Get.reset()
