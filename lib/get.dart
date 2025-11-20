@@ -1,6 +1,5 @@
-/// GetX is an extra-light and powerful multi-platform framework.
-/// It combines high performance state management, intelligent dependency
-/// injection, and route management in a quick and practical way.
+/// A high performance state management, intelligent dependency injection
+/// in a quick and practical way.
 library;
 
 export 'get_common/get_reset.dart';

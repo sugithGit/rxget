@@ -4,8 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../instance_manager.dart';
-import '../../get_state_manager.dart';
+import '../../../get.dart';
 import 'list_notifier.dart';
 
 typedef InitBuilder<T> = T Function();
