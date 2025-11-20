@@ -74,7 +74,7 @@ dependencies:
 Import get in files that it will be used:
 
 ```dart
-import 'package:get/get.dart';
+import 'package:rxget/get.dart';
 ```
 
 # Counter App with GetX

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get_rx/src/rx_stream/rx_stream.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_notifier.dart';
+import 'package:rxget/get_rx/src/rx_stream/rx_stream.dart';
+import 'package:rxget/get_state_manager/src/rx_flutter/rx_notifier.dart';
 
 int times = 30;
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
-import 'package:get/get_state_manager/src/simple/list_notifier.dart';
+import 'package:rxget/get_state_manager/src/simple/list_notifier.dart';
 
 typedef EffectCallback = void Function();
 
