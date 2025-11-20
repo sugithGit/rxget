@@ -10,21 +10,10 @@ typedef GetXControllerBuilder<T extends GetLifeCycleMixin> = Widget Function(
     T controller);
 
 class GetX<T extends GetLifeCycleMixin> extends StatefulWidget {
-  final GetXControllerBuilder<T> builder;
-  final bool global;
-  final bool autoRemove;
-  final bool assignId;
-  final void Function(GetXState<T> state)? initState,
-      dispose,
-      didChangeDependencies;
-  final void Function(GetX oldWidget, GetXState<T> state)? didUpdateWidget;
-  final T? init;
-  final String? tag;
 
   const GetX({
-    super.key,
+    required this.builder, super.key,
     this.tag,
-    required this.builder,
     this.global = true,
     this.autoRemove = true,
     this.initState,
@@ -36,6 +25,16 @@ class GetX<T extends GetLifeCycleMixin> extends StatefulWidget {
     this.init,
     // this.streamController
   });
+  final GetXControllerBuilder<T> builder;
+  final bool global;
+  final bool autoRemove;
+  final bool assignId;
+  final void Function(GetXState<T> state)? initState;
+  final void Function(GetXState<T> state)? dispose;
+  final void Function(GetXState<T> state)? didChangeDependencies;
+  final void Function(GetX oldWidget, GetXState<T> state)? didUpdateWidget;
+  final T? init;
+  final String? tag;
 
   @override
   StatefulElement createElement() => StatefulElement(this);

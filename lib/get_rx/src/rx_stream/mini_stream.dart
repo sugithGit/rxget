@@ -1,10 +1,10 @@
 part of 'rx_stream.dart';
 
 class Node<T> {
+  Node({this.data, this.next, this.prev});
   T? data;
   Node<T>? next;
   Node<T>? prev;
-  Node({this.data, this.next, this.prev});
 }
 
 class MiniSubscription<T> {
@@ -122,7 +122,7 @@ class FastList<T> {
   }
 
   void addListener(MiniSubscription<T> data) {
-    var newNode = Node(data: data);
+    final newNode = Node(data: data);
 
     if (isEmpty) {
       _head = _tail = newNode;

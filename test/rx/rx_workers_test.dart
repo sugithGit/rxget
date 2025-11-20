@@ -7,8 +7,8 @@ void main() {
   test('once', () async {
     final count = 0.obs;
     var result = -1;
-    once(count, (dynamic val) {
-      result = val as int;
+    once(count, (val) {
+      result = val;
     });
     count.value++;
     await Future.delayed(Duration.zero);
@@ -41,7 +41,7 @@ void main() {
   test('debounce', () async {
     final count = 0.obs;
     int? result = -1;
-    debounce(count, (dynamic val) {
+    debounce(count, (val) {
       // print(_);
       result = val as int?;
     }, time: const Duration(milliseconds: 100));
@@ -97,7 +97,7 @@ void main() {
   });
 
   test('Rx same value will not call the same listener when call', () async {
-    var reactiveInteger = RxInt(2);
+    final reactiveInteger = RxInt(2);
     var timesCalled = 0;
     reactiveInteger.listen((newInt) {
       timesCalled++;
@@ -114,7 +114,7 @@ void main() {
   });
 
   test('Rx different value will call the listener when trigger', () async {
-    var reactiveInteger = RxInt(0);
+    final reactiveInteger = RxInt(0);
     var timesCalled = 0;
     reactiveInteger.listen((newInt) {
       timesCalled++;
@@ -132,7 +132,7 @@ void main() {
   });
 
   test('Rx same value will call the listener when trigger', () async {
-    var reactiveInteger = RxInt(2);
+    final reactiveInteger = RxInt(2);
     var timesCalled = 0;
     reactiveInteger.listen((newInt) {
       timesCalled++;
@@ -166,7 +166,7 @@ void main() {
   });
 
   test('Rx String with null values', () async {
-    var reactiveString = Rx<String?>(null);
+    final reactiveString = Rx<String?>(null);
     String? currentString;
 
     reactiveString.listen((newString) {

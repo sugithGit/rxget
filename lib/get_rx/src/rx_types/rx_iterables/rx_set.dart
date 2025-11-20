@@ -60,7 +60,7 @@ class RxSet<E> extends GetListenable<Set<E>>
 
   @override
   bool remove(Object? value) {
-    var hasRemoved = this.value.remove(value);
+    final hasRemoved = this.value.remove(value);
     if (hasRemoved) {
       refresh();
     }
@@ -119,13 +119,13 @@ extension SetExtension<E> on Set<E> {
   // }
 
   /// Add [item] to [List<E>] only if [condition] is true.
-  void addIf(dynamic condition, E item) {
+  void addIf(condition, E item) {
     if (condition is Condition) condition = condition();
     if (condition is bool && condition) add(item);
   }
 
   /// Adds [Iterable<E>] to [List<E>] only if [condition] is true.
-  void addAllIf(dynamic condition, Iterable<E> items) {
+  void addAllIf(condition, Iterable<E> items) {
     if (condition is Condition) condition = condition();
     if (condition is bool && condition) addAll(items);
   }

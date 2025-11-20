@@ -1,7 +1,7 @@
 // ignore: prefer_mixin
 import 'package:flutter/widgets.dart';
-import 'package:rxget/get_core/src/flutter_engine.dart';
-import 'package:rxget/get_instance/src/lifecycle.dart';
+import '../../../get_core/src/flutter_engine.dart';
+import '../../../get_instance/src/lifecycle.dart';
 
 import '../rx_flutter/rx_notifier.dart';
 import 'list_notifier.dart';
@@ -34,6 +34,13 @@ import 'list_notifier.dart';
 // ignore: prefer_mixin
 abstract class GetxController<T extends Object> extends ListNotifier
     with GetLifeCycleMixin {
+
+  GetxController() {
+    assert(
+      T.toString().startsWith('_'),
+      'State class for $runtimeType must be private (start with "_")',
+    );
+  }
   /// The state object managed by this controller.
   ///
   /// Subclasses **must override** this getter to provide a concrete state
@@ -65,13 +72,6 @@ abstract class GetxController<T extends Object> extends ListNotifier
   /// You can use `Obx` or `GetBuilder` in your UI to reactively rebuild
   /// widgets when fields inside [state] change.
   T get state;
-
-  GetxController() {
-    assert(
-      T.toString().startsWith('_'),
-      'State class for $runtimeType must be private (start with "_")',
-    );
-  }
 
   /// Notifies listeners to update the UI.
   ///
@@ -313,19 +313,14 @@ mixin FullLifeCycleMixin on FullLifeCycleController {
     switch (state) {
       case AppLifecycleState.resumed:
         onResumed();
-        break;
       case AppLifecycleState.inactive:
         onInactive();
-        break;
       case AppLifecycleState.paused:
         onPaused();
-        break;
       case AppLifecycleState.detached:
         onDetached();
-        break;
       case AppLifecycleState.hidden:
         onHidden();
-        break;
     }
   }
 

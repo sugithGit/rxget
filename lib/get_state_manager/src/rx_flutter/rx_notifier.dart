@@ -2,11 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:rxget/get.dart';
-import 'package:rxget/get_instance/src/lifecycle.dart';
+import '../../../get.dart';
 
-import '../../../get_rx/src/rx_types/rx_types.dart';
-import '../../get_state_manager.dart';
 import '../simple/list_notifier.dart';
 
 extension _Empty on Object {
@@ -288,18 +285,18 @@ class LoadingStatus<T> extends GetStatus<T> {
 }
 
 class SuccessStatus<T> extends GetStatus<T> {
-  final T data;
 
   const SuccessStatus(this.data);
+  final T data;
 
   @override
   List get props => [data];
 }
 
 class ErrorStatus<T, S> extends GetStatus<T> {
-  final S? error;
 
   const ErrorStatus([this.error]);
+  final S? error;
 
   @override
   List get props => [error];

@@ -1085,16 +1085,16 @@ extension RxIntExt on Rx<int> {
   int get sign => value.sign;
 
   /// Returns `this`.
-  int round() => value.round();
+  int round() => value;
 
   /// Returns `this`.
-  int floor() => value.floor();
+  int floor() => value;
 
   /// Returns `this`.
-  int ceil() => value.ceil();
+  int ceil() => value;
 
   /// Returns `this`.
-  int truncate() => value.truncate();
+  int truncate() => value;
 
   /// Returns `this.toDouble()`.
   double roundToDouble() => value.roundToDouble();
@@ -1329,16 +1329,16 @@ extension RxnIntExt on Rx<int?> {
   int? get sign => value?.sign;
 
   /// Returns `this`.
-  int? round() => value?.round();
+  int? round() => value;
 
   /// Returns `this`.
-  int? floor() => value?.floor();
+  int? floor() => value;
 
   /// Returns `this`.
-  int? ceil() => value?.ceil();
+  int? ceil() => value;
 
   /// Returns `this`.
-  int? truncate() => value?.truncate();
+  int? truncate() => value;
 
   /// Returns `this.toDouble()`.
   double? roundToDouble() => value?.roundToDouble();

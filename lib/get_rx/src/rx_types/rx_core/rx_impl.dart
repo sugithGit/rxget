@@ -198,7 +198,7 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
   /// ```
   ///
   void trigger(T v) {
-    var firstRebuild = this.firstRebuild;
+    final firstRebuild = this.firstRebuild;
     value = v;
     // If it's not the first rebuild, the listeners have been called already
     // So we won't call them again.

@@ -64,21 +64,21 @@ extension MapExtension<K, V> on Map<K, V> {
     return RxMap<K, V>(this);
   }
 
-  void addIf(dynamic condition, K key, V value) {
+  void addIf(condition, K key, V value) {
     if (condition is Condition) condition = condition();
     if (condition is bool && condition) {
       this[key] = value;
     }
   }
 
-  void addAllIf(dynamic condition, Map<K, V> values) {
+  void addAllIf(condition, Map<K, V> values) {
     if (condition is Condition) condition = condition();
     if (condition is bool && condition) addAll(values);
   }
 
   void assign(K key, V val) {
     if (this is RxMap) {
-      final map = (this as RxMap);
+      final map = this as RxMap;
       // map._value;
       map.value.clear();
       this[key] = val;
@@ -93,7 +93,7 @@ extension MapExtension<K, V> on Map<K, V> {
       if ((val as RxMap).value == (this as RxMap).value) return;
     }
     if (this is RxMap) {
-      final map = (this as RxMap);
+      final map = this as RxMap;
       if (map.value == val) return;
       map.value = val;
       // ignore: invalid_use_of_protected_member

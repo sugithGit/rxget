@@ -6,12 +6,6 @@ import '../../get_core/get_core.dart';
 import 'lifecycle.dart';
 
 class InstanceInfo {
-  final bool? isPermanent;
-  final bool? isSingleton;
-  bool get isCreate => !isSingleton!;
-  final bool isRegistered;
-  final bool isPrepared;
-  final bool? isInit;
   const InstanceInfo({
     required this.isPermanent,
     required this.isSingleton,
@@ -19,6 +13,12 @@ class InstanceInfo {
     required this.isPrepared,
     required this.isInit,
   });
+  final bool? isPermanent;
+  final bool? isSingleton;
+  bool get isCreate => !isSingleton!;
+  final bool isRegistered;
+  final bool isPrepared;
+  final bool? isInit;
 
   @override
   String toString() {
@@ -77,7 +77,7 @@ extension Inst on GetInterface {
         isSingleton: true,
         name: tag,
         permanent: permanent,
-        builder: (() => dependency));
+        builder: () => dependency);
     return find<S>(tag: tag);
   }
 
@@ -149,10 +149,9 @@ extension Inst on GetInterface {
 
   /// Injects the Instance [S] builder into the `_singleton` HashMap.
   void _insert<S>({
-    bool? isSingleton,
+    required InstanceBuilderCallback<S> builder, bool? isSingleton,
     String? name,
     bool permanent = false,
-    required InstanceBuilderCallback<S> builder,
     bool fenix = false,
   }) {
     final key = _getKey(S, name);
@@ -300,7 +299,7 @@ extension Inst on GetInterface {
   /// - [tag] optional, if you use a [tag] to register the Instance.
   void replace<P>(P child, {String? tag}) {
     final info = getInstanceInfo<P>(tag: tag);
-    final permanent = (info.isPermanent ?? false);
+    final permanent = info.isPermanent ?? false;
     delete<P>(tag: tag, force: permanent);
     put(child, tag: tag, permanent: permanent);
   }
@@ -315,7 +314,7 @@ extension Inst on GetInterface {
   void lazyReplace<P>(InstanceBuilderCallback<P> builder,
       {String? tag, bool? fenix}) {
     final info = getInstanceInfo<P>(tag: tag);
-    final permanent = (info.isPermanent ?? false);
+    final permanent = info.isPermanent ?? false;
     delete<P>(tag: tag, force: permanent);
     lazyPut(builder, tag: tag, fenix: fenix ?? permanent);
   }
@@ -484,6 +483,16 @@ typedef AsyncInstanceBuilderCallback<S> = Future<S> Function();
 
 /// Internal class to register instances with `Get.put<S>()`.
 class _InstanceBuilderFactory<S> {
+
+  _InstanceBuilderFactory({
+    required this.isSingleton,
+    required this.builderFunc,
+    required this.permanent,
+    required this.isInit,
+    required this.fenix,
+    required this.tag,
+    required this.lateRemove,
+  });
   /// Marks the Builder as a single instance.
   /// For reusing [dependency] instead of [builderFunc]
   bool? isSingleton;
@@ -510,16 +519,6 @@ class _InstanceBuilderFactory<S> {
   bool isDirty = false;
 
   String? tag;
-
-  _InstanceBuilderFactory({
-    required this.isSingleton,
-    required this.builderFunc,
-    required this.permanent,
-    required this.isInit,
-    required this.fenix,
-    required this.tag,
-    required this.lateRemove,
-  });
 
   void _showInitLog() {
     if (tag == null) {

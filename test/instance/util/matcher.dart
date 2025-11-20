@@ -28,35 +28,35 @@
 import 'package:flutter_test/flutter_test.dart';
 
 class FunctionMatcher<T> extends CustomMatcher {
-  final Object Function(T value) _feature;
 
   FunctionMatcher(String name, this._feature, matcher)
       : super('`$name`:', '`$name`', matcher);
+  final Object Function(T value) _feature;
 
   @override
   Object featureValueOf(covariant T actual) => _feature(actual);
 }
 
 class HavingMatcher<T> implements TypeMatcher<T> {
-  final TypeMatcher<T> _parent;
-  final List<FunctionMatcher<T>> _functionMatchers;
 
   HavingMatcher(TypeMatcher<T> parent, String description,
-      Object Function(T) feature, dynamic matcher,
+      Object Function(T) feature, matcher,
       [Iterable<FunctionMatcher<T>>? existing])
       : _parent = parent,
         _functionMatchers = [
           ...?existing,
           FunctionMatcher<T>(description, feature, matcher)
         ];
+  final TypeMatcher<T> _parent;
+  final List<FunctionMatcher<T>> _functionMatchers;
 
   @override
   TypeMatcher<T> having(
-          Object Function(T) feature, String description, dynamic matcher) =>
+          Object Function(T) feature, String description, matcher) =>
       HavingMatcher(_parent, description, feature, matcher, _functionMatchers);
 
   @override
-  bool matches(dynamic item, Map matchState) {
+  bool matches(Object? item, Map matchState) {
     for (var matcher in <Matcher>[_parent].followedBy(_functionMatchers)) {
       if (!matcher.matches(item, matchState)) {
         addStateInfo(matchState, {'matcher': matcher});
@@ -68,12 +68,12 @@ class HavingMatcher<T> implements TypeMatcher<T> {
 
   @override
   Description describeMismatch(
-    dynamic item,
+    item,
     Description mismatchDescription,
     Map matchState,
     bool verbose,
   ) {
-    var matcher = matchState['matcher'] as Matcher;
+    final matcher = matchState['matcher'] as Matcher;
     matcher.describeMismatch(
         item, mismatchDescription, matchState['state'] as Map, verbose);
     return mismatchDescription;
@@ -91,12 +91,12 @@ class TypeMatcher<T> extends Matcher {
   const TypeMatcher();
 
   TypeMatcher<T> having(
-          Object Function(T) feature, String description, dynamic matcher) =>
+          Object Function(T) feature, String description, matcher) =>
       HavingMatcher(this, description, feature, matcher);
 
   @override
   Description describe(Description description) {
-    var name = _stripDynamic(T);
+    final name = _stripDynamic(T);
     return description.add("<Instance of '$name'>");
   }
 
@@ -105,12 +105,12 @@ class TypeMatcher<T> extends Matcher {
 
   @override
   Description describeMismatch(
-    dynamic item,
+    item,
     Description mismatchDescription,
     Map matchState,
     bool verbose,
   ) {
-    var name = _stripDynamic(T);
+    final name = _stripDynamic(T);
     return mismatchDescription.add("is not an instance of '$name'");
   }
 }

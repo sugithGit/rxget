@@ -5,7 +5,7 @@ import '../../../get_state_manager/src/rx_flutter/rx_notifier.dart';
 import '../rx_types/rx_types.dart';
 import 'utils/debouncer.dart';
 
-bool _conditional(dynamic condition) {
+bool _conditional(condition) {
   if (condition == null) return true;
   if (condition is bool) return condition;
   if (condition is bool Function()) return condition();
@@ -60,12 +60,12 @@ class Workers {
 Worker ever<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
-  dynamic condition = true,
+  condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
 }) {
-  StreamSubscription sub = listener.listen(
+  final StreamSubscription sub = listener.listen(
     (event) {
       if (_conditional(condition)) callback(event);
     },
@@ -83,7 +83,7 @@ Worker ever<T>(
 Worker everAll(
   List<RxInterface> listeners,
   WorkerCallback callback, {
-  dynamic condition = true,
+  condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
@@ -134,7 +134,7 @@ Worker everAll(
 Worker once<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
-  dynamic condition = true,
+  condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
@@ -178,13 +178,13 @@ Worker interval<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
   Duration time = const Duration(seconds: 1),
-  dynamic condition = true,
+  condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
 }) {
   var debounceActive = false;
-  StreamSubscription sub = listener.listen(
+  final StreamSubscription sub = listener.listen(
     (event) async {
       if (debounceActive || !_conditional(condition)) return;
       debounceActive = true;
@@ -228,7 +228,7 @@ Worker debounce<T>(
 }) {
   final newDebouncer =
       Debouncer(delay: time ?? const Duration(milliseconds: 800));
-  StreamSubscription sub = listener.listen(
+  final StreamSubscription sub = listener.listen(
     (event) {
       newDebouncer(() {
         callback(event);

@@ -5,23 +5,11 @@ import 'get_controllers.dart';
 import 'get_state.dart';
 
 class MixinBuilder<T extends GetxController> extends StatelessWidget {
-  @required
-  final Widget Function(T) builder;
-  final bool global;
-  final String? id;
-  final bool autoRemove;
-  final void Function(BindElement<T> state)? initState,
-      dispose,
-      didChangeDependencies;
-  final void Function(Binder<T> oldWidget, BindElement<T> state)?
-      didUpdateWidget;
-  final T? init;
 
   const MixinBuilder({
-    super.key,
+    required this.builder, super.key,
     this.init,
     this.global = true,
-    required this.builder,
     this.autoRemove = true,
     this.initState,
     this.dispose,
@@ -29,6 +17,17 @@ class MixinBuilder<T extends GetxController> extends StatelessWidget {
     this.didChangeDependencies,
     this.didUpdateWidget,
   });
+  @required
+  final Widget Function(T) builder;
+  final bool global;
+  final String? id;
+  final bool autoRemove;
+  final void Function(BindElement<T> state)? initState;
+  final void Function(BindElement<T> state)? dispose;
+  final void Function(BindElement<T> state)? didChangeDependencies;
+  final void Function(Binder<T> oldWidget, BindElement<T> state)?
+      didUpdateWidget;
+  final T? init;
 
   @override
   Widget build(BuildContext context) {

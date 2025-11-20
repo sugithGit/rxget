@@ -24,18 +24,16 @@ typedef ValueBuilderBuilder<T> = Widget Function(
 ///  ),
 ///  ```
 class ValueBuilder<T> extends StatefulWidget {
+
+  const ValueBuilder({
+    required this.initialValue, required this.builder, super.key,
+    this.onDispose,
+    this.onUpdate,
+  });
   final T initialValue;
   final ValueBuilderBuilder<T> builder;
   final void Function()? onDispose;
   final void Function(T)? onUpdate;
-
-  const ValueBuilder({
-    super.key,
-    required this.initialValue,
-    this.onDispose,
-    this.onUpdate,
-    required this.builder,
-  });
 
   @override
   ValueBuilderState<T> createState() => ValueBuilderState<T>();
@@ -78,9 +76,9 @@ class ObxElement = StatelessElement with StatelessObserverComponent;
 
 // It's a experimental feature
 class Observer extends ObxStatelessWidget {
-  final WidgetBuilder builder;
 
-  const Observer({super.key, required this.builder});
+  const Observer({required this.builder, super.key});
+  final WidgetBuilder builder;
 
   @override
   Widget build(BuildContext context) => builder(context);
