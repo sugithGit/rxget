@@ -5,15 +5,26 @@ import '../../../get_state_manager/src/rx_flutter/rx_notifier.dart';
 import '../rx_types/rx_types.dart';
 import 'utils/debouncer.dart';
 
-bool _conditional(condition) {
-  if (condition == null) return true;
-  if (condition is bool) return condition;
-  if (condition is bool Function()) return condition();
+bool _conditional(Object? condition) {
+  if (condition == null) {
+    return true;
+  }
+  if (condition is bool) {
+    return condition;
+  }
+  if (condition is bool Function()) {
+    return condition();
+  }
   return true;
 }
 
 typedef WorkerCallback<T> = Function(T callback);
 
+/// Manages disposal of a list of active Worker instances.
+///
+/// Holds List<Worker> and disposes all non-disposed ones.
+/// Uses each Worker's dispose() to cancel subscriptions.
+///
 class Workers {
   Workers(this.workers);
   final List<Worker> workers;
@@ -40,7 +51,7 @@ class Workers {
 /// that will run forever, we made a `worker` variable. So, when the count value
 /// reaches 10, the worker gets disposed, and releases any memory resources.
 ///
-/// ```
+/// ```dart
 /// // imagine some counter widget...
 ///
 /// class _CountController extends GetxController {
@@ -60,14 +71,16 @@ class Workers {
 Worker ever<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
-  condition = true,
+  Object? condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
 }) {
   final StreamSubscription sub = listener.listen(
     (event) {
-      if (_conditional(condition)) callback(event);
+      if (_conditional(condition)) {
+        callback(event);
+      }
     },
     onError: onError,
     onDone: onDone,
@@ -83,7 +96,7 @@ Worker ever<T>(
 Worker everAll(
   List<RxInterface> listeners,
   WorkerCallback callback, {
-  condition = true,
+  Object? condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
@@ -92,7 +105,9 @@ Worker everAll(
   for (var i in listeners) {
     final sub = i.listen(
       (event) {
-        if (_conditional(condition)) callback(event);
+        if (_conditional(condition)) {
+          callback(event);
+        }
       },
       onError: onError,
       onDone: onDone,
@@ -103,7 +118,7 @@ Worker everAll(
 
   Future<void> cancel() async {
     for (var i in evers) {
-      i.cancel();
+      await i.cancel();
     }
   }
 
@@ -116,7 +131,7 @@ Worker everAll(
 /// can be a [bool] or a `bool Function()`.
 ///
 /// Sample:
-/// ```
+/// ```dart
 ///  class _CountController extends GetxController {
 ///   final count = 0.obs;
 ///   Worker worker;
@@ -134,7 +149,7 @@ Worker everAll(
 Worker once<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
-  condition = true,
+  Object? condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
@@ -143,9 +158,12 @@ Worker once<T>(
   StreamSubscription? sub;
   sub = listener.listen(
     (event) {
-      if (!_conditional(condition)) return;
-      ref._disposed = true;
-      ref._log('called');
+      if (!_conditional(condition)) {
+        return;
+      }
+      ref
+        .._disposed = true
+        .._log('called');
       sub?.cancel();
       callback(event);
     },
@@ -153,8 +171,7 @@ Worker once<T>(
     onDone: onDone,
     cancelOnError: cancelOnError,
   );
-  ref = Worker(sub.cancel, '[once]');
-  return ref;
+  return ref = Worker(sub.cancel, '[once]');
 }
 
 /// Ignore all changes in [listener] during [time] (1 sec by default) or until
@@ -173,12 +190,12 @@ Worker once<T>(
 ///    time: 1.seconds,
 ///    condition: () => count < 20,
 /// );
-/// ```
+/// ```dart
 Worker interval<T>(
   GetListenable<T> listener,
   WorkerCallback<T> callback, {
   Duration time = const Duration(seconds: 1),
-  condition = true,
+  Object? condition = true,
   Function? onError,
   void Function()? onDone,
   bool? cancelOnError,
@@ -186,7 +203,9 @@ Worker interval<T>(
   var debounceActive = false;
   final StreamSubscription sub = listener.listen(
     (event) async {
-      if (debounceActive || !_conditional(condition)) return;
+      if (debounceActive || !_conditional(condition)) {
+        return;
+      }
       debounceActive = true;
       await Future.delayed(time);
       debounceActive = false;
@@ -207,7 +226,7 @@ Worker interval<T>(
 ///
 /// Sample:
 ///
-/// ```
+/// ```dart
 /// worker = debounce(
 ///      count,
 ///      (value) {
@@ -226,8 +245,9 @@ Worker debounce<T>(
   void Function()? onDone,
   bool? cancelOnError,
 }) {
-  final newDebouncer =
-      Debouncer(delay: time ?? const Duration(milliseconds: 800));
+  final newDebouncer = Debouncer(
+    delay: time ?? const Duration(milliseconds: 800),
+  );
   final StreamSubscription sub = listener.listen(
     (event) {
       newDebouncer(() {
@@ -241,6 +261,13 @@ Worker debounce<T>(
   return Worker(sub.cancel, '[debounce]');
 }
 
+///Manages cancellation of a stream subscription and tracks disposal status.
+///
+/// Stores a cancellation callback: Future<void> Function() worker
+/// Tracks type: String type (e.g., '[debounce]', '[interval]', '[ever]')
+/// Supports disposal via dispose(); marks as disposed and calls worker
+/// Allows being invoked as a function: call() delegates to dispose()
+///
 class Worker {
   Worker(this.worker, this.type);
 
@@ -256,6 +283,7 @@ class Worker {
   //final bool _verbose = true;
   void _log(String msg) {
     //  if (!_verbose) return;
+    // ignore: no_runtimetype_tostring
     Get.log('$runtimeType $type $msg');
   }
 

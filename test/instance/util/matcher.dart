@@ -28,9 +28,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
 class FunctionMatcher<T> extends CustomMatcher {
-
-  FunctionMatcher(String name, this._feature, matcher)
-      : super('`$name`:', '`$name`', matcher);
+  FunctionMatcher(String name, this._feature, Object? matcher)
+    : super('`$name`:', '`$name`', matcher);
   final Object Function(T value) _feature;
 
   @override
@@ -38,25 +37,29 @@ class FunctionMatcher<T> extends CustomMatcher {
 }
 
 class HavingMatcher<T> implements TypeMatcher<T> {
-
-  HavingMatcher(TypeMatcher<T> parent, String description,
-      Object Function(T) feature, matcher,
-      [Iterable<FunctionMatcher<T>>? existing])
-      : _parent = parent,
-        _functionMatchers = [
-          ...?existing,
-          FunctionMatcher<T>(description, feature, matcher)
-        ];
+  HavingMatcher(
+    TypeMatcher<T> parent,
+    String description,
+    Object Function(T) feature,
+    Object? matcher, [
+    Iterable<FunctionMatcher<T>>? existing,
+  ]) : _parent = parent,
+       _functionMatchers = [
+         ...?existing,
+         FunctionMatcher<T>(description, feature, matcher),
+       ];
   final TypeMatcher<T> _parent;
   final List<FunctionMatcher<T>> _functionMatchers;
 
   @override
   TypeMatcher<T> having(
-          Object Function(T) feature, String description, matcher) =>
-      HavingMatcher(_parent, description, feature, matcher, _functionMatchers);
+    Object Function(T) feature,
+    String description,
+    Object? matcher,
+  ) => HavingMatcher(_parent, description, feature, matcher, _functionMatchers);
 
   @override
-  bool matches(Object? item, Map matchState) {
+  bool matches(Object? item, Map<dynamic, dynamic> matchState) {
     for (var matcher in <Matcher>[_parent].followedBy(_functionMatchers)) {
       if (!matcher.matches(item, matchState)) {
         addStateInfo(matchState, {'matcher': matcher});
@@ -68,14 +71,17 @@ class HavingMatcher<T> implements TypeMatcher<T> {
 
   @override
   Description describeMismatch(
-    item,
+    Object? item,
     Description mismatchDescription,
-    Map matchState,
+    Map<dynamic, dynamic> matchState,
     bool verbose,
   ) {
-    final matcher = matchState['matcher'] as Matcher;
-    matcher.describeMismatch(
-        item, mismatchDescription, matchState['state'] as Map, verbose);
+    (matchState['matcher'] as Matcher).describeMismatch(
+      item,
+      mismatchDescription,
+      matchState['state'] as Map,
+      verbose,
+    );
     return mismatchDescription;
   }
 
@@ -91,8 +97,10 @@ class TypeMatcher<T> extends Matcher {
   const TypeMatcher();
 
   TypeMatcher<T> having(
-          Object Function(T) feature, String description, matcher) =>
-      HavingMatcher(this, description, feature, matcher);
+    Object Function(T) feature,
+    String description,
+    Object? matcher,
+  ) => HavingMatcher(this, description, feature, matcher);
 
   @override
   Description describe(Description description) {
@@ -101,13 +109,13 @@ class TypeMatcher<T> extends Matcher {
   }
 
   @override
-  bool matches(Object? item, Map matchState) => item is T;
+  bool matches(Object? item, Map<dynamic, dynamic> matchState) => item is T;
 
   @override
   Description describeMismatch(
-    item,
+    Object? item,
     Description mismatchDescription,
-    Map matchState,
+    Map<dynamic, dynamic> matchState,
     bool verbose,
   ) {
     final name = _stripDynamic(T);
@@ -117,4 +125,6 @@ class TypeMatcher<T> extends Matcher {
 
 String _stripDynamic(Type type) =>
     type.toString().replaceAll(_dart2DynamicArgs, '');
+// RegExp is deprecated
+// ignore: deprecated_member_use
 final _dart2DynamicArgs = RegExp('<dynamic(, dynamic)*>');

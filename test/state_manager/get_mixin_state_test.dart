@@ -40,7 +40,7 @@ void main() {
                 TextButton(
                   child: const Text("increment2"),
                   onPressed: () => controller.increment2(),
-                )
+                ),
               ],
             );
           },
@@ -89,7 +89,9 @@ void main() {
   // );
 }
 
-class Controller extends GetxController {
+class _State {}
+
+class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
   int count = 0;
   RxInt counter = 0.obs;
@@ -109,6 +111,5 @@ class Controller extends GetxController {
   }
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }

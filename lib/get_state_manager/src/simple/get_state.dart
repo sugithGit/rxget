@@ -1,4 +1,6 @@
 // ignore_for_file: overridden_fields
+// ignore_for_file: avoid_multiple_declarations_per_line
+// ignore_for_file: document_ignores
 
 import 'dart:async';
 
@@ -9,8 +11,8 @@ import 'list_notifier.dart';
 
 typedef InitBuilder<T> = T Function();
 
-typedef GetControllerBuilder<T extends GetLifeCycleMixin> = Widget Function(
-    T controller);
+typedef GetControllerBuilder<T extends GetLifeCycleMixin> =
+    Widget Function(T controller);
 
 extension WatchExt on BuildContext {
   T listen<T>() {
@@ -31,9 +33,9 @@ extension ReadExt on BuildContext {
 // }
 
 class GetBuilder<T extends GetxController> extends StatelessWidget {
-
   const GetBuilder({
-    required this.builder, super.key,
+    required this.builder,
+    super.key,
     this.init,
     this.global = true,
     this.autoRemove = true,
@@ -57,7 +59,7 @@ class GetBuilder<T extends GetxController> extends StatelessWidget {
   final void Function(BindElement<T> state)? dispose;
   final void Function(BindElement<T> state)? didChangeDependencies;
   final void Function(Binder<T> oldWidget, BindElement<T> state)?
-      didUpdateWidget;
+  didUpdateWidget;
   final T? init;
 
   @override
@@ -75,10 +77,12 @@ class GetBuilder<T extends GetxController> extends StatelessWidget {
       lazy: false,
       didChangeDependencies: didChangeDependencies,
       didUpdateWidget: didUpdateWidget,
-      child: Builder(builder: (context) {
-        final controller = Bind.of<T>(context, rebuild: true);
-        return builder(controller);
-      }),
+      child: Builder(
+        builder: (context) {
+          final controller = Bind.of<T>(context, rebuild: true);
+          return builder(controller);
+        },
+      ),
     );
     // return widget.builder(controller!);
   }
@@ -86,7 +90,8 @@ class GetBuilder<T extends GetxController> extends StatelessWidget {
 
 abstract class Bind<T> extends StatelessWidget {
   const Bind({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.init,
     this.global = true,
     this.autoRemove = true,
@@ -114,23 +119,22 @@ abstract class Bind<T> extends StatelessWidget {
     void Function(BindElement<T> state)? dispose,
     void Function(BindElement<T> state)? didChangeDependencies,
     void Function(Binder<T> oldWidget, BindElement<T> state)? didUpdateWidget,
-  }) =>
-      _FactoryBind<T>(
-        // key: key,
-        init: init,
-        create: create,
-        global: global,
-        autoRemove: autoRemove,
-        assignId: assignId,
-        initState: initState,
-        filter: filter,
-        tag: tag,
-        dispose: dispose,
-        id: id,
-        didChangeDependencies: didChangeDependencies,
-        didUpdateWidget: didUpdateWidget,
-        child: child,
-      );
+  }) => _FactoryBind<T>(
+    // key: key,
+    init: init,
+    create: create,
+    global: global,
+    autoRemove: autoRemove,
+    assignId: assignId,
+    initState: initState,
+    filter: filter,
+    tag: tag,
+    dispose: dispose,
+    id: id,
+    didChangeDependencies: didChangeDependencies,
+    didUpdateWidget: didUpdateWidget,
+    child: child,
+  );
 
   final InitBuilder<T>? init;
 
@@ -144,7 +148,7 @@ abstract class Bind<T> extends StatelessWidget {
   final void Function(BindElement<T> state)? dispose;
   final void Function(BindElement<T> state)? didChangeDependencies;
   final void Function(Binder<T> oldWidget, BindElement<T> state)?
-      didUpdateWidget;
+  didUpdateWidget;
 
   final Widget? child;
 
@@ -182,8 +186,11 @@ abstract class Bind<T> extends StatelessWidget {
     );
   }
 
-  static Bind create<S>(InstanceCreateBuilderCallback<S> builder,
-      {String? tag, bool permanent = true}) {
+  static Bind create<S>(
+    InstanceCreateBuilderCallback<S> builder, {
+    String? tag,
+    bool permanent = true,
+  }) {
     return _FactoryBind<S>(
       create: builder,
       tag: tag,
@@ -191,8 +198,11 @@ abstract class Bind<T> extends StatelessWidget {
     );
   }
 
-  static Bind spawn<S>(InstanceBuilderCallback<S> builder,
-      {String? tag, bool permanent = true}) {
+  static Bind spawn<S>(
+    InstanceBuilderCallback<S> builder, {
+    String? tag,
+    bool permanent = true,
+  }) {
     Get.spawn<S>(builder, tag: tag, permanent: permanent);
     return _FactoryBind<S>(
       tag: tag,
@@ -225,8 +235,11 @@ abstract class Bind<T> extends StatelessWidget {
     Get.put(child, tag: tag, permanent: permanent);
   }
 
-  static void lazyReplace<P>(InstanceBuilderCallback<P> builder,
-      {String? tag, bool? fenix}) {
+  static void lazyReplace<P>(
+    InstanceBuilderCallback<P> builder, {
+    String? tag,
+    bool? fenix,
+  }) {
     final info = Get.getInstanceInfo<P>(tag: tag);
     final permanent = info.isPermanent ?? false;
     delete<P>(tag: tag, force: permanent);
@@ -265,7 +278,6 @@ abstract class Bind<T> extends StatelessWidget {
 }
 
 class _FactoryBind<T> extends Bind<T> {
-
   const _FactoryBind({
     super.key,
     this.child,
@@ -301,12 +313,14 @@ class _FactoryBind<T> extends Bind<T> {
   final Object Function(T value)? filter;
 
   @override
-  final void Function(BindElement<T> state)? initState,
-      dispose,
-      didChangeDependencies;
+  final void Function(BindElement<T> state)? initState;
+  @override
+  final void Function(BindElement<T> state)? dispose;
+  @override
+  final void Function(BindElement<T> state)? didChangeDependencies;
   @override
   final void Function(Binder<T> oldWidget, BindElement<T> state)?
-      didUpdateWidget;
+  didUpdateWidget;
 
   @override
   final Widget? child;
@@ -350,10 +364,11 @@ class _FactoryBind<T> extends Bind<T> {
 }
 
 class Binds extends StatelessWidget {
-
   Binds({
-    required this.binds, required this.child, super.key,
-  }) : assert(binds.isNotEmpty);
+    required this.binds,
+    required this.child,
+    super.key,
+  }) : assert(binds.isNotEmpty, 'Binds cannot be empty');
   final List<Bind<dynamic>> binds;
   final Widget child;
 
@@ -363,12 +378,13 @@ class Binds extends StatelessWidget {
 }
 
 class Binder<T> extends InheritedWidget {
-  /// Create an inherited widget that updates its dependents when [controller]
+  /// Create an inherited widget that updates its dependents when [GetxController]
   /// sends notifications.
   ///
   /// The [child] argument is required
   const Binder({
-    required super.child, super.key,
+    required super.child,
+    super.key,
     this.init,
     this.global = true,
     this.autoRemove = true,
@@ -397,7 +413,7 @@ class Binder<T> extends InheritedWidget {
   final void Function(BindElement<T> state)? dispose;
   final void Function(BindElement<T> state)? didChangeDependencies;
   final void Function(Binder<T> oldWidget, BindElement<T> state)?
-      didUpdateWidget;
+  didUpdateWidget;
 
   @override
   bool updateShouldNotify(Binder<T> oldWidget) {
@@ -458,8 +474,8 @@ class BindElement<T> extends InheritedElement {
 
         _controllerBuilder = () => Get.find<T>(tag: widget.tag);
       } else {
-        _controllerBuilder =
-            () => widget.create?.call(this) ?? widget.init?.call();
+        _controllerBuilder = () =>
+            widget.create?.call(this) ?? widget.init?.call();
         _isCreator = true;
         if (widget.lazy) {
           Get.lazyPut<T>(_controllerBuilder!, tag: widget.tag);
@@ -476,7 +492,7 @@ class BindElement<T> extends InheritedElement {
       }
       _controllerBuilder =
           (widget.create != null ? () => widget.create!.call(this) : null) ??
-              widget.init;
+          widget.init;
       _isCreator = true;
       _needStart = true;
     }
@@ -599,9 +615,9 @@ class BindElement<T> extends InheritedElement {
 }
 
 class BindError<T> extends Error {
-
   /// Creates a [BindError]
   BindError({required this.controller, required this.tag});
+
   /// The type of the class the user tried to retrieve
   final T controller;
   final String? tag;

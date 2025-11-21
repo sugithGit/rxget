@@ -23,22 +23,26 @@ void main() {
                 onPressed: () => controller.incrementWithId(),
               ),
               GetBuilder<Controller>(
-                  id: '1',
-                  didChangeDependencies: (_) {
-                    // print("didChangeDependencies called");
-                  },
-                  builder: (controller) {
-                    return Text('id ${controller.counter}');
-                  }),
-              GetBuilder<Controller2>(builder: (controller) {
-                return Text('lazy ${controller.test}');
-              }),
+                id: '1',
+                didChangeDependencies: (_) {
+                  // print("didChangeDependencies called");
+                },
+                builder: (controller) {
+                  return Text('id ${controller.counter}');
+                },
+              ),
+              GetBuilder<Controller2>(
+                builder: (controller) {
+                  return Text('lazy ${controller.test}');
+                },
+              ),
               GetBuilder<ControllerNonGlobal>(
-                  init: ControllerNonGlobal(),
-                  global: false,
-                  builder: (controller) {
-                    return Text('single ${controller.nonGlobal}');
-                  })
+                init: ControllerNonGlobal(),
+                global: false,
+                builder: (controller) {
+                  return Text('single ${controller.nonGlobal}');
+                },
+              ),
             ],
           ),
         ),
@@ -82,7 +86,9 @@ void main() {
   // );
 }
 
-class Controller extends GetxController {
+class _State {}
+
+class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
 
   int counter = 0;
@@ -98,22 +104,19 @@ class Controller extends GetxController {
   }
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }
 
-class Controller2 extends GetxController {
+class Controller2 extends GetxController<_State> {
   int test = 0;
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }
 
-class ControllerNonGlobal extends GetxController {
+class ControllerNonGlobal extends GetxController<_State> {
   int nonGlobal = 0;
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }

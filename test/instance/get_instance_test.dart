@@ -1,31 +1,25 @@
-// ignore_for_file: avoid_classes_with_only_static_members
+// ignore_for_file: avoid_print
+// ignore_for_file: document_ignores
+// This file contains tests for Get instance management.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rxget/get.dart';
-
-import 'util/matcher.dart' as m;
-
-class Mock {
-  static Future<String> test() async {
-    await Future.delayed(Duration.zero);
-    return 'test';
-  }
-}
 
 abstract class MyController with GetLifeCycleMixin {}
 
 class DisposableController extends MyController {}
 
+// Abstract class for testing
 // ignore: one_member_abstracts
 abstract class Service {
-  String post();
+  // String post();
 }
 
 class Api implements Service {
-  @override
-  String post() {
-    return 'test';
-  }
+  // @override
+  // String post() {
+  //   return 'test';
+  // }
 }
 
 void main() {
@@ -55,25 +49,38 @@ void main() {
     final instance = Get.put<Controller>(Controller(), tag: 'one');
     final instance2 = Get.put<Controller>(Controller(), tag: 'two');
     expect(instance == instance2, false);
-    expect(Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'two'),
-        false);
-    expect(Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'one'),
-        true);
-    expect(Get.find<Controller>(tag: 'two') == Get.find<Controller>(tag: 'two'),
-        true);
+    expect(
+      Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'two'),
+      false,
+    );
+    expect(
+      Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'one'),
+      true,
+    );
+    expect(
+      Get.find<Controller>(tag: 'two') == Get.find<Controller>(tag: 'two'),
+      true,
+    );
     Get.reset();
   });
 
   test('Get.lazyPut tag test', () async {
-    Get.lazyPut<Controller>(() => Controller(), tag: 'one');
-    Get.lazyPut<Controller>(() => Controller(), tag: 'two');
+    Get
+      ..lazyPut<Controller>(() => Controller(), tag: 'one')
+      ..lazyPut<Controller>(() => Controller(), tag: 'two');
 
-    expect(Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'two'),
-        false);
-    expect(Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'one'),
-        true);
-    expect(Get.find<Controller>(tag: 'two') == Get.find<Controller>(tag: 'two'),
-        true);
+    expect(
+      Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'two'),
+      false,
+    );
+    expect(
+      Get.find<Controller>(tag: 'one') == Get.find<Controller>(tag: 'one'),
+      true,
+    );
+    expect(
+      Get.find<Controller>(tag: 'two') == Get.find<Controller>(tag: 'two'),
+      true,
+    );
     Get.reset();
   });
 
@@ -102,14 +109,15 @@ void main() {
     expect(Get.find<Controller>().count, 1);
     Get.delete<Controller>();
     expect(
-        () => Get.find<Controller>(), throwsA(const m.TypeMatcher<String>()));
+      () => Get.find<Controller>(),
+      throwsA(isA<Exception>()),
+    );
     Get.reset();
   });
 
   test('Get.reloadInstance test', () async {
     Get.lazyPut<Controller>(() => Controller());
-    var ct1 = Get.find<Controller>();
-    ct1.increment();
+    var ct1 = Get.find<Controller>()..increment();
     expect(ct1.count, 1);
     ct1 = Get.find<Controller>();
     expect(ct1.count, 1);
@@ -149,31 +157,37 @@ void main() {
     test('Get.delete test with disposable controller', () async {
       // Get.put(DisposableController());
       expect(Get.delete<DisposableController>(), true);
-      expect(() => Get.find<DisposableController>(),
-          throwsA(const m.TypeMatcher<String>()));
+      expect(
+        () => Get.find<DisposableController>(),
+        throwsA(isA<Exception>()),
+      );
     });
 
-    test('Get.put test after delete with disposable controller and init check',
-        () async {
-      final instance = Get.put<DisposableController>(DisposableController());
-      expect(instance, Get.find<DisposableController>());
-      expect(instance.initialized, true);
-    });
+    test(
+      'Get.put test after delete with disposable controller and init check',
+      () async {
+        final instance = Get.put<DisposableController>(DisposableController());
+        expect(instance, Get.find<DisposableController>());
+        expect(instance.initialized, true);
+      },
+    );
   });
 
   group('Get.replace test for replacing parent instance that is', () {
     tearDown(Get.reset);
     test('temporary', () async {
-      Get.put(DisposableController());
-      Get.replace<DisposableController>(Controller());
+      Get
+        ..put(DisposableController())
+        ..replace<DisposableController>(Controller());
       final instance = Get.find<DisposableController>();
       expect(instance is Controller, isTrue);
       expect((instance as Controller).init, greaterThan(0));
     });
 
     test('permanent', () async {
-      Get.put(DisposableController(), permanent: true);
-      Get.replace<DisposableController>(Controller());
+      Get
+        ..put(DisposableController(), permanent: true)
+        ..replace<DisposableController>(Controller());
       final instance = Get.find<DisposableController>();
       expect(instance is Controller, isTrue);
       expect((instance as Controller).init, greaterThan(0));
@@ -181,8 +195,9 @@ void main() {
 
     test('tagged temporary', () async {
       const tag = 'tag';
-      Get.put(DisposableController(), tag: tag);
-      Get.replace<DisposableController>(Controller(), tag: tag);
+      Get
+        ..put(DisposableController(), tag: tag)
+        ..replace<DisposableController>(Controller(), tag: tag);
       final instance = Get.find<DisposableController>(tag: tag);
       expect(instance is Controller, isTrue);
       expect((instance as Controller).init, greaterThan(0));
@@ -190,8 +205,9 @@ void main() {
 
     test('tagged permanent', () async {
       const tag = 'tag';
-      Get.put(DisposableController(), permanent: true, tag: tag);
-      Get.replace<DisposableController>(Controller(), tag: tag);
+      Get
+        ..put(DisposableController(), permanent: true, tag: tag)
+        ..replace<DisposableController>(Controller(), tag: tag);
       final instance = Get.find<DisposableController>(tag: tag);
       expect(instance is Controller, isTrue);
       expect((instance as Controller).init, greaterThan(0));
@@ -199,8 +215,9 @@ void main() {
 
     test('a generic parent type', () async {
       const tag = 'tag';
-      Get.put<MyController>(DisposableController(), permanent: true, tag: tag);
-      Get.replace<MyController>(Controller(), tag: tag);
+      Get
+        ..put<MyController>(DisposableController(), permanent: true, tag: tag)
+        ..replace<MyController>(Controller(), tag: tag);
       final instance = Get.find<MyController>(tag: tag);
       expect(instance is Controller, isTrue);
       expect((instance as Controller).init, greaterThan(0));
@@ -210,16 +227,18 @@ void main() {
   group('Get.lazyReplace replaces parent instance', () {
     tearDown(Get.reset);
     test('without fenix', () async {
-      Get.put(DisposableController());
-      Get.lazyReplace<DisposableController>(() => Controller());
+      Get
+        ..put(DisposableController())
+        ..lazyReplace<DisposableController>(() => Controller());
       final instance = Get.find<DisposableController>();
       expect(instance, isA<Controller>());
       expect((instance as Controller).init, greaterThan(0));
     });
 
     test('with fenix', () async {
-      Get.put(DisposableController());
-      Get.lazyReplace<DisposableController>(() => Controller(), fenix: true);
+      Get
+        ..put(DisposableController())
+        ..lazyReplace<DisposableController>(() => Controller(), fenix: true);
       expect(Get.find<DisposableController>(), isA<Controller>());
       (Get.find<DisposableController>() as Controller).increment();
 
@@ -229,8 +248,9 @@ void main() {
     });
 
     test('with fenix when parent is permanent', () async {
-      Get.put(DisposableController(), permanent: true);
-      Get.lazyReplace<DisposableController>(() => Controller());
+      Get
+        ..put(DisposableController(), permanent: true)
+        ..lazyReplace<DisposableController>(() => Controller());
       final instance = Get.find<DisposableController>();
       expect(instance, isA<Controller>());
       (instance as Controller).increment();

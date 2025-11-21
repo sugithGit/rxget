@@ -11,7 +11,7 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// useful when you make use of Rx for custom Types to refresh your UI.
   ///
   /// Sample:
-  /// ```
+  /// ```dart
   ///  class Person {
   ///     String name, last;
   ///     int age;
@@ -35,10 +35,9 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// `InputDecoration.errorText` has to be null to not show the "error state".
   ///
   /// Sample:
-  /// ```
   /// final inputError = ''.obs..nil();
   /// print('${inputError.runtimeType}: $inputError'); // outputs > RxString: null
-  /// ```
+  /// ```dart
   // void nil() {
   //   subject.add(_value = null);
   // }
@@ -48,7 +47,7 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// to some Widget that has a signature ::onChange( value )
   ///
   /// Example:
-  /// ```
+  /// ```dart
   /// final myText = 'GetX rocks!'.obs;
   ///
   /// // in your Constructor, just to check it works :P
@@ -57,8 +56,8 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// // in your build(BuildContext) {
   /// TextField(
   ///   onChanged: myText,
-  /// ),
-  ///```
+  /// )
+  ///
   @override
   T call([T? v]) {
     if (v != null) {
@@ -82,15 +81,21 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// This equality override works for _RxImpl instances and the internal
   /// values.
   @override
+  //
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object o) {
-    // Todo, find a common implementation for the hashCode of different Types.
-    if (o is T) return value == o;
-    if (o is RxObjectMixin<T>) return value == o.value;
+    // TODO(user): find a common implementation for the hashCode of different Types.
+    if (o is T) {
+      return value == o;
+    }
+    if (o is RxObjectMixin<T>) {
+      return value == o.value;
+    }
     return false;
   }
 
   @override
+  //
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => value.hashCode;
 
@@ -98,9 +103,13 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// Widget, only if it's different from the previous value.
   @override
   set value(T val) {
-    if (isDisposed) return;
+    if (isDisposed) {
+      return;
+    }
     sentToStream = false;
-    if (value == val && !firstRebuild) return;
+    if (value == val && !firstRebuild) {
+      return;
+    }
     firstRebuild = false;
     sentToStream = true;
     super.value = val;
@@ -110,8 +119,12 @@ mixin RxObjectMixin<T> on GetListenable<T> {
   /// added benefit that it primes the stream with the current [value], rather
   /// than waiting for the next [value]. This should not be called in [onInit]
   /// or anywhere else during the build process.
-  StreamSubscription<T> listenAndPump(void Function(T event) onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+  StreamSubscription<T> listenAndPump(
+    void Function(T event) onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
     final subscription = listen(
       onData,
       onError: onError,
@@ -139,7 +152,7 @@ mixin RxObjectMixin<T> on GetListenable<T> {
 
 /// Base Rx class that manages all the stream logic for any Type.
 abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
-  _RxImpl(super.initial);
+  _RxImpl(super.val);
 
   void addError(Object error, [StackTrace? stackTrace]) {
     subject.addError(error, stackTrace);
@@ -152,7 +165,7 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
   /// Makes sense for custom Rx types (like Models).
   ///
   /// Sample:
-  /// ```
+  /// ```dart
   ///  class Person {
   ///     String name, last;
   ///     int age;
@@ -189,7 +202,7 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
   /// This will refresh the listener of an AnimatedWidget and will keep
   /// the value if the Rx is kept in memory.
   /// Sample:
-  /// ```
+  /// ```dart
   /// Rx<Int> secondsRx = RxInt();
   /// secondsRx.listen((value) => print("$value seconds set"));
   ///
@@ -209,7 +222,7 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
 }
 
 class RxBool extends Rx<bool> {
-  RxBool(super.initial);
+  RxBool(super.val);
   @override
   String toString() {
     return value ? "true" : "false";
@@ -247,7 +260,9 @@ extension RxnBoolExt on Rx<bool?> {
   bool? get isTrue => value;
 
   bool? get isFalse {
-    if (value != null) return !isTrue!;
+    if (value != null) {
+      return !isTrue!;
+    }
     return null;
   }
 
@@ -282,14 +297,14 @@ extension RxnBoolExt on Rx<bool?> {
 /// For example, any custom "Model" class, like User().obs will use `Rx` as
 /// wrapper.
 class Rx<T> extends _RxImpl<T> {
-  Rx(super.initial);
+  Rx(super.val);
 
   @override
   dynamic toJson() {
     try {
       return (value as dynamic)?.toJson();
     } on Exception catch (_) {
-      throw '$T has not method [toJson]';
+      throw Exception('$T has not method [toJson]');
     }
   }
 }
@@ -302,7 +317,7 @@ class Rxn<T> extends Rx<T?> {
     try {
       return (value as dynamic)?.toJson();
     } on Exception catch (_) {
-      throw '$T has not method [toJson]';
+      throw Exception('$T has not method [toJson]');
     }
   }
 }

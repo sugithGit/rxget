@@ -119,15 +119,25 @@ extension SetExtension<E> on Set<E> {
   // }
 
   /// Add [item] to [List<E>] only if [condition] is true.
-  void addIf(condition, E item) {
-    if (condition is Condition) condition = condition();
-    if (condition is bool && condition) add(item);
+  void addIf(Object? condition, E item) {
+    var c = condition;
+    if (c is Condition) {
+      c = c();
+    }
+    if (c is bool && c) {
+      add(item);
+    }
   }
 
   /// Adds [Iterable<E>] to [List<E>] only if [condition] is true.
-  void addAllIf(condition, Iterable<E> items) {
-    if (condition is Condition) condition = condition();
-    if (condition is bool && condition) addAll(items);
+  void addAllIf(Object? condition, Iterable<E> items) {
+    var c = condition;
+    if (c is Condition) {
+      c = c();
+    }
+    if (c is bool && c) {
+      addAll(items);
+    }
   }
 
   /// Replaces all existing items of this list with [item]

@@ -250,7 +250,7 @@ extension RxnStringExt on Rx<String?> {
 
 /// Rx class for `String` Type.
 class RxString extends Rx<String> implements Comparable<String>, Pattern {
-  RxString(super.initial);
+  RxString(super.val);
 
   @override
   Iterable<Match> allMatches(String string, [int start = 0]) {

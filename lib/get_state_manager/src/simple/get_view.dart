@@ -7,7 +7,7 @@ import 'get_widget_cache.dart';
 /// without having to call `Get.find<AwesomeController>()` yourself.
 ///
 /// Sample:
-/// ```
+/// ```dart
 /// class AwesomeController extends GetxController {
 ///   final String title = 'My Awesome View';
 /// }
@@ -32,7 +32,7 @@ import 'get_widget_cache.dart';
 abstract class GetView<T> extends StatelessWidget {
   const GetView({super.key});
 
-  final String? tag = null;
+  String? get tag => null;
 
   T get controller => Get.find<T>(tag: tag)!;
 
@@ -50,7 +50,7 @@ abstract class GetWidget<S extends GetLifeCycleMixin> extends GetWidgetCache {
   const GetWidget({super.key});
 
   @protected
-  final String? tag = null;
+  String? get tag => null;
 
   S get controller => GetWidget._cache[this] as S;
 

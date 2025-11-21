@@ -64,16 +64,24 @@ extension MapExtension<K, V> on Map<K, V> {
     return RxMap<K, V>(this);
   }
 
-  void addIf(condition, K key, V value) {
-    if (condition is Condition) condition = condition();
-    if (condition is bool && condition) {
+  void addIf(Object? condition, K key, V value) {
+    var c = condition;
+    if (c is Condition) {
+      c = c();
+    }
+    if (c is bool && c) {
       this[key] = value;
     }
   }
 
-  void addAllIf(condition, Map<K, V> values) {
-    if (condition is Condition) condition = condition();
-    if (condition is bool && condition) addAll(values);
+  void addAllIf(Object? condition, Map<K, V> values) {
+    var c = condition;
+    if (c is Condition) {
+      c = c();
+    }
+    if (c is bool && c) {
+      addAll(values);
+    }
   }
 
   void assign(K key, V val) {
@@ -90,16 +98,24 @@ extension MapExtension<K, V> on Map<K, V> {
 
   void assignAll(Map<K, V> val) {
     if (val is RxMap && this is RxMap) {
-      if ((val as RxMap).value == (this as RxMap).value) return;
+      if ((val as RxMap).value == (this as RxMap).value) {
+        return;
+      }
     }
     if (this is RxMap) {
       final map = this as RxMap;
-      if (map.value == val) return;
-      map.value = val;
-      // ignore: invalid_use_of_protected_member
-      map.refresh();
+      if (map.value == val) {
+        return;
+      }
+      map
+        ..value = val
+        //
+        // ignore: invalid_use_of_protected_member
+        ..refresh();
     } else {
-      if (this == val) return;
+      if (this == val) {
+        return;
+      }
       clear();
       addAll(val);
     }

@@ -34,15 +34,18 @@ void main() {
                   child: const Text("increment"),
                   onPressed: () => controller.increment(),
                 ),
-                GetX<Controller2>(builder: (controller) {
-                  return Text('lazy ${controller.lazy.value}');
-                }),
+                GetX<Controller2>(
+                  builder: (controller) {
+                    return Text('lazy ${controller.lazy.value}');
+                  },
+                ),
                 GetX<ControllerNonGlobal>(
-                    init: ControllerNonGlobal(),
-                    global: false,
-                    builder: (controller) {
-                      return Text('single ${controller.nonGlobal.value}');
-                    })
+                  init: ControllerNonGlobal(),
+                  global: false,
+                  builder: (controller) {
+                    return Text('single ${controller.nonGlobal.value}');
+                  },
+                ),
               ],
             );
           },
@@ -73,23 +76,23 @@ void main() {
   });
 }
 
-class Controller2 extends GetxController {
+class _State {}
+
+class Controller2 extends GetxController<_State> {
   RxInt lazy = 0.obs;
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }
 
-class ControllerNonGlobal extends GetxController {
+class ControllerNonGlobal extends GetxController<_State> {
   RxInt nonGlobal = 0.obs;
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }
 
-class Controller extends GetxController {
+class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
 
   RxInt counter = 0.obs;
@@ -104,6 +107,5 @@ class Controller extends GetxController {
   }
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }

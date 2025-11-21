@@ -1,3 +1,4 @@
+//
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,7 @@ import '../../get_state_manager.dart';
 /// Simplifies AnimationController creation inside GetxController.
 ///
 /// Example:
-///```
+///```dart
 ///class SplashController extends GetxController with
 ///    GetSingleTickerProviderStateMixin {
 ///  AnimationController controller;
@@ -34,21 +35,27 @@ mixin GetSingleTickerProviderStateMixin on GetxController
   @override
   Ticker createTicker(TickerCallback onTick) {
     assert(() {
-      if (_ticker == null) return true;
+      if (_ticker == null) {
+        return true;
+      }
       throw FlutterError.fromParts(<DiagnosticsNode>[
         ErrorSummary(
-            '$runtimeType is a GetSingleTickerProviderStateMixin but multiple tickers were created.'),
+          '$runtimeType is a GetSingleTickerProviderStateMixin but multiple tickers were created.',
+        ),
         ErrorDescription(
-            'A GetSingleTickerProviderStateMixin can only be used as a TickerProvider once.'),
+          'A GetSingleTickerProviderStateMixin can only be used as a TickerProvider once.',
+        ),
         ErrorHint(
           'If a State is used for multiple AnimationController objects, or if it is passed to other '
           'objects and those objects might use it more than one time in total, then instead of '
           'mixing in a GetSingleTickerProviderStateMixin, use a regular GetTickerProviderStateMixin.',
         ),
       ]);
-    }());
-    _ticker =
-        Ticker(onTick, debugLabel: kDebugMode ? 'created by $this' : null);
+    }(), 'Multiple tickers were created in GetSingleTickerProviderStateMixin.');
+    _ticker = Ticker(
+      onTick,
+      debugLabel: kDebugMode ? 'created by $this' : null,
+    );
     // We assume that this is called from initState, build, or some sort of
     // event handler, and that thus TickerMode.of(context) would return true. We
     // can't actually check that here because if we're in initState then we're
@@ -57,13 +64,17 @@ mixin GetSingleTickerProviderStateMixin on GetxController
   }
 
   void didChangeDependencies(BuildContext context) {
-    if (_ticker != null) _ticker!.muted = !TickerMode.of(context);
+    if (_ticker != null) {
+      _ticker!.muted = !TickerMode.of(context);
+    }
   }
 
   @override
   void onClose() {
     assert(() {
-      if (_ticker == null || !_ticker!.isActive) return true;
+      if (_ticker == null || !_ticker!.isActive) {
+        return true;
+      }
       throw FlutterError.fromParts(<DiagnosticsNode>[
         ErrorSummary('$this was disposed with an active Ticker.'),
         ErrorDescription(
@@ -78,7 +89,7 @@ mixin GetSingleTickerProviderStateMixin on GetxController
         ),
         _ticker!.describeForError('The offending ticker was'),
       ]);
-    }());
+    }(), 'GetSingleTickerProviderStateMixin disposed with active Ticker.');
     super.onClose();
   }
 }
@@ -87,7 +98,7 @@ mixin GetSingleTickerProviderStateMixin on GetxController
 /// Simplifies multiple AnimationController creation inside GetxController.
 ///
 /// Example:
-///```
+///```dart
 ///class SplashController extends GetxController with
 ///    GetTickerProviderStateMixin {
 ///  AnimationController first_controller;
@@ -114,15 +125,18 @@ mixin GetTickerProviderStateMixin on GetxController implements TickerProvider {
   @override
   Ticker createTicker(TickerCallback onTick) {
     _tickers ??= <_WidgetTicker>{};
-    final result = _WidgetTicker(onTick, this,
-        debugLabel: kDebugMode ? 'created by ${describeIdentity(this)}' : null);
+    final result = _WidgetTicker(
+      onTick,
+      this,
+      debugLabel: kDebugMode ? 'created by ${describeIdentity(this)}' : null,
+    );
     _tickers!.add(result);
     return result;
   }
 
   void _removeTicker(_WidgetTicker ticker) {
-    assert(_tickers != null);
-    assert(_tickers!.contains(ticker));
+    assert(_tickers != null, 'Tickers set is null.');
+    assert(_tickers!.contains(ticker), 'Ticker not found in set.');
     _tickers!.remove(ticker);
   }
 
@@ -159,13 +173,13 @@ mixin GetTickerProviderStateMixin on GetxController implements TickerProvider {
         }
       }
       return true;
-    }());
+    }(), 'GetTickerProviderStateMixin disposed with active Ticker.');
     super.onClose();
   }
 }
 
 class _WidgetTicker extends Ticker {
-  _WidgetTicker(super.onTick, this._creator, {super.debugLabel});
+  _WidgetTicker(super._onTick, this._creator, {super.debugLabel});
 
   final GetTickerProviderStateMixin _creator;
 
@@ -177,12 +191,11 @@ class _WidgetTicker extends Ticker {
 }
 
 @Deprecated('use GetSingleTickerProviderStateMixin')
-
 /// Used like `SingleTickerProviderMixin` but only with Get Controllers.
 /// Simplifies AnimationController creation inside GetxController.
 ///
 /// Example:
-///```
+///```dart
 ///class SplashController extends GetxController with
 ///    SingleGetTickerProviderMixin {
 ///  AnimationController _ac;

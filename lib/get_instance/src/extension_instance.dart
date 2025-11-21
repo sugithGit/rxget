@@ -74,10 +74,11 @@ extension Inst on GetInterface {
     bool permanent = false,
   }) {
     _insert(
-        isSingleton: true,
-        name: tag,
-        permanent: permanent,
-        builder: () => dependency);
+      isSingleton: true,
+      name: tag,
+      permanent: permanent,
+      builder: () => dependency,
+    );
     return find<S>(tag: tag);
   }
 
@@ -149,7 +150,8 @@ extension Inst on GetInterface {
 
   /// Injects the Instance [S] builder into the `_singleton` HashMap.
   void _insert<S>({
-    required InstanceBuilderCallback<S> builder, bool? isSingleton,
+    required InstanceBuilderCallback<S> builder,
+    bool? isSingleton,
     String? name,
     bool permanent = false,
     bool fenix = false,
@@ -258,7 +260,7 @@ extension Inst on GetInterface {
   }
 
   /// Finds the registered type <[S]> (or [tag])
-  /// In case of using Get.[create] to register a type <[S]> or [tag],
+  /// In case of using Get.create to register a type <[S]> or [tag],
   /// it will create an instance each time you call [find].
   /// If the registered type <[S]> (or [tag]) is a Controller,
   /// it will initialize it's lifecycle.
@@ -268,9 +270,9 @@ extension Inst on GetInterface {
       final dep = _singl[key];
       if (dep == null) {
         if (tag == null) {
-          throw 'Class "$S" is not registered';
+          throw Exception('Class "$S" is not registered');
         } else {
-          throw 'Class "$S" with tag "$tag" is not registered';
+          throw Exception('Class "$S" with tag "$tag" is not registered');
         }
       }
 
@@ -280,8 +282,11 @@ extension Inst on GetInterface {
       final i = _initDependencies<S>(name: tag);
       return i ?? dep.getDependency() as S;
     } else {
+      //
       // ignore: lines_longer_than_80_chars
-      throw '"$S" not found. You need to call "Get.put($S())" or "Get.lazyPut(()=>$S())"';
+      throw Exception(
+        '"$S" not found. You need to call "Get.put($S())" or "Get.lazyPut(()=>$S())"',
+      );
     }
   }
 
@@ -311,8 +316,11 @@ extension Inst on GetInterface {
   ///
   ///  Note: if fenix is not provided it will be set to true if
   /// the parent instance was permanent
-  void lazyReplace<P>(InstanceBuilderCallback<P> builder,
-      {String? tag, bool? fenix}) {
+  void lazyReplace<P>(
+    InstanceBuilderCallback<P> builder, {
+    String? tag,
+    bool? fenix,
+  }) {
     final info = getInstanceInfo<P>(tag: tag);
     final permanent = info.isPermanent ?? false;
     delete<P>(tag: tag, force: permanent);
@@ -351,7 +359,9 @@ extension Inst on GetInterface {
 
     final dep = _singl[newKey];
 
-    if (dep == null) return false;
+    if (dep == null) {
+      return false;
+    }
 
     final _InstanceBuilderFactory builder;
     if (dep.isDirty) {
@@ -362,6 +372,7 @@ extension Inst on GetInterface {
 
     if (builder.permanent && !force) {
       Get.log(
+        //
         // ignore: lines_longer_than_80_chars
         '"$newKey" has been marked as permanent, SmartManagement is not authorized to delete it.',
         isError: true,
@@ -376,8 +387,9 @@ extension Inst on GetInterface {
     }
 
     if (builder.fenix) {
-      builder.dependency = null;
-      builder.isInit = false;
+      builder
+        ..dependency = null
+        ..isInit = false;
       return true;
     } else {
       if (dep.lateRemove != null) {
@@ -412,8 +424,9 @@ extension Inst on GetInterface {
       if (value.permanent && !force) {
         Get.log('Instance "$key" is permanent. Skipping reload');
       } else {
-        value.dependency = null;
-        value.isInit = false;
+        value
+          ..dependency = null
+          ..isInit = false;
         Get.log('Instance "$key" was reloaded.');
       }
     });
@@ -427,7 +440,9 @@ extension Inst on GetInterface {
     final newKey = key ?? _getKey(S, tag);
 
     final builder = _getDependency<S>(tag: tag, key: newKey);
-    if (builder == null) return;
+    if (builder == null) {
+      return;
+    }
 
     if (builder.permanent && !force) {
       Get.log(
@@ -444,8 +459,9 @@ extension Inst on GetInterface {
       Get.log('"$newKey" onDelete() called');
     }
 
-    builder.dependency = null;
-    builder.isInit = false;
+    builder
+      ..dependency = null
+      ..isInit = false;
     Get.log('Instance "$newKey" was restarted.');
   }
 
@@ -483,7 +499,6 @@ typedef AsyncInstanceBuilderCallback<S> = Future<S> Function();
 
 /// Internal class to register instances with `Get.put<S>()`.
 class _InstanceBuilderFactory<S> {
-
   _InstanceBuilderFactory({
     required this.isSingleton,
     required this.builderFunc,
@@ -493,6 +508,7 @@ class _InstanceBuilderFactory<S> {
     required this.tag,
     required this.lateRemove,
   });
+
   /// Marks the Builder as a single instance.
   /// For reusing [dependency] instead of [builderFunc]
   bool? isSingleton;

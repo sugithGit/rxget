@@ -54,7 +54,7 @@ linter:
     close_sinks: true
     collection_methods_unrelated_type: true
     combinators_ordering: true
-    comment_references: true
+    comment_references: false
     conditional_uri_does_not_exist: true
     constant_identifier_names: true
     control_flow_in_finally: true
@@ -84,7 +84,7 @@ linter:
     library_annotations: true
     library_names: true
     library_prefixes: true
-    library_private_types_in_public_api: true
+    library_private_types_in_public_api: false
     lines_longer_than_80_chars: false
     literal_only_boolean_expressions: true
     matching_super_parameters: true
@@ -164,7 +164,7 @@ linter:
     type_init_formals: true
     type_literal_in_constant_pattern: true
     unawaited_futures: true
-    unintended_html_in_doc_comment: true
+    unintended_html_in_doc_comment: false
     unnecessary_await_in_return: true
     unnecessary_brace_in_string_interps: true
     unnecessary_breaks: true
@@ -222,5 +222,6 @@ analyzer:
   errors:
     use_setters_to_change_properties: ignore
     avoid_positional_boolean_parameters: ignore
+
   exclude:
     - "**/*.g.dart" # Exclude generated files if needed

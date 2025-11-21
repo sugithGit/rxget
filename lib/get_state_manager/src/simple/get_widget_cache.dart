@@ -13,8 +13,8 @@ abstract class GetWidgetCache extends Widget {
 
 class GetWidgetCacheElement extends ComponentElement {
   GetWidgetCacheElement(GetWidgetCache widget)
-      : cache = widget.createWidgetCache(),
-        super(widget) {
+    : cache = widget.createWidgetCache(),
+      super(widget) {
     cache._element = this;
     cache._widget = widget;
   }
@@ -39,8 +39,9 @@ class GetWidgetCacheElement extends ComponentElement {
   @override
   void unmount() {
     super.unmount();
-    cache.onClose();
-    cache._element = null;
+    cache
+      ..onClose()
+      .._element = null;
   }
 }
 

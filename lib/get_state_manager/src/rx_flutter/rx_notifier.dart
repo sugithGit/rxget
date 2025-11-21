@@ -40,7 +40,9 @@ mixin StateMixin<T> on ListNotifier {
   T get getState => value;
 
   set status(GetStatus<T> newStatus) {
-    if (newStatus == status) return;
+    if (newStatus == status) {
+      return;
+    }
     _status = newStatus;
     if (newStatus is SuccessStatus<T>) {
       _value = newStatus.data;
@@ -56,7 +58,9 @@ mixin StateMixin<T> on ListNotifier {
 
   @protected
   set value(T newValue) {
-    if (_value == newValue) return;
+    if (_value == newValue) {
+      return;
+    }
     _value = newValue;
     refresh();
   }
@@ -84,24 +88,32 @@ mixin StateMixin<T> on ListNotifier {
     change(GetStatus<T>.empty());
   }
 
-  void futurize(Future<T> Function() body,
-      {T? initialData, String? errorMessage, bool useEmpty = true}) {
+  void futurize(
+    Future<T> Function() body, {
+    T? initialData,
+    String? errorMessage,
+    bool useEmpty = true,
+  }) {
     final compute = body;
     _value ??= initialData;
     status = GetStatus<T>.loading();
-    compute().then((newValue) {
-      if ((newValue == null || newValue._isEmpty()) && useEmpty) {
-        status = GetStatus<T>.empty();
-      } else {
-        status = GetStatus<T>.success(newValue);
-      }
+    compute().then(
+      (newValue) {
+        if ((newValue == null || newValue._isEmpty()) && useEmpty) {
+          status = GetStatus<T>.empty();
+        } else {
+          status = GetStatus<T>.success(newValue);
+        }
 
-      refresh();
-    }, onError: (err) {
-      status = GetStatus.error(
-          err is Exception ? err : Exception(errorMessage ?? err.toString()));
-      refresh();
-    });
+        refresh();
+      },
+      onError: (err) {
+        status = GetStatus.error(
+          err is Exception ? err : Exception(errorMessage ?? err.toString()),
+        );
+        refresh();
+      },
+    );
   }
 }
 
@@ -116,11 +128,12 @@ class GetListenable<T> extends ListNotifierSingle implements RxInterface<T> {
 
   StreamController<T> get subject {
     if (_controller == null) {
-      _controller =
-          StreamController<T>.broadcast(onCancel: addListener(_streamListener));
+      _controller = StreamController<T>.broadcast(
+        onCancel: addListener(_streamListener),
+      );
       _controller?.add(_value);
 
-      ///TODO: report to controller dispose
+      // TODO(user): report to controller dispose
     }
     return _controller!;
   }
@@ -154,7 +167,9 @@ class GetListenable<T> extends ListNotifierSingle implements RxInterface<T> {
   }
 
   set value(T newValue) {
-    if (_value == newValue) return;
+    if (_value == newValue) {
+      return;
+    }
     _value = newValue;
     _notify();
   }
@@ -172,13 +187,12 @@ class GetListenable<T> extends ListNotifierSingle implements RxInterface<T> {
     Function? onError,
     void Function()? onDone,
     bool? cancelOnError,
-  }) =>
-      stream.listen(
-        onData,
-        onError: onError,
-        onDone: onDone,
-        cancelOnError: cancelOnError ?? false,
-      );
+  }) => stream.listen(
+    onData,
+    onError: onError,
+    onDone: onDone,
+    cancelOnError: cancelOnError ?? false,
+  );
 
   @override
   String toString() => value.toString();
@@ -200,7 +214,9 @@ class Value<T> extends ListNotifier
 
   @override
   set value(T newValue) {
-    if (_value == newValue) return;
+    if (_value == newValue) {
+      return;
+    }
     _value = newValue;
     refresh();
   }
@@ -226,7 +242,7 @@ class Value<T> extends ListNotifier
 /// GetNotifier has a native status and state implementation, with the
 /// Get Lifecycle
 abstract class GetNotifier<T> extends Value<T> with GetLifeCycleMixin {
-  GetNotifier(super.initial);
+  GetNotifier(super.val);
 }
 
 extension StateExt<T> on StateMixin<T> {
@@ -237,24 +253,26 @@ extension StateExt<T> on StateMixin<T> {
     Widget? onEmpty,
     WidgetBuilder? onCustom,
   }) {
-    return Observer(builder: (context) {
-      if (status.isLoading) {
-        return onLoading ?? const Center(child: CircularProgressIndicator());
-      } else if (status.isError) {
-        return onError != null
-            ? onError(status.errorMessage)
-            : Center(child: Text('A error occurred: ${status.errorMessage}'));
-      } else if (status.isEmpty) {
-        return onEmpty ??
-            const SizedBox.shrink(); // Also can be widget(null); but is risky
-      } else if (status.isSuccess) {
+    return Observer(
+      builder: (context) {
+        if (status.isLoading) {
+          return onLoading ?? const Center(child: CircularProgressIndicator());
+        } else if (status.isError) {
+          return onError != null
+              ? onError(status.errorMessage)
+              : Center(child: Text('A error occurred: ${status.errorMessage}'));
+        } else if (status.isEmpty) {
+          return onEmpty ??
+              const SizedBox.shrink(); // Also can be widget(null); but is risky
+        } else if (status.isSuccess) {
+          return widget(value);
+        } else if (status.isCustom) {
+          return onCustom?.call(context) ??
+              const SizedBox.shrink(); // Also can be widget(null); but is risky
+        }
         return widget(value);
-      } else if (status.isCustom) {
-        return onCustom?.call(context) ??
-            const SizedBox.shrink(); // Also can be widget(null); but is risky
-      }
-      return widget(value);
-    });
+      },
+    );
   }
 }
 
@@ -285,7 +303,6 @@ class LoadingStatus<T> extends GetStatus<T> {
 }
 
 class SuccessStatus<T> extends GetStatus<T> {
-
   const SuccessStatus(this.data);
   final T data;
 
@@ -294,7 +311,6 @@ class SuccessStatus<T> extends GetStatus<T> {
 }
 
 class ErrorStatus<T, S> extends GetStatus<T> {
-
   const ErrorStatus([this.error]);
   final S? error;
 

@@ -9,7 +9,12 @@ class Node<T> {
 
 class MiniSubscription<T> {
   const MiniSubscription(
-      this.data, this.onError, this.onDone, this.cancelOnError, this.listener);
+    this.data,
+    this.onError,
+    this.onDone,
+    this.cancelOnError,
+    this.listener,
+  );
   final OnData<T> data;
   final Function? onError;
   final Callback? onDone;
@@ -46,10 +51,12 @@ class MiniStream<T> {
 
   bool get isClosed => _isClosed;
 
-  MiniSubscription<T> listen(void Function(T event) onData,
-      {Function? onError,
-      void Function()? onDone,
-      bool cancelOnError = false}) {
+  MiniSubscription<T> listen(
+    void Function(T event) onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool cancelOnError = false,
+  }) {
     final subs = MiniSubscription<T>(
       onData,
       onError,
@@ -65,10 +72,11 @@ class MiniStream<T> {
 
   void close() {
     if (_isClosed) {
-      throw 'You can not close a closed Stream';
+      throw Exception('You can not close a closed Stream');
     }
-    listenable._notifyDone();
-    listenable.clear();
+    listenable
+      .._notifyDone()
+      ..clear();
     _isClosed = true;
   }
 }
@@ -97,6 +105,8 @@ class FastList<T> {
   void _notifyError(Object error, [StackTrace? stackTrace]) {
     var currentNode = _head;
     while (currentNode != null) {
+      // We need to call the error handler if it exists, but we don't know the exact signature.
+      // ignore: avoid_dynamic_calls
       currentNode.data?.onError?.call(error, stackTrace);
       currentNode = currentNode.next;
     }
@@ -109,7 +119,9 @@ class FastList<T> {
   int get length => _length;
 
   MiniSubscription<T>? elementAt(int position) {
-    if (isEmpty || position < 0 || position >= _length) return null;
+    if (isEmpty || position < 0 || position >= _length) {
+      return null;
+    }
 
     var node = _head;
     var current = 0;
@@ -137,7 +149,9 @@ class FastList<T> {
   bool contains(T element) {
     var currentNode = _head;
     while (currentNode != null) {
-      if (currentNode.data == element) return true;
+      if (currentNode.data == element) {
+        return true;
+      }
       currentNode = currentNode.next;
     }
     return false;

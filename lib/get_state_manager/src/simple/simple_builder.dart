@@ -5,14 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'list_notifier.dart';
 
 typedef ValueBuilderUpdateCallback<T> = void Function(T snapshot);
-typedef ValueBuilderBuilder<T> = Widget Function(
-    T snapshot, ValueBuilderUpdateCallback<T> updater);
+typedef ValueBuilderBuilder<T> =
+    Widget Function(T snapshot, ValueBuilderUpdateCallback<T> updater);
 
 /// Manages a local state like ObxValue, but uses a callback instead of
 /// a Rx value.
 ///
 /// Example:
-/// ```
+/// ```dart
 ///  ValueBuilder<bool>(
 ///    initialValue: false,
 ///    builder: (value, update) => Switch(
@@ -24,9 +24,10 @@ typedef ValueBuilderBuilder<T> = Widget Function(
 ///  ),
 ///  ```
 class ValueBuilder<T> extends StatefulWidget {
-
   const ValueBuilder({
-    required this.initialValue, required this.builder, super.key,
+    required this.initialValue,
+    required this.builder,
+    super.key,
     this.onDispose,
     this.onUpdate,
   });
@@ -51,9 +52,7 @@ class ValueBuilderState<T> extends State<ValueBuilder<T>> {
   Widget build(BuildContext context) => widget.builder(value, updater);
 
   void updater(T newValue) {
-    if (widget.onUpdate != null) {
-      widget.onUpdate!(newValue);
-    }
+    widget.onUpdate?.call(newValue);
     setState(() {
       value = newValue;
     });
@@ -76,7 +75,6 @@ class ObxElement = StatelessElement with StatelessObserverComponent;
 
 // It's a experimental feature
 class Observer extends ObxStatelessWidget {
-
   const Observer({required this.builder, super.key});
   final WidgetBuilder builder;
 
@@ -108,7 +106,9 @@ mixin StatelessObserverComponent on StatelessElement {
   @override
   Widget build() {
     return Notifier.instance.append(
-        NotifyData(disposers: disposers!, updater: getUpdate), super.build);
+      NotifyData(disposers: disposers!, updater: getUpdate),
+      super.build,
+    );
   }
 
   @override

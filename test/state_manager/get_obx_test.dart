@@ -10,19 +10,21 @@ void main() {
         home: Column(
           children: [
             Obx(
-              () => Column(children: [
-                Text('Count: ${controller.counter.value}'),
-                Text('Double: ${controller.doubleNum.value}'),
-                Text('String: ${controller.string.value}'),
-                Text('List: ${controller.list.length}'),
-                Text('Bool: ${controller.boolean.value}'),
-                Text('Map: ${controller.map.length}'),
-                TextButton(
-                  onPressed: controller.increment,
-                  child: const Text("increment"),
-                ),
-                Obx(() => Text('Obx: ${controller.map.length}'))
-              ]),
+              () => Column(
+                children: [
+                  Text('Count: ${controller.counter.value}'),
+                  Text('Double: ${controller.doubleNum.value}'),
+                  Text('String: ${controller.string.value}'),
+                  Text('List: ${controller.list.length}'),
+                  Text('Bool: ${controller.boolean.value}'),
+                  Text('Map: ${controller.map.length}'),
+                  TextButton(
+                    onPressed: controller.increment,
+                    child: const Text("increment"),
+                  ),
+                  Obx(() => Text('Obx: ${controller.map.length}')),
+                ],
+              ),
             ),
           ],
         ),
@@ -51,7 +53,9 @@ void main() {
   });
 }
 
-class Controller extends GetxController {
+class _State {}
+
+class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
 
   RxInt counter = 0.obs;
@@ -66,6 +70,5 @@ class Controller extends GetxController {
   }
 
   @override
-  // TODO: implement state
-  Object get state => throw UnimplementedError();
+  _State get state => _State();
 }

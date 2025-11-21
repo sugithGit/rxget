@@ -1,3 +1,6 @@
+//
+// ignore_for_file: comment_references
+
 import 'package:flutter/foundation.dart';
 
 import '../../get.dart';
@@ -47,7 +50,9 @@ mixin GetLifeCycleMixin {
   @nonVirtual
   void onStart() {
     // _checkIfAlreadyConfigured();
-    if (_initialized) return;
+    if (_initialized) {
+      return;
+    }
     onInit();
     _initialized = true;
   }
@@ -61,16 +66,18 @@ mixin GetLifeCycleMixin {
   @mustCallSuper
   @nonVirtual
   void onDelete() {
-    if (_isClosed) return;
+    if (_isClosed) {
+      return;
+    }
     _isClosed = true;
     onClose();
   }
 
-//   void _checkIfAlreadyConfigured() {
-//     if (_initialized) {
-//       throw """You can only call configureLifeCycle once.
-// The proper place to insert it is in your class's constructor
-// that inherits GetLifeCycle.""";
-//     }
-//   }
+  //   void _checkIfAlreadyConfigured() {
+  //     if (_initialized) {
+  //       throw """You can only call configureLifeCycle once.
+  // The proper place to insert it is in your class's constructor
+  // that inherits GetLifeCycle.""";
+  //     }
+  //   }
 }

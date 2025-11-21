@@ -82,32 +82,31 @@ void main() {
   test('bindStream test', () async {
     int? count = 0;
     final controller = StreamController<int>();
-    final rx = 0.obs;
-
-    rx.listen((value) {
-      count = value;
-    });
-    rx.bindStream(controller.stream);
+    0.obs
+      ..listen((value) {
+        count = value;
+      })
+      ..bindStream(controller.stream);
     expect(count, 0);
     controller.add(555);
 
     await Future.delayed(Duration.zero);
     expect(count, 555);
-    controller.close();
+    await controller.close();
   });
 
   test('Rx same value will not call the same listener when call', () async {
     final reactiveInteger = RxInt(2);
     var timesCalled = 0;
-    reactiveInteger.listen((newInt) {
-      timesCalled++;
-    });
-
-    // we call 3
-    reactiveInteger.call(3);
-    // then repeat twice
-    reactiveInteger.call(3);
-    reactiveInteger.call(3);
+    reactiveInteger
+      ..listen((newInt) {
+        timesCalled++;
+      })
+      // we call 3
+      ..call(3)
+      // then repeat twice
+      ..call(3)
+      ..call(3);
 
     await Future.delayed(const Duration(milliseconds: 100));
     expect(1, timesCalled);
@@ -116,15 +115,15 @@ void main() {
   test('Rx different value will call the listener when trigger', () async {
     final reactiveInteger = RxInt(0);
     var timesCalled = 0;
-    reactiveInteger.listen((newInt) {
-      timesCalled++;
-    });
-
-    // we call 3
-    reactiveInteger.trigger(1);
-    // then repeat twice
-    reactiveInteger.trigger(2);
-    reactiveInteger.trigger(3);
+    reactiveInteger
+      ..listen((newInt) {
+        timesCalled++;
+      })
+      // we call 3
+      ..trigger(1)
+      // then repeat twice
+      ..trigger(2)
+      ..trigger(3);
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -134,16 +133,16 @@ void main() {
   test('Rx same value will call the listener when trigger', () async {
     final reactiveInteger = RxInt(2);
     var timesCalled = 0;
-    reactiveInteger.listen((newInt) {
-      timesCalled++;
-    });
-
-    // we call 3
-    reactiveInteger.trigger(3);
-    // then repeat twice
-    reactiveInteger.trigger(3);
-    reactiveInteger.trigger(3);
-    reactiveInteger.trigger(1);
+    reactiveInteger
+      ..listen((newInt) {
+        timesCalled++;
+      })
+      // we call 3
+      ..trigger(3)
+      // then repeat twice
+      ..trigger(3)
+      ..trigger(3)
+      ..trigger(1);
 
     await Future.delayed(const Duration(milliseconds: 100));
     expect(4, timesCalled);

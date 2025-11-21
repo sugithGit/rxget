@@ -1,4 +1,6 @@
+// Mixin usage
 // ignore: prefer_mixin
+// ignore_for_file: always_put_control_body_on_new_line
 import 'package:flutter/widgets.dart';
 import '../../../get_core/src/flutter_engine.dart';
 import '../../../get_instance/src/lifecycle.dart';
@@ -34,13 +36,13 @@ import 'list_notifier.dart';
 // ignore: prefer_mixin
 abstract class GetxController<T extends Object> extends ListNotifier
     with GetLifeCycleMixin {
-
   GetxController() {
     assert(
       T.toString().startsWith('_'),
       'State class for $runtimeType must be private (start with "_")',
     );
   }
+
   /// The state object managed by this controller.
   ///
   /// Subclasses **must override** this getter to provide a concrete state
@@ -160,8 +162,9 @@ mixin ScrollMixin on GetLifeCycleMixin {
 
   @override
   void onClose() {
-    scroll.removeListener(_listener);
-    scroll.dispose();
+    scroll
+      ..removeListener(_listener)
+      ..dispose();
     super.onClose();
   }
 }
@@ -270,6 +273,7 @@ abstract class SuperController<T> extends FullLifeCycleController
 /// ```
 abstract class FullLifeCycleController extends GetxController
     with
+        // Mixin usage
         // ignore: prefer_mixin
         WidgetsBindingObserver {}
 

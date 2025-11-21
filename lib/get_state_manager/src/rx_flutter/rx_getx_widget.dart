@@ -6,13 +6,13 @@ import '../../../get_instance/src/extension_instance.dart';
 import '../../../get_instance/src/lifecycle.dart';
 import '../simple/list_notifier.dart';
 
-typedef GetXControllerBuilder<T extends GetLifeCycleMixin> = Widget Function(
-    T controller);
+typedef GetXControllerBuilder<T extends GetLifeCycleMixin> =
+    Widget Function(T controller);
 
 class GetX<T extends GetLifeCycleMixin> extends StatefulWidget {
-
   const GetX({
-    required this.builder, super.key,
+    required this.builder,
+    super.key,
     this.tag,
     this.global = true,
     this.autoRemove = true,
@@ -48,7 +48,8 @@ class GetX<T extends GetLifeCycleMixin> extends StatefulWidget {
       )
       ..add(DiagnosticsProperty<String>('tag', tag))
       ..add(
-          ObjectFlagProperty<GetXControllerBuilder<T>>.has('builder', builder));
+        ObjectFlagProperty<GetXControllerBuilder<T>>.has('builder', builder),
+      );
   }
 
   @override
@@ -90,7 +91,7 @@ class GetXState<T extends GetLifeCycleMixin> extends State<GetX<T>> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (widget.didChangeDependencies != null) {
-      widget.didChangeDependencies!(this);
+      widget.didChangeDependencies?.call(this);
     }
   }
 
@@ -102,7 +103,9 @@ class GetXState<T extends GetLifeCycleMixin> extends State<GetX<T>> {
 
   @override
   void dispose() {
-    if (widget.dispose != null) widget.dispose!(this);
+    if (widget.dispose != null) {
+      widget.dispose?.call(this);
+    }
     if (_isCreator! || widget.assignId) {
       if (widget.autoRemove && Get.isRegistered<T>(tag: widget.tag)) {
         Get.delete<T>(tag: widget.tag);
@@ -130,8 +133,9 @@ class GetXState<T extends GetLifeCycleMixin> extends State<GetX<T>> {
 
   @override
   Widget build(BuildContext context) => Notifier.instance.append(
-      NotifyData(disposers: disposers, updater: _update),
-      () => widget.builder(controller!));
+    NotifyData(disposers: disposers, updater: _update),
+    () => widget.builder(controller!),
+  );
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
