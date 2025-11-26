@@ -79,3 +79,9 @@ fix:
 	@echo ""
 	@echo "----------------------------------------"
 	@echo "✅ Fix completed!"
+
+# Command to publish the package
+.PHONY: publish
+publish:
+	@echo "📦 Publishing to pub.dev..."
+	@$(FLUTTER) pub publish
