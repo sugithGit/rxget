@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../../rxget.dart';
+import '../../../../rxget.dart';
 
 import '../simple/list_notifier.dart';
 

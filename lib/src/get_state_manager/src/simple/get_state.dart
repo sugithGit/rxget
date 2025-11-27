@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../rxget.dart';
+import '../../../../rxget.dart';
 import 'list_notifier.dart';
 
 typedef InitBuilder<T> = T Function();

@@ -1,4 +1,4 @@
-import '../rxget.dart';
+import '../../rxget.dart';
 
 extension GetResetExt on GetInterface {
   void reset({bool clearRouteBindings = true}) {
