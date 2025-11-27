@@ -3,7 +3,7 @@
 // This file contains tests for Get instance management.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rxget/get.dart';
+import 'package:rxget/rxget.dart';
 
 abstract class MyController with GetLifeCycleMixin {}
 

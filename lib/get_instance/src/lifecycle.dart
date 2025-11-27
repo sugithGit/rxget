@@ -3,7 +3,7 @@
 
 import 'package:flutter/foundation.dart';
 
-import '../../get.dart';
+import '../../rxget.dart';
 
 /// The [GetLifeCycle]
 ///
