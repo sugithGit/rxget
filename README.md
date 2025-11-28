@@ -230,6 +230,52 @@ Text(controller.textFromApi);
 
 **See a more in-depth explanation of dependency management [here](./documentation/en_US/dependency_management.md)**
 
+### Widget-Scoped Dependency Injection with GetIn
+
+After removing navigator and UI features, the automatic disposal system was removed. The `GetIn` widget solves this by providing widget-scoped dependency injection with automatic disposal when the widget is removed from the tree.
+
+#### Single Dependency
+
+```dart
+GetIn(
+  single: MyController(),
+  child: MyWidget(),
+)
+```
+
+When this widget is disposed, `MyController` will automatically be removed from memory.
+
+#### Multiple Dependencies
+
+```dart
+GetIn(
+  multiple: [
+    UserController(),
+    SettingsController(),
+    ThemeController(),
+  ],
+  child: MyWidget(),
+)
+```
+
+All dependencies are automatically disposed when the `GetIn` widget is removed.
+
+#### Single + Multiple
+
+```dart
+GetIn(
+  single: MainController(),
+  multiple: [HelperController(), UtilsController()],
+  child: MyWidget(),
+)
+```
+
+Access dependencies anywhere in the widget tree with `Get.find<Type>()`:
+
+```dart
+final controller = Get.find<MyController>();
+```
+
 
 ## Useful tips
 
