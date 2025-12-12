@@ -3,52 +3,43 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rxget/rxget.dart';
 
 void main() {
-  Get.lazyPut<Controller2>(() => Controller2());
   testWidgets("GetxController smoke test", (tester) async {
+    Get
+      ..lazyPut<Controller2>(() => RxState.create(() => Controller2()))
+      ..lazyPut(() => RxState.create(() => Controller()));
     await tester.pumpWidget(
       MaterialApp(
-        home: GetX<Controller>(
-          init: Controller(),
-          builder: (controller) {
-            return Column(
-              children: [
-                Text(
-                  'Count: ${controller.counter.value}',
-                ),
-                Text(
-                  'Double: ${controller.doubleNum.value}',
-                ),
-                Text(
-                  'String: ${controller.string.value}',
-                ),
-                Text(
-                  'List: ${controller.list.length}',
-                ),
-                Text(
-                  'Bool: ${controller.boolean.value}',
-                ),
-                Text(
-                  'Map: ${controller.map.length}',
-                ),
-                TextButton(
-                  child: const Text("increment"),
-                  onPressed: () => controller.increment(),
-                ),
-                GetX<Controller2>(
-                  builder: (controller) {
-                    return Text('lazy ${controller.lazy.value}');
-                  },
-                ),
-                GetX<ControllerNonGlobal>(
-                  init: ControllerNonGlobal(),
-                  global: false,
-                  builder: (controller) {
-                    return Text('single ${controller.nonGlobal.value}');
-                  },
-                ),
-              ],
-            );
-          },
+        home: Scaffold(
+          body: GetX<Controller>(
+            builder: (controller) {
+              return Column(
+                children: [
+                  Text("Count: ${controller.counter.value}"),
+                  Text("Double: ${controller.doubleNum.value}"),
+                  Text("String: ${controller.string.value}"),
+                  Text("Bool: ${controller.boolean.value}"),
+                  Text("List: ${controller.list.length}"),
+                  Text("Map: ${controller.map.length}"),
+                  ElevatedButton(
+                    onPressed: controller.increment,
+                    child: Text("increment"),
+                  ),
+                  GetX<Controller2>(
+                    builder: (controller) {
+                      return Text('lazy ${controller.lazy.value}');
+                    },
+                  ),
+                  GetX<ControllerNonGlobal>(
+                    init: RxState.create(() => ControllerNonGlobal()),
+                    global: false,
+                    builder: (controller) {
+                      return Text('single ${controller.nonGlobal.value}');
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -79,14 +70,14 @@ void main() {
 class _State {}
 
 class Controller2 extends GetxController<_State> {
-  RxInt lazy = 0.obs;
+  final RxInt lazy = 0.obs;
 
   @override
   _State get state => _State();
 }
 
 class ControllerNonGlobal extends GetxController<_State> {
-  RxInt nonGlobal = 0.obs;
+  final RxInt nonGlobal = 0.obs;
 
   @override
   _State get state => _State();
@@ -95,12 +86,12 @@ class ControllerNonGlobal extends GetxController<_State> {
 class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
 
-  RxInt counter = 0.obs;
-  RxDouble doubleNum = 0.0.obs;
-  RxString string = "string".obs;
-  RxList list = [].obs;
-  RxMap map = {}.obs;
-  RxBool boolean = true.obs;
+  final counter = 0.obs;
+  final doubleNum = 0.0.obs;
+  final string = "string".obs;
+  final list = <int>[].obs;
+  final map = <String, int>{}.obs;
+  final boolean = true.obs;
 
   void increment() {
     counter.value++;

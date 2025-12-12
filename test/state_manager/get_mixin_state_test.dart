@@ -4,6 +4,66 @@ import 'package:rxget/rxget.dart';
 import 'package:rxget/src/get_state_manager/src/simple/mixin_builder.dart';
 
 void main() {
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.count, 0);
+      controller.increment2();
+      expect(controller.count, 1);
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.counter.value, 0);
+      controller.increment();
+      expect(controller.counter.value, 1);
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.doubleNum.value, 0.0);
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.string.value, "string");
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.list.length, 0);
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.map.length, 0);
+    }),
+  );
+
+  test(
+    'GetxController smoke test',
+    () => RxState.create(() {
+      final controller = Controller();
+      expect(controller.boolean.value, true);
+    }),
+  );
+
   testWidgets("MixinBuilder with reactive and not reactive", (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -94,12 +154,12 @@ class _State {}
 class Controller extends GetxController<_State> {
   static Controller get to => Get.find();
   int count = 0;
-  RxInt counter = 0.obs;
-  RxDouble doubleNum = 0.0.obs;
-  RxString string = "string".obs;
-  RxList list = [].obs;
-  RxMap map = {}.obs;
-  RxBool boolean = true.obs;
+  final counter = 0.obs;
+  final doubleNum = 0.0.obs;
+  final string = "string".obs;
+  final list = [].obs;
+  final map = {}.obs;
+  final boolean = true.obs;
 
   void increment() {
     counter.value++;

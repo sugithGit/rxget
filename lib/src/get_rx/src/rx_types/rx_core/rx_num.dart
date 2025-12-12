@@ -857,15 +857,15 @@ extension RxnDoubleExt on Rx<double?> {
 }
 
 class RxDouble extends Rx<double> {
-  RxDouble(super.val);
+  RxDouble._(super.val);
 }
 
 class RxnDouble extends Rx<double?> {
-  RxnDouble([super.initial]);
+  RxnDouble._([super.initial]);
 }
 
 class RxInt extends Rx<int> {
-  RxInt(super.val);
+  RxInt._(super.val);
 
   /// Addition operator.
   RxInt operator +(int other) {
@@ -881,7 +881,7 @@ class RxInt extends Rx<int> {
 }
 
 class RxnInt extends Rx<int?> {
-  RxnInt([super.initial]);
+  RxnInt._([super.initial]);
 
   /// Addition operator.
   RxnInt operator +(int other) {

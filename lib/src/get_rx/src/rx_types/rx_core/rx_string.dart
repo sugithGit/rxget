@@ -1,5 +1,13 @@
 part of '../rx_types.dart';
 
+extension StringExtension on String {
+  /// Returns a `RxString` with [this] `String` as initial value.
+  RxString get obs {
+    RxState._checkZone();
+    return RxString._(this);
+  }
+}
+
 extension RxStringExt on Rx<String> {
   String operator +(String val) => value + val;
 
@@ -250,7 +258,7 @@ extension RxnStringExt on Rx<String?> {
 
 /// Rx class for `String` Type.
 class RxString extends Rx<String> implements Comparable<String>, Pattern {
-  RxString(super.val);
+  RxString._(super.val);
 
   @override
   Iterable<Match> allMatches(String string, [int start = 0]) {
@@ -270,7 +278,7 @@ class RxString extends Rx<String> implements Comparable<String>, Pattern {
 
 /// Rx class for `String` Type.
 class RxnString extends Rx<String?> implements Comparable<String>, Pattern {
-  RxnString([super.initial]);
+  RxnString._([super.initial]);
 
   @override
   Iterable<Match> allMatches(String string, [int start = 0]) {

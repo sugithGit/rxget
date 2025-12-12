@@ -15,3 +15,4 @@ part 'rx_core/rx_string.dart';
 part 'rx_iterables/rx_list.dart';
 part 'rx_iterables/rx_map.dart';
 part 'rx_iterables/rx_set.dart';
+part '../rx_state/rx_state.dart';

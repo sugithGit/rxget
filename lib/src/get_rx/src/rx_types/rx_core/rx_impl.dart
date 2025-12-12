@@ -222,7 +222,7 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
 }
 
 class RxBool extends Rx<bool> {
-  RxBool(super.val);
+  RxBool._(super.val);
   @override
   String toString() {
     return value ? "true" : "false";
@@ -230,7 +230,7 @@ class RxBool extends Rx<bool> {
 }
 
 class RxnBool extends Rx<bool?> {
-  RxnBool([super.initial]);
+  RxnBool._([super.initial]);
   @override
   String toString() {
     return "$value";
@@ -322,29 +322,36 @@ class Rxn<T> extends Rx<T?> {
   }
 }
 
-extension StringExtension on String {
-  /// Returns a `RxString` with [this] `String` as initial value.
-  RxString get obs => RxString(this);
-}
-
 extension IntExtension on int {
   /// Returns a `RxInt` with [this] `int` as initial value.
-  RxInt get obs => RxInt(this);
+  RxInt get obs {
+    RxState._checkZone();
+    return RxInt._(this);
+  }
 }
 
 extension DoubleExtension on double {
   /// Returns a `RxDouble` with [this] `double` as initial value.
-  RxDouble get obs => RxDouble(this);
+  RxDouble get obs {
+    RxState._checkZone();
+    return RxDouble._(this);
+  }
 }
 
 extension BoolExtension on bool {
   /// Returns a `RxBool` with [this] `bool` as initial value.
-  RxBool get obs => RxBool(this);
+  RxBool get obs {
+    RxState._checkZone();
+    return RxBool._(this);
+  }
 }
 
 extension RxT<T extends Object> on T {
   /// Returns a `Rx` instance with [this] `T` as initial value.
-  Rx<T> get obs => Rx<T>(this);
+  Rx<T> get obs {
+    RxState._checkZone();
+    return Rx<T>(this);
+  }
 }
 
 /// This method will replace the old `.obs` method.
