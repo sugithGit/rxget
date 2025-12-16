@@ -7,21 +7,30 @@ import '../../../get_instance/src/extension_instance.dart';
 final class GetIn<T> {
   /// Creates a dependency configuration.
   ///
-  /// [instance] is the object to inject.
+  /// [builder] is a factory function that creates the instance.
+  /// This allows dependencies to be resolved in the correct order.
+  ///
+  /// Example:
+  /// ```dart
+  /// GetIn<MyController>(() => MyController())
+  /// GetIn<OtherController>(() => OtherController(Get.find<MyController>()))
+  /// ```
+  ///
   /// [lazy] determines if the dependency should be lazy loaded (default: true).
   /// [tag] is an optional tag for the dependency.
   GetIn(
-    this.instance, {
+    T Function() builder, {
     this.lazy = true,
     this.tag,
-  }) : assert(
+  }) : _builder = builder,
+       assert(
          T != dynamic,
          'You must explicitly specify the type T for GetIn<T> (e.g., GetIn<MyController>(...)) '
          'or ensure it is not inferred as dynamic.',
        );
 
-  /// The dependency instance.
-  final T instance;
+  /// The dependency builder function.
+  final T Function() _builder;
 
   /// Whether to lazy load the dependency.
   final bool lazy;
@@ -32,9 +41,9 @@ final class GetIn<T> {
   /// Registers the dependency with GetX.
   void register() {
     if (lazy) {
-      Get.lazyPut<T>(() => instance, tag: tag, fenix: false);
+      Get.lazyPut<T>(_builder, tag: tag, fenix: false);
     } else {
-      Get.put<T>(instance, tag: tag);
+      Get.put<T>(_builder(), tag: tag);
     }
   }
 

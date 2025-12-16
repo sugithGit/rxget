@@ -92,7 +92,7 @@ class SingleDependencyExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetInWidget(
       dependencies: [
-        GetIn<CounterController>(CounterController()),
+        GetIn<CounterController>(() => CounterController()),
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Single Dependency')),
@@ -156,8 +156,8 @@ class MultipleDependenciesExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetInWidget(
       dependencies: [
-        GetIn<CounterController>(CounterController()),
-        GetIn<UserController>(UserController()),
+        GetIn<CounterController>(() => CounterController()),
+        GetIn<UserController>(() => UserController()),
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Multiple Dependencies')),

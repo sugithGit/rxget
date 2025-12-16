@@ -12,8 +12,9 @@ import 'get_in.dart';
 /// ```dart
 /// GetInWidget(
 ///   dependencies: [
-///     GetIn<MyController>(MyController()),
-///     GetIn<OtherController>(OtherController(), lazy: false),
+///     GetIn<MyController>(() => MyController()),
+///     // Dependencies can reference previously registered ones:
+///     GetIn<OtherController>(() => OtherController(Get.find<MyController>())),
 ///   ],
 ///   child: MyWidget(),
 /// )
@@ -21,7 +22,10 @@ import 'get_in.dart';
 final class GetInWidget extends StatefulWidget {
   /// Creates a GetInWidget for scoped dependency injection.
   ///
-  /// [dependencies] is a list of [GetIn] configurations.
+  /// [dependencies] can be either:
+  /// - A list of [GetIn] configurations for simple cases
+  /// - A builder function returning a list for dynamic dependency lists
+  ///
   /// [child] is required.
   const GetInWidget({
     required this.child,
@@ -29,8 +33,8 @@ final class GetInWidget extends StatefulWidget {
     super.key,
   });
 
-  /// List of dependencies to inject.
-  final List<GetIn> dependencies;
+  /// Dependencies to inject - can be a list or a builder function.
+  final dynamic dependencies;
 
   /// The child widget.
   final Widget child;
@@ -40,17 +44,26 @@ final class GetInWidget extends StatefulWidget {
 }
 
 class _GetInWidgetState extends State<GetInWidget> {
+  late final List<GetIn> _dependencies;
+
   @override
   void initState() {
     super.initState();
-    for (final dep in widget.dependencies) {
+    // Support both list and builder function
+    if (widget.dependencies is List<GetIn> Function()) {
+      _dependencies = (widget.dependencies as List<GetIn> Function())();
+    } else {
+      _dependencies = widget.dependencies as List<GetIn>;
+    }
+
+    for (final dep in _dependencies) {
       dep.register();
     }
   }
 
   @override
   void dispose() {
-    for (final dep in widget.dependencies) {
+    for (final dep in _dependencies) {
       dep.dispose();
     }
     super.dispose();

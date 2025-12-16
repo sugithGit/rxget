@@ -49,7 +49,7 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(TestController(), lazy: false),
+              GetIn<TestController>(() => TestController(), lazy: false),
             ],
             child: Builder(
               builder: (context) {
@@ -73,7 +73,7 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(controller, lazy: false),
+              GetIn<TestController>(() => controller, lazy: false),
             ],
             child: const Text('With Controller'),
           ),
@@ -99,7 +99,7 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(TestController(), lazy: false),
+              GetIn<TestController>(() => TestController(), lazy: false),
             ],
             child: Builder(
               builder: (context) {
@@ -135,8 +135,8 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(TestController(), lazy: false),
-              GetIn<AnotherController>(AnotherController(), lazy: false),
+              GetIn<TestController>(() => TestController(), lazy: false),
+              GetIn<AnotherController>(() => AnotherController(), lazy: false),
             ],
             child: Builder(
               builder: (context) {
@@ -168,8 +168,8 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(testController, lazy: false),
-              GetIn<AnotherController>(anotherController, lazy: false),
+              GetIn<TestController>(() => testController, lazy: false),
+              GetIn<AnotherController>(() => anotherController, lazy: false),
             ],
             child: const Text('With Controllers'),
           ),
@@ -205,7 +205,11 @@ void main() {
               children: [
                 GetInWidget(
                   dependencies: [
-                    GetIn<TestController>(ctrl1, tag: 'first', lazy: false),
+                    GetIn<TestController>(
+                      () => ctrl1,
+                      tag: 'first',
+                      lazy: false,
+                    ),
                   ],
                   child: Builder(
                     builder: (context) {
@@ -216,7 +220,11 @@ void main() {
                 ),
                 GetInWidget(
                   dependencies: [
-                    GetIn<TestController>(ctrl2, tag: 'second', lazy: false),
+                    GetIn<TestController>(
+                      () => ctrl2,
+                      tag: 'second',
+                      lazy: false,
+                    ),
                   ],
                   child: Builder(
                     builder: (context) {
@@ -245,7 +253,7 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(controller),
+              GetIn<TestController>(() => controller),
             ],
             child: Builder(
               builder: (context) {
@@ -281,9 +289,10 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(TestController(), lazy: false),
+              GetIn<TestController>(() => TestController(), lazy: false),
+              // This works because TestController is already registered
               GetIn<DependentController>(
-                DependentController(Get.find<TestController>()),
+                () => DependentController(Get.find<TestController>()),
                 lazy: false,
               ),
             ],

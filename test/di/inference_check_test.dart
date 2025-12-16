@@ -23,7 +23,7 @@ void main() {
         home: GetInWidget(
           dependencies: [
             // No <AutoInferredController> here, relying on inference
-            GetIn(AutoInferredController()),
+            GetIn(() => AutoInferredController()),
           ],
           child: Builder(
             builder: (context) {
