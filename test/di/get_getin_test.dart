@@ -29,6 +29,11 @@ class AnotherController extends RxController {
   }
 }
 
+class DependentController extends RxController {
+  DependentController(this.testController);
+  final TestController testController;
+}
+
 void main() {
   setUp(() {
     Get.resetInstance();
@@ -265,6 +270,37 @@ void main() {
       await tester.pump();
 
       expect(created, true);
+    });
+  });
+
+  group('GetInWidget - Dependent Dependencies', () {
+    testWidgets('should inject dependent controllers using builder', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GetInWidget(
+            dependencies: [
+              GetIn<TestController>(TestController(), lazy: false),
+              // Using builder to access previously registered controller
+              GetIn<DependentController>(
+                () => DependentController(Get.find<TestController>()),
+                lazy: false,
+              ),
+            ],
+            child: Builder(
+              builder: (context) {
+                final dependent = Get.find<DependentController>();
+                return Text(
+                  'Dependent Count: ${dependent.testController.count}',
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Dependent Count: 0'), findsOneWidget);
     });
   });
 }

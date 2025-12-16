@@ -13,7 +13,8 @@ import 'get_in.dart';
 /// GetInWidget(
 ///   dependencies: [
 ///     GetIn<MyController>(MyController()),
-///     GetIn<OtherController>(OtherController(), lazy: false),
+///     // Use a builder for dependencies that depend on others:
+///     GetIn<OtherController>(() => OtherController(Get.find<MyController>())),
 ///   ],
 ///   child: MyWidget(),
 /// )
