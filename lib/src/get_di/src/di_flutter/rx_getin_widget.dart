@@ -22,9 +22,8 @@ import 'get_in.dart';
 final class GetInWidget extends StatefulWidget {
   /// Creates a GetInWidget for scoped dependency injection.
   ///
-  /// [dependencies] can be either:
-  /// - A list of [GetIn] configurations for simple cases
-  /// - A builder function returning a list for dynamic dependency lists
+  /// [dependencies] is a list of [GetIn] configurations.
+  /// Each GetIn must use a factory function: `GetIn<T>(() => T())`
   ///
   /// [child] is required.
   const GetInWidget({
@@ -33,8 +32,8 @@ final class GetInWidget extends StatefulWidget {
     super.key,
   });
 
-  /// Dependencies to inject - can be a list or a builder function.
-  final dynamic dependencies;
+  /// List of dependencies to inject.
+  final List<GetIn> dependencies;
 
   /// The child widget.
   final Widget child;
@@ -44,26 +43,17 @@ final class GetInWidget extends StatefulWidget {
 }
 
 class _GetInWidgetState extends State<GetInWidget> {
-  late final List<GetIn> _dependencies;
-
   @override
   void initState() {
     super.initState();
-    // Support both list and builder function
-    if (widget.dependencies is List<GetIn> Function()) {
-      _dependencies = (widget.dependencies as List<GetIn> Function())();
-    } else {
-      _dependencies = widget.dependencies as List<GetIn>;
-    }
-
-    for (final dep in _dependencies) {
+    for (final dep in widget.dependencies) {
       dep.register();
     }
   }
 
   @override
   void dispose() {
-    for (final dep in _dependencies) {
+    for (final dep in widget.dependencies) {
       dep.dispose();
     }
     super.dispose();
