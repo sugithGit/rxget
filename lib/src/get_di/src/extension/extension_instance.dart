@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../get_core/get_core.dart';
-import 'lifecycle.dart';
+import '../../../get_core/get_core.dart';
+import '../../../get_instance/src/lifecycle.dart';
 
 class InstanceInfo {
   const InstanceInfo({

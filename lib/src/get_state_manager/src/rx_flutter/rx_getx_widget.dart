@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../get_core/get_core.dart';
-import '../../../get_instance/src/extension_instance.dart';
+import '../../../get_di/src/extension/extension_instance.dart';
 import '../../../get_instance/src/lifecycle.dart';
 import '../simple/list_notifier.dart';
 

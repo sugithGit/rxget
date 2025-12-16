@@ -1,5 +1,5 @@
 import '../../../get_core/get_core.dart';
-import '../../../get_instance/src/extension_instance.dart';
+import '../extension/extension_instance.dart';
 
 /// A class to define a dependency injection configuration.
 ///
