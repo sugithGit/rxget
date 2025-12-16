@@ -282,9 +282,8 @@ void main() {
           home: GetInWidget(
             dependencies: [
               GetIn<TestController>(TestController(), lazy: false),
-              // Using builder to access previously registered controller
               GetIn<DependentController>(
-                () => DependentController(Get.find<TestController>()),
+                DependentController(Get.find<TestController>()),
                 lazy: false,
               ),
             ],
