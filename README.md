@@ -36,7 +36,7 @@ No routing, no UI helpers — just pure state management.
 
 # About Get
 
-- GetX is an extra-light and powerful solution for Flutter. It combines high-performance state management, intelligent dependency injection, and route management quickly and practically.
+- GetX is an extra-light and powerful solution for Flutter. It combines high-performance state management and intelligent dependency injection quickly and practically.
 
 - GetX has 3 basic principles. This means that these are the priority for all resources in the library: **PRODUCTIVITY, PERFORMANCE AND ORGANIZATION.**
 
@@ -46,16 +46,15 @@ No routing, no UI helpers — just pure state management.
 
     Generally, the developer should be concerned with removing controllers from memory. With GetX this is not necessary because resources are removed from memory when they are not used by default. If you want to keep it in memory, you must explicitly declare "permanent: true" in your dependency. That way, in addition to saving time, you are less at risk of having unnecessary dependencies on memory. Dependency loading is also lazy by default.
 
-  - **ORGANIZATION:** GetX allows the total decoupling of the View, presentation logic, business logic, dependency injection, and navigation. You do not need context to navigate between routes, so you are not dependent on the widget tree (visualization) for this. You don't need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, GetX uses its own dependency injection feature, decoupling the DI from its view completely.
-
+  - **ORGANIZATION:** GetX allows the total decoupling of the View, presentation logic, business logic, and dependency injection. You do not need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, GetX uses its own dependency injection feature, decoupling the DI from its view completely.
+    
     With GetX you know where to find each feature of your application, having clean code by default. In addition to making maintenance easy, this makes the sharing of modules something that until then in Flutter was unthinkable, something totally possible.
-    BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. GetX is a natural evolution of this, not only separating the business logic but the presentation logic. Bonus injection of dependencies and routes are also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
+    BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. GetX is a natural evolution of this, not only separating the business logic but the presentation logic. Dependency injection is also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
     GetX is the easiest, practical, and scalable way to build high-performance applications with the Flutter SDK. It has a large ecosystem around it that works perfectly together, it's easy for beginners, and it's accurate for experts. It is secure, stable, up-to-date, and offers a huge range of APIs built-in that are not present in the default Flutter SDK.
 
 - GetX is not bloated. It has a multitude of features that allow you to start programming without worrying about anything, but each of these features are in separate containers and are only started after use. If you only use State Management, only State Management will be compiled. If you only use routes, nothing from the state management will be compiled.
 
 - GetX has a huge ecosystem, a large community, a large number of collaborators, and will be maintained as long as the Flutter exists. GetX too is capable of running with the same code on Android, iOS, Web, Mac, Linux, Windows, and on your server.
-  **It is possible to fully reuse your code made on the frontend on your backend with [Get Server](https://github.com/jonataslaw/get_server)**.
 
 **In addition, the entire development process can be completely automated, both on the server and on the front end with [Get CLI](https://github.com/jonataslaw/get_cli)**.
 
@@ -82,16 +81,6 @@ import 'package:rxget/get.dart';
 The "counter" project created by default on new project on Flutter has over 100 lines (with comments). To show the power of Get, I will demonstrate how to make a "counter" changing the state with each click, switching between pages and sharing the state between screens, all in an organized way, separating the business logic from the view, in ONLY 26 LINES CODE INCLUDING COMMENTS.
 
 - Step 1:
-  Add "Get" before your MaterialApp, turning it into GetMaterialApp
-
-```dart
-void main() => runApp(GetMaterialApp(home: Home()));
-```
-
-- Note: this does not modify the MaterialApp of the Flutter, GetMaterialApp is not a modified MaterialApp, it is just a pre-configured Widget, which has the default MaterialApp as a child. You can configure this manually, but it is definitely not necessary. GetMaterialApp will create routes, inject them, inject translations, inject everything you need for route navigation. If you use Get only for state management or dependency management, it is not necessary to use GetMaterialApp. GetMaterialApp is necessary for routes, snackbars, internationalization, bottomSheets, dialogs, and high-level apis related to routes and absence of context.
-- Note²: This step is only necessary if you gonna use route management (`Get.to()`, `Get.back()` and so on). If you not gonna use it then it is not necessary to do step 1
-
-- Step 2:
   Create your business logic class and place all variables, methods and controllers inside it.
   You can make any variable observable using a simple ".obs".
 
@@ -102,7 +91,7 @@ class Controller extends GetxController{
 }
 ```
 
-- Step 3:
+- Step 2:
   Create your View, use StatelessWidget and save some RAM, with Get you may no longer need to use StatefulWidget.
 
 ```dart
@@ -120,7 +109,7 @@ class Home extends StatelessWidget {
 
       // Replace the 8 lines Navigator.push by a simple Get.to(). You don't need context
       body: Center(child: ElevatedButton(
-              child: Text("Go to Other"), onPressed: () => Get.to(Other()))),
+              child: Text("Go to Other"), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Other())))),
       floatingActionButton:
           FloatingActionButton(child: Icon(Icons.add), onPressed: c.increment));
   }
@@ -213,9 +202,6 @@ So you can use your controller (or class Bloc) normally
 controller.fetchApi();
 ```
 
-Imagine that you have navigated through numerous routes, and you need data that was left behind in your controller, you would need a state manager combined with the Provider or Get_it, correct? Not with Get. You just need to ask Get to "find" for your controller, you don't need any additional dependencies:
-
-```dart
 Controller controller = Get.find();
 //Yes, it looks like Magic, Get will find your controller, and will deliver it to you. You can have 1 million controllers instantiated, Get will always give you the right controller.
 ```
@@ -382,117 +368,7 @@ user.update((value){
 
 print( user );
 ```
-## StateMixin
-
-Another way to handle your `UI` state is use the `StateMixin<T>` .
-To implement it, use the `with` to add the `StateMixin<T>`
-to your controller which allows a T model.
-
-``` dart
-class Controller extends GetController with StateMixin<User>{}
 ```
-
-The `change()` method change the State whenever we want.
-Just pass the data and the status in this way:
-
-```dart
-change(data, status: RxStatus.success());
-```
-
-RxStatus allow these status:
-
-``` dart
-RxStatus.loading();
-RxStatus.success();
-RxStatus.empty();
-RxStatus.error('message');
-```
-
-To represent it in the UI, use:
-
-```dart
-class OtherClass extends GetView<Controller> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-
-      body: controller.obx(
-        (state)=>Text(state.name),
-        
-        // here you can put your custom loading indicator, but
-        // by default would be Center(child:CircularProgressIndicator())
-        onLoading: CustomLoadingIndicator(),
-        onEmpty: Text('No data found'),
-
-        // here also you can set your own error widget, but by
-        // default will be an Center(child:Text(error))
-        onError: (error)=>Text(error),
-      ),
-    );
-}
-```
-
-#### GetView
-
-I love this Widget, is so simple, yet, so useful!
-
-Is a `const Stateless` Widget that has a getter `controller` for a registered `Controller`, that's all.
-
-```dart
- class AwesomeController extends GetController {
-   final String title = 'My Awesome View';
- }
-
-  // ALWAYS remember to pass the `Type` you used to register your controller!
- class AwesomeView extends GetView<AwesomeController> {
-   @override
-   Widget build(BuildContext context) {
-     return Container(
-       padding: EdgeInsets.all(20),
-       child: Text(controller.title), // just call `controller.something`
-     );
-   }
- }
-```
-
-#### GetResponsiveView
-
-Extend this widget to build responsive view.
-this widget contains the `screen` property that have all
-information about the screen size and type.
-
-##### How to use it
-
-You have two options to build it.
-
-- with `builder` method you return the widget to build.
-- with methods `desktop`, `tablet`,`phone`, `watch`. the specific
-  method will be built when the screen type matches the method
-  when the screen is [ScreenType.Tablet] the `tablet` method
-  will be exuded and so on.
-  **Note:** If you use this method please set the property `alwaysUseBuilder` to `false`
-
-With `settings` property you can set the width limit for the screen types.
-
-![example](https://github.com/SchabanBo/get_page_example/blob/master/docs/Example.gif?raw=true)
-Code to this screen
-[code](https://github.com/SchabanBo/get_page_example/blob/master/lib/pages/responsive_example/responsive_view.dart)
-
-#### GetWidget
-
-Most people have no idea about this Widget, or totally confuse the usage of it.
-The use case is very rare, but very specific: It `caches` a Controller.
-Because of the _cache_, can't be a `const Stateless`.
-
-> So, when do you need to "cache" a Controller?
-
-If you use, another "not so common" feature of **GetX**: `Get.create()`.
-
-`Get.create(()=>Controller())` will generate a new `Controller` each time you call
-`Get.find<Controller>()`,
-
-That's where `GetWidget` shines... as you can use it, for example,
-to keep a list of Todo items. So, if the widget gets "rebuilt", it will keep the same controller instance.
 
 
 ### Tests
@@ -576,44 +452,6 @@ if you are using your navigation in your controllers, use `Get.testMode = true` 
 | DoubleX | `RxDouble` |
 
 RxController and GetBuilder now have merged, you no longer need to memorize which controller you want to use, just use GetxController, it will work for simple state management and for reactive as well.
-
-2- NamedRoutes
-Before:
-
-```dart
-GetMaterialApp(
-  namedRoutes: {
-    '/': GetRoute(page: Home()),
-  }
-)
-```
-
-Now:
-
-```dart
-GetMaterialApp(
-  getPages: [
-    GetPage(name: '/', page: () => Home()),
-  ]
-)
-```
-
-Why this change?
-Often, it may be necessary to decide which page will be displayed from a parameter, or a login token, the previous approach was inflexible, as it did not allow this.
-Inserting the page into a function has significantly reduced the RAM consumption, since the routes will not be allocated in memory since the app was started, and it also allowed to do this type of approach:
-
-```dart
-
-GetStorage box = GetStorage();
-
-GetMaterialApp(
-  getPages: [
-    GetPage(name: '/', page:(){
-      return box.hasData('token') ? Home() : Login();
-    })
-  ]
-)
-```
 
 # Why rxget?
 
