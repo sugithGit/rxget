@@ -1,65 +1,125 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { ArrowRight, Box, Zap, Layers } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+      <section className="flex-1 flex flex-col items-center justify-center space-y-10 py-24 px-4 text-center md:py-32">
+        <div className="space-y-4 max-w-3xl">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-linear-to-r from-primary to-teal-400"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            The Lightweight Powerhouse for Flutter
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mx-auto max-w-[700px] text-muted-foreground md:text-xl"
           >
-            Documentation
-          </a>
+            RxGet strips away the bloat of GetX, keeping only the essentials: <span className="text-foreground font-semibold">High-performance State Management</span> and <span className="text-foreground font-semibold">Intelligent Dependency Injection</span>.
+          </motion.p>
         </div>
-      </main>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex flex-col gap-4 min-[400px]:flex-row"
+        >
+          <Link
+            href="/docs"
+            className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            Get Started
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+          <Link
+            href="https://github.com/rxget/rxget"
+            target="_blank"
+            className="inline-flex h-12 items-center justify-center rounded-md border border-input bg-background/50 backdrop-blur-sm px-8 text-sm font-medium shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            View on GitHub
+          </Link>
+        </motion.div>
+      </section>
+
+      <section className="container py-12 md:py-24 lg:py-32 mx-auto px-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <FeatureCard 
+            icon={<Zap className="h-10 w-10 text-primary" />}
+            title="Blazing Fast"
+            description="Built for performance. No streams, no ChangeNotifier. Just pure, lightweight reactivity."
+            delay={0.3}
+          />
+          <FeatureCard 
+            icon={<Layers className="h-10 w-10 text-primary" />}
+            title="Dependency Injection"
+            description="Decouple your logic from your UI. Inject dependencies lazily and accessing them anywhere."
+            delay={0.4}
+          />
+          <FeatureCard 
+            icon={<Box className="h-10 w-10 text-primary" />}
+            title="Zero Bloat"
+            description="No routing, no snackbars, no validation utils. Just the core state management you need."
+            delay={0.5}
+          />
+        </div>
+      </section>
+
+      <section className="container py-12 md:py-24 mx-auto px-4 border-t border-muted">
+        <div className="mx-auto max-w-4xl space-y-8">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-foreground">Write Less, Do More</h2>
+                <p className="mt-4 text-muted-foreground text-lg">Reactive state management has never been this simple.</p>
+            </div>
+            
+            <div className="rounded-xl border border-border bg-card p-6 shadow-xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-linear-to-tr from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <pre className="overflow-x-auto text-sm md:text-base font-mono leading-relaxed text-foreground">
+                    <code className="language-dart">
+{`// 1. Create a controller
+class CountController extends GetxController {
+  var count = 0.obs;
+  increment() => count++;
+}
+
+// 2. Inject it
+final controller = Get.put(CountController());
+
+// 3. Use it in UI
+Obx(() => Text("Clicks: \${controller.count}"));`}
+                    </code>
+                </pre>
+            </div>
+        </div>
+      </section>
     </div>
+  );
+}
+
+function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      className="flex flex-col items-center space-y-4 rounded-xl border border-border bg-card/50 p-6 shadow-sm backdrop-blur-sm transition-all hover:bg-card hover:shadow-md text-center"
+    >
+      <div className="rounded-full bg-primary/10 p-4">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold">{title}</h3>
+      <p className="text-muted-foreground">
+        {description}
+      </p>
+    </motion.div>
   );
 }
