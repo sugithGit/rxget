@@ -4,48 +4,62 @@ import '../extension/extension_instance.dart';
 /// A class to define a dependency injection configuration.
 ///
 /// [T] is the type of the dependency.
-/// A mixin to define the contract for a dependency injection binding.
+/// A contract for managing the lifecycle of a dependency injection binding.
+///
+/// Implementers of this interface are responsible for registering and disposing
+/// of dependencies within the `GetX` ecosystem.
 abstract interface class GetInBinding {
-  /// Registers the dependency with GetX.
+  /// Registers the dependency into the `GetX` dependency injection system.
   void register();
 
-  /// Disposes the dependency from GetX.
+  /// Removes the dependency from the `GetX` dependency injection system.
   void dispose();
 }
 
-/// A class to define a dependency injection configuration.
+/// A configuration class for defining and managing a single dependency injection.
 ///
-/// [T] is the type of the dependency.
+/// [T] represents the type of the dependency being registered.
+///
+/// This class encapsulates the logic for creating, registering, and disposing
+/// a dependency, supporting both eager and lazy initialization.
 final class GetIn<T> implements GetInBinding {
-  /// Creates a dependency configuration.
+  /// Creates a [GetIn] configuration.
   ///
-  /// [builder] is a factory function that creates the instance.
-  /// This allows dependencies to be resolved in the correct order.
+  /// [builder] is a factory function that returns an instance of [T].
+  /// This function is invoked when the dependency is requested (if [lazy] is true)
+  /// or immediately upon registration (if [lazy] is false).
   ///
-  /// Example:
+  /// [lazy] determines whether the dependency is initialized lazily.
+  /// Defaults to `true`.
+  ///
+  /// [tag] is an optional string identifier for grouping or distinguishing
+  /// multiple dependencies of the same type.
+  ///
+  /// Example Usage:
   /// ```dart
-  /// GetIn<MyController>(() => MyController())
-  /// GetIn<OtherController>(() => OtherController(Get.find<MyController>()))
+  /// GetIn<MyController>(() => MyController());
+  /// GetIn<Service>(() => Service(), lazy: false, tag: 'core');
   /// ```
-  ///
-  /// [lazy] determines if the dependency should be lazy loaded (default: true).
-  /// [tag] is an optional tag for the dependency.
-  GetIn(
-    T Function() builder, {
+  const GetIn(
+    this._builder, {
     this.lazy = true,
     this.tag,
-  }) : _builder = builder;
+  });
 
-  /// The dependency builder function.
+  /// The factory function used to create the dependency instance.
   final T Function() _builder;
 
-  /// Whether to lazy load the dependency.
+  /// Whether the dependency should be lazily loaded.
+  ///
+  /// If `true`, the [_builder] is not called until the dependency is first used.
+  /// If `false`, the [_builder] is called immediately upon registration.
   final bool lazy;
 
-  /// Optional tag for the dependency.
+  /// An optional unique identifier for this dependency.
+  ///
+  /// Useful when registering multiple instances of the same type [T].
   final String? tag;
 
-  /// Registers the dependency with GetX.
   @override
   void register() {
     if (lazy) {
@@ -55,9 +69,13 @@ final class GetIn<T> implements GetInBinding {
     }
   }
 
-  /// Disposes the dependency from GetX.
   @override
   void dispose() {
     Get.delete<T>(tag: tag);
+  }
+
+  @override
+  String toString() {
+    return 'GetIn<$T>(tag: $tag, lazy: $lazy)';
   }
 }
