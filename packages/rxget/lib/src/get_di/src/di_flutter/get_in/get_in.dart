@@ -1,20 +1,6 @@
-import '../../../get_core/get_core.dart';
-import '../extension/extension_instance.dart';
-
-/// A class to define a dependency injection configuration.
-///
-/// [T] is the type of the dependency.
-/// A contract for managing the lifecycle of a dependency injection binding.
-///
-/// Implementers of this interface are responsible for registering and disposing
-/// of dependencies within the `GetX` ecosystem.
-abstract interface class GetInBinding {
-  /// Registers the dependency into the `GetX` dependency injection system.
-  void register();
-
-  /// Removes the dependency from the `GetX` dependency injection system.
-  void dispose();
-}
+import '../../../../get_core/get_core.dart';
+import '../../extension/extension_instance.dart';
+import 'get_in_base.dart';
 
 /// A configuration class for defining and managing a single dependency injection.
 ///
@@ -22,7 +8,7 @@ abstract interface class GetInBinding {
 ///
 /// This class encapsulates the logic for creating, registering, and disposing
 /// a dependency, supporting both eager and lazy initialization.
-final class GetIn<T> implements GetInBinding {
+final class GetIn<T> implements GetInBase {
   /// Creates a [GetIn] configuration.
   ///
   /// [builder] is a factory function that returns an instance of [T].
@@ -62,6 +48,26 @@ final class GetIn<T> implements GetInBinding {
 
   @override
   void register() {
+    _registerLogic();
+  }
+
+  @override
+  void dispose() {
+    _disposeLogic();
+  }
+
+  @override
+  String toString() {
+    return 'GetIn<$T>(tag: $tag, lazy: $lazy)';
+  }
+}
+
+/// A private extension to encapsulate the implementation details of [GetIn].
+///
+/// This extension hides the logic for registering and disposing dependencies
+/// from the public API, keeping the [GetIn] class focused on configuration.
+extension _GetInLogic<T> on GetIn<T> {
+  void _registerLogic() {
     if (lazy) {
       Get.lazyPut<T>(_builder, tag: tag, fenix: false);
     } else {
@@ -69,13 +75,7 @@ final class GetIn<T> implements GetInBinding {
     }
   }
 
-  @override
-  void dispose() {
+  void _disposeLogic() {
     Get.delete<T>(tag: tag);
-  }
-
-  @override
-  String toString() {
-    return 'GetIn<$T>(tag: $tag, lazy: $lazy)';
   }
 }

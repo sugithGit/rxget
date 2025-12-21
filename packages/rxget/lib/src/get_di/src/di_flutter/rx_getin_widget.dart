@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'get_in.dart';
+import 'get_in/get_in.dart';
+import 'get_in/get_in_base.dart';
 
 /// A widget that provides scoped dependency injection with automatic disposal.
 ///
@@ -13,7 +14,7 @@ import 'get_in.dart';
 /// GetInWidget(
 ///   dependencies: [
 ///     GetIn<MyController>(() => MyController()),
-///     // Dependencies can reference previously registered ones:
+///       //Dependencies can reference previously registered ones:
 ///     GetIn<OtherController>(() => OtherController(Get.find<MyController>())),
 ///   ],
 ///   child: MyWidget(),
@@ -33,7 +34,7 @@ final class GetInWidget extends StatefulWidget {
   });
 
   /// List of dependencies to inject.
-  final List<GetInBinding> dependencies;
+  final List<GetInBase> dependencies;
 
   /// The child widget.
   final Widget child;
