@@ -4,7 +4,19 @@ import '../extension/extension_instance.dart';
 /// A class to define a dependency injection configuration.
 ///
 /// [T] is the type of the dependency.
-final class GetIn<T> {
+/// A mixin to define the contract for a dependency injection binding.
+abstract interface class GetInBinding {
+  /// Registers the dependency with GetX.
+  void register();
+
+  /// Disposes the dependency from GetX.
+  void dispose();
+}
+
+/// A class to define a dependency injection configuration.
+///
+/// [T] is the type of the dependency.
+final class GetIn<T> implements GetInBinding {
   /// Creates a dependency configuration.
   ///
   /// [builder] is a factory function that creates the instance.
@@ -22,12 +34,7 @@ final class GetIn<T> {
     T Function() builder, {
     this.lazy = true,
     this.tag,
-  }) : _builder = builder,
-       assert(
-         T != dynamic,
-         'You must explicitly specify the type T for GetIn<T> (e.g., GetIn<MyController>(...)) '
-         'or ensure it is not inferred as dynamic.',
-       );
+  }) : _builder = builder;
 
   /// The dependency builder function.
   final T Function() _builder;
@@ -39,6 +46,7 @@ final class GetIn<T> {
   final String? tag;
 
   /// Registers the dependency with GetX.
+  @override
   void register() {
     if (lazy) {
       Get.lazyPut<T>(_builder, tag: tag, fenix: false);
@@ -48,6 +56,7 @@ final class GetIn<T> {
   }
 
   /// Disposes the dependency from GetX.
+  @override
   void dispose() {
     Get.delete<T>(tag: tag);
   }

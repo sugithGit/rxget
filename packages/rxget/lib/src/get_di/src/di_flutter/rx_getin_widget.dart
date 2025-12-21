@@ -33,7 +33,7 @@ final class GetInWidget extends StatefulWidget {
   });
 
   /// List of dependencies to inject.
-  final List<GetIn> dependencies;
+  final List<GetInBinding> dependencies;
 
   /// The child widget.
   final Widget child;

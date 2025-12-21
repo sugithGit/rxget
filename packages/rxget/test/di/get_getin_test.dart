@@ -49,7 +49,7 @@ void main() {
         MaterialApp(
           home: GetInWidget(
             dependencies: [
-              GetIn<TestController>(() => TestController(), lazy: false),
+              GetIn(() => TestController(), lazy: false),
             ],
             child: Builder(
               builder: (context) {

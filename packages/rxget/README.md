@@ -3,38 +3,32 @@
 rxget is a lightweight, performance-focused fork of GetX — keeping only reactivity and dependency injection.  
 No routing, no UI helpers — just pure state management.
 
-
-
-
-
 - [rxget](#rxget)
-- [About Get](#about-get)
-- [Installing](#installing)
-- [Counter App with GetX](#counter-app-with-getx)
-- [The Three pillars](#the-three-pillars)
-  - [State management](#state-management)
-    - [Reactive State Manager](#reactive-state-manager)
-    - [More details about state management](#more-details-about-state-management)
-  - [Dependency management](#dependency-management)
-    - [More details about dependency management](#more-details-about-dependency-management)
-  - [Useful tips](#useful-tips)
-  - [StateMixin](#statemixin)
-      - [GetView](#getview)
-      - [GetResponsiveView](#getresponsiveview)
-        - [How to use it](#how-to-use-it)
-      - [GetWidget](#getwidget)
-    - [Tests](#tests)
-      - [Tips](#tips)
-        - [Mockito or mocktail](#mockito-or-mocktail)
-        - [Using Get.reset()](#using-getreset)
-        - [Get.testMode](#gettestmode)
-- [Breaking changes from 2.0](#breaking-changes-from-20)
-- [Why rxget?](#why-rxget)
-- [Community](#community)
-  - [Community channels](#community-channels)
-  - [How to contribute](#how-to-contribute)
+  - [About Get](#about-get)
+  - [Installing](#installing)
+  - [Counter App with GetX](#counter-app-with-getx)
+  - [The Three pillars](#the-three-pillars)
+    - [State management](#state-management)
+      - [Reactive State Manager](#reactive-state-manager)
+      - [More details about state management](#more-details-about-state-management)
+    - [Dependency management](#dependency-management)
+      - [More details about dependency management](#more-details-about-dependency-management)
+      - [Widget-Scoped Dependency Injection with GetIn](#widget-scoped-dependency-injection-with-getin)
+        - [Single Dependency](#single-dependency)
+        - [Multiple Dependencies](#multiple-dependencies)
+        - [Single + Multiple](#single--multiple)
+    - [Useful tips](#useful-tips)
+        - [Tips](#tips)
+          - [Mockito or mocktail](#mockito-or-mocktail)
+          - [Using Get.reset()](#using-getreset)
+          - [Get.testMode](#gettestmode)
+  - [Breaking changes from 2.0](#breaking-changes-from-20)
+  - [Why rxget?](#why-rxget)
+  - [Community](#community)
+    - [Community channels](#community-channels)
+    - [How to contribute](#how-to-contribute)
 
-# About Get
+## About Get
 
 - GetX is an extra-light and powerful solution for Flutter. It combines high-performance state management and intelligent dependency injection quickly and practically.
 
@@ -47,7 +41,6 @@ No routing, no UI helpers — just pure state management.
     Generally, the developer should be concerned with removing controllers from memory. With GetX this is not necessary because resources are removed from memory when they are not used by default. If you want to keep it in memory, you must explicitly declare "permanent: true" in your dependency. That way, in addition to saving time, you are less at risk of having unnecessary dependencies on memory. Dependency loading is also lazy by default.
 
   - **ORGANIZATION:** GetX allows the total decoupling of the View, presentation logic, business logic, and dependency injection. You do not need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, GetX uses its own dependency injection feature, decoupling the DI from its view completely.
-    
     With GetX you know where to find each feature of your application, having clean code by default. In addition to making maintenance easy, this makes the sharing of modules something that until then in Flutter was unthinkable, something totally possible.
     BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. GetX is a natural evolution of this, not only separating the business logic but the presentation logic. Dependency injection is also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
     GetX is the easiest, practical, and scalable way to build high-performance applications with the Flutter SDK. It has a large ecosystem around it that works perfectly together, it's easy for beginners, and it's accurate for experts. It is secure, stable, up-to-date, and offers a huge range of APIs built-in that are not present in the default Flutter SDK.
@@ -61,7 +54,7 @@ No routing, no UI helpers — just pure state management.
 **In addition, to further increase your productivity, we have the
 [extension to VSCode](https://marketplace.visualstudio.com/items?itemName=get-snippets.get-snippets) and the [extension to Android Studio/Intellij](https://plugins.jetbrains.com/plugin/14975-getx-snippets)**
 
-# Installing
+## Installing
 
 Add Get to your pubspec.yaml file:
 
@@ -76,7 +69,7 @@ Import get in files that it will be used:
 import 'package:rxget/get.dart';
 ```
 
-# Counter App with GetX
+## Counter App with GetX
 
 The "counter" project created by default on new project on Flutter has over 100 lines (with comments). To show the power of Get, I will demonstrate how to make a "counter" changing the state with each click, switching between pages and sharing the state between screens, all in an organized way, separating the business logic from the view, in ONLY 26 LINES CODE INCLUDING COMMENTS.
 
@@ -137,13 +130,13 @@ Get was designed to work with teams, but it makes the job of an individual devel
 
 Improve your deadlines, deliver everything on time without losing performance. Get is not for everyone, but if you identified with that phrase, Get is for you!
 
-# The Three pillars
+## The Three pillars
 
-## State management
+### State management
 
 Get has two different state managers: the simple state manager (we'll call it GetBuilder) and the reactive state manager (GetX/Obx)
 
-### Reactive State Manager
+#### Reactive State Manager
 
 Reactive programming can alienate many people because it is said to be complicated. GetX turns reactive programming into something quite simple:
 
@@ -177,13 +170,13 @@ Obx(() => Text("${controller.name}"));
 
 That's all. It's _that_ simple.
 
-### More details about state management
+#### More details about state management
 
 **See an more in-depth explanation of state management [here](./documentation/en_US/state_management.md). There you will see more examples and also the difference between the simple state manager and the reactive state manager**
 
 You will get a good idea of GetX power.
 
-## Dependency management
+### Dependency management
 
 Get has a simple and powerful dependency manager that allows you to retrieve the same class as your Bloc or Controller with just 1 lines of code, no Provider context, no inheritedWidget:
 
@@ -212,15 +205,15 @@ And then you will be able to recover your controller data that was obtained back
 Text(controller.textFromApi);
 ```
 
-### More details about dependency management
+#### More details about dependency management
 
 **See a more in-depth explanation of dependency management [here](./documentation/en_US/dependency_management.md)**
 
-### Widget-Scoped Dependency Injection with GetIn
+#### Widget-Scoped Dependency Injection with GetIn
 
 After removing navigator and UI features, the automatic disposal system was removed. The `GetIn` widget solves this by providing widget-scoped dependency injection with automatic disposal when the widget is removed from the tree.
 
-#### Single Dependency
+##### Single Dependency
 
 ```dart
 GetIn(
@@ -231,7 +224,7 @@ GetIn(
 
 When this widget is disposed, `MyController` will automatically be removed from memory.
 
-#### Multiple Dependencies
+##### Multiple Dependencies
 
 ```dart
 GetIn(
@@ -246,7 +239,7 @@ GetIn(
 
 All dependencies are automatically disposed when the `GetIn` widget is removed.
 
-#### Single + Multiple
+##### Single + Multiple
 
 ```dart
 GetIn(
@@ -263,7 +256,7 @@ final controller = Get.find<MyController>();
 ```
 
 
-## Useful tips
+### Useful tips
 
 `.obs`ervables (also known as _Rx_ Types) have a wide variety of internal methods and operators.
 
@@ -371,7 +364,7 @@ print( user );
 ```
 
 
-### Tests
+#### Tests
 
 You can test your controllers like any other class, including their lifecycles:
 
@@ -422,23 +415,23 @@ Test the state of the reactive variable "name" across all of its lifecycles''',
 }
 ```
 
-#### Tips
+##### Tips
 
-##### Mockito or mocktail
+###### Mockito or mocktail
 If you need to mock your GetxController, you should extend GetxController, and mixin it with Mock, that way
 
 ```dart
 class NotificationServiceMock extends GetxController with Mock implements NotificationService {}
 ```
 
-##### Using Get.reset()
+###### Using Get.reset()
 If you are testing widgets, or test groups, use Get.reset at the end of your test or in tearDown to reset all settings from your previous test.
 
-##### Get.testMode 
+###### Get.testMode 
 if you are using your navigation in your controllers, use `Get.testMode = true` at the beginning of your main.
 
 
-# Breaking changes from 2.0
+## Breaking changes from 2.0
 
 1- Rx types:
 
@@ -453,7 +446,7 @@ if you are using your navigation in your controllers, use `Get.testMode = true` 
 
 RxController and GetBuilder now have merged, you no longer need to memorize which controller you want to use, just use GetxController, it will work for simple state management and for reactive as well.
 
-# Why rxget?
+## Why rxget?
 
 	1.	Reliability through simplicity.
 After Flutter updates, many packages break due to dependency conflicts or version mismatches. rxget minimizes this risk by focusing on just two core features — reactive state management and dependency injection. With fewer dependencies and no routing or UI helpers, maintenance becomes painless. Update rxget, and you’re ready to build again without worrying about compatibility issues.
@@ -473,9 +466,9 @@ rxget brings you the essence of GetX — reactivity and DI — without the noise
 No routes, no snackbars, no context gymnastics. Just clean, reactive, and efficient Flutter development.
 This library will always be updated and implementing new features. Feel free to offer PRs and contribute to them.
 
-# Community
+## Community
 
-## Community channels
+### Community channels
 
 GetX has a highly active and helpful community. If you have questions, or would like any assistance regarding the use of this framework, please join our community channels, your question will be answered more quickly, and it will be the most suitable place. This repository is exclusive for opening issues, and requesting resources, but feel free to be part of GetX Community.
 
@@ -483,7 +476,7 @@ GetX has a highly active and helpful community. If you have questions, or would 
 | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
 | [![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](https://communityinviter.com/apps/getxworkspace/getx) | [![Discord Shield](https://img.shields.io/discord/722900883784073290.svg?logo=discord)](https://discord.com/invite/9Hpt99N) | [![Telegram](https://img.shields.io/badge/chat-on%20Telegram-blue.svg)](https://t.me/joinchat/PhdbJRmsZNpAqSLJL6bH7g) |
 
-## How to contribute
+### How to contribute
 
 _Want to contribute to the project? We will be proud to highlight you as one of our collaborators. Here are some points where you can contribute and make Get (and Flutter) even better._
 
