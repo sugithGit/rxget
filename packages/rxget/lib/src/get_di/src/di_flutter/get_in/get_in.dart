@@ -26,11 +26,14 @@ final class GetIn<T> implements GetInBase {
   /// GetIn<MyController>(() => MyController());
   /// GetIn<Service>(() => Service(), lazy: false, tag: 'core');
   /// ```
-  const GetIn(
+  GetIn(
     this._builder, {
     this.lazy = true,
     this.tag,
-  });
+  }) : assert(
+         T != dynamic,
+         'GetIn<dynamic> detected. You likely used "List<GetIn>" which infers dynamic. Use "List<GetInBase>" or explicitly specify the type "GetIn<MyType>"',
+       );
 
   /// The factory function used to create the dependency instance.
   final T Function() _builder;
