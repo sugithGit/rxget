@@ -1,0 +1,62 @@
+[custom_lint] 2025-12-24T18:39:01.052756 lib/custom_lint_client.dart:16:31: Error: Undefined name 'createPlugin'.
+[custom_lint] 2025-12-24T18:39:01.052756     {'rxget_lint': rxget_lint.createPlugin,
+[custom_lint] 2025-12-24T18:39:01.052756                               ^^^^^^^^^^^^
+[custom_lint] 2025-12-24T18:39:01.052756
+[custom_lint] 2025-12-24T18:39:01.052756
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[custom_lint] 2025-12-24T18:39:01.215660 lib/custom_lint_client.dart:16:31: Error: Undefined name 'createPlugin'.
+[custom_lint] 2025-12-24T18:39:01.215660     {'rxget_lint': rxget_lint.createPlugin,
+[custom_lint] 2025-12-24T18:39:01.215660                               ^^^^^^^^^^^^
+[custom_lint] 2025-12-24T18:39:01.215660
+[custom_lint] 2025-12-24T18:39:01.215660
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[custom_lint] 2025-12-24T18:39:49.904231 lib/custom_lint_client.dart:16:31: Error: Undefined name 'createPlugin'.
+[custom_lint] 2025-12-24T18:39:49.904231     {'rxget_lint': rxget_lint.createPlugin,
+[custom_lint] 2025-12-24T18:39:49.904231                               ^^^^^^^^^^^^
+[custom_lint] 2025-12-24T18:39:49.904231
+[custom_lint] 2025-12-24T18:39:49.904231
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637:5)
+<asynchronous suspension>
+
+[custom_lint] 2025-12-24T18:39:49.913908 _PrettyRequestFailure: {"code":"PLUGIN_ERROR","message":"Bad state: Failed to start the plugins.","stackTrace":"#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)\n<asynchronous suspension>\n#1      Future.any.onValue (dart:async/future.dart:637:5)\n<asynchronous suspension>\n"}
+[custom_lint] 2025-12-24T18:39:49.913908 #0      ChannelBase.sendRequest (package:custom_lint/src/server_isolate_channel.dart:82:7)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #1      CustomLintRunner.initialize.<anonymous closure> (package:custom_lint/src/runner.dart:43:5)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #2      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:96:7)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #3      _AsyncCompleter.complete (dart:async/future_impl.dart:96:3)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #4      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:126:19)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #5      _runServer (package:custom_lint/custom_lint.dart:86:3)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #6      customLint (package:custom_lint/custom_lint.dart:50:5)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #7      entrypoint (file:///Users/sugithk/.pub-cache/hosted/pub.dev/custom_lint-0.6.4/bin/custom_lint.dart:68:3)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908 #8      main (file:///Users/sugithk/.pub-cache/hosted/pub.dev/custom_lint-0.6.4/bin/custom_lint.dart:80:5)
+[custom_lint] 2025-12-24T18:39:49.913908 <asynchronous suspension>
+[custom_lint] 2025-12-24T18:39:49.913908

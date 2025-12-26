@@ -297,7 +297,9 @@ extension RxnBoolExt on Rx<bool?> {
 /// For example, any custom "Model" class, like User().obs will use `Rx` as
 /// wrapper.
 class Rx<T> extends _RxImpl<T> {
-  Rx(super.val);
+  Rx(super.val) {
+    //  RxState.zoneCheck();
+  }
 
   @override
   dynamic toJson() {
@@ -353,5 +355,8 @@ extension RxT<T extends Object> on T {
 /// rather than the extension type.
 extension RxTnew on Object {
   /// Returns a `Rx` instance with [this] `T` as initial value.
-  Rx<T> obs<T>() => Rx<T>(this as T);
+  Rx<T> obs<T>() {
+    // RxState.zoneCheck();
+    return Rx<T>(this as T);
+  }
 }

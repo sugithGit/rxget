@@ -219,6 +219,8 @@ formatter:
   trailing_commas: preserve
 
 analyzer:
+  plugins:
+    - custom_lint
   errors:
     use_setters_to_change_properties: ignore
     avoid_positional_boolean_parameters: ignore
