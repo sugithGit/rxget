@@ -7,8 +7,8 @@ typedef EffectCallback = void Function();
 /// A Stateless widget that registers reactive reads and runs [effect]
 /// on build and whenever those reads change. Does NOT rebuild the UI.
 class Obl extends OblStatelessWidget {
-  const Obl({
-    required this.effect,
+  const Obl(
+    this.effect, {
     required this.child,
     super.key,
   });
@@ -51,9 +51,18 @@ mixin StatelessOblObserverComponent on StatelessElement {
   void _onReactiveUpdate() {
     // Call the combined effect asynchronously to avoid re-entrancy issues.
     scheduleMicrotask(() {
+      if (disposers == null) {
+        return;
+      }
+
       if (widget is Obl) {
         try {
-          (widget as Obl).effect();
+          Notifier.instance.append(
+            NotifyData(disposers: disposers!, updater: _onReactiveUpdate),
+            () {
+              (widget as Obl).effect();
+            },
+          );
         } catch (e, st) {
           // Rethrow so error surface is visible during development.
           FlutterError.reportError(
