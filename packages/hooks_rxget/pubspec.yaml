@@ -14,7 +14,7 @@ dependencies:
     git:
       url: https://github.com/sugithGit/rxget.git
       path: packages/rxget
-      ref: 30386e3f295ed650168e90afe7542ba0d3faa8e4
+      ref: c187c1379e6544917dc8c8a437b7aa60c0175715
 
 dev_dependencies:
   flutter_lints: ^6.0.0
