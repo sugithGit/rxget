@@ -11,10 +11,7 @@ dependencies:
     sdk: flutter
   flutter_hooks: ^0.21.3+1
   rxget:
-    git:
-      url: https://github.com/sugithGit/rxget.git
-      path: packages/rxget
-      ref: c187c1379e6544917dc8c8a437b7aa60c0175715
+    path: ../rxget
 
 dev_dependencies:
   flutter_lints: ^6.0.0
