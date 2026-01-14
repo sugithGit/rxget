@@ -13,25 +13,25 @@ void main() {
             return Column(
               children: [
                 Text(
-                  'Count: ${controller.counter.value}',
+                  'Count: ${controller.state.counter.value}',
                 ),
                 Text(
-                  'Count2: ${controller.count}',
+                  'Count2: ${controller.state.count}',
                 ),
                 Text(
-                  'Double: ${controller.doubleNum.value}',
+                  'Double: ${controller.state.doubleNum.value}',
                 ),
                 Text(
-                  'String: ${controller.string.value}',
+                  'String: ${controller.state.string.value}',
                 ),
                 Text(
-                  'List: ${controller.list.length}',
+                  'List: ${controller.state.list.length}',
                 ),
                 Text(
-                  'Bool: ${controller.boolean.value}',
+                  'Bool: ${controller.state.boolean.value}',
                 ),
                 Text(
-                  'Map: ${controller.map.length}',
+                  'Map: ${controller.state.map.length}',
                 ),
                 TextButton(
                   child: const Text("increment"),
@@ -89,10 +89,7 @@ void main() {
   // );
 }
 
-class _State {}
-
-class Controller extends GetxController<_State> {
-  static Controller get to => Get.find();
+class _State extends GetxState {
   int count = 0;
   RxInt counter = 0.obs;
   RxDouble doubleNum = 0.0.obs;
@@ -101,15 +98,29 @@ class Controller extends GetxController<_State> {
   RxMap map = {}.obs;
   RxBool boolean = true.obs;
 
+  @override
+  void onClose() {
+    counter.close();
+    doubleNum.close();
+    string.close();
+    list.close();
+    map.close();
+    boolean.close();
+  }
+}
+
+class Controller extends GetxController<_State> {
+  static Controller get to => Get.find();
+
   void increment() {
-    counter.value++;
+    state.counter.value++;
   }
 
   void increment2() {
-    count++;
+    state.count++;
     update();
   }
 
   @override
-  _State get state => _State();
+  final state = _State();
 }

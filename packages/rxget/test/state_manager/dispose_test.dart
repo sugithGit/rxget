@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rxget/rxget.dart';
 
-class _State {
+class _State extends GetxState {
   final _counter = 0.obs;
   final _list = <int>[].obs;
   final _name = 'test'.obs;
@@ -11,8 +11,8 @@ class _State {
   List<int> get list => _list.value;
   String get name => _name.value;
 
-  /// Close all RxVariables in this state
-  void dispose() {
+  @override
+  void onClose() {
     _counter.close();
     _list.close();
     _name.close();
@@ -34,43 +34,45 @@ class Controller extends GetxController<_State> {
   // void setName(String name) {
   //   state._name.value = name;
   // }
+}
 
+/// State for controllers that do NOT dispose RxVariables
+class _ControllerStateNoDispose extends GetxState {
   @override
   void onClose() {
-    state.dispose();
-    super.onClose();
+    // Intentionally empty - test that RxVariables on controller are NOT auto-closed
   }
 }
 
-/// Controller that does NOT override onClose - RxVariables won't be auto-disposed
-class _ControllerState {}
-
-class ControllerWithoutDispose extends GetxController<_ControllerState> {
+class ControllerWithoutDispose
+    extends GetxController<_ControllerStateNoDispose> {
   final counter = 0.obs;
 
   @override
-  _ControllerState get state => _ControllerState();
+  _ControllerStateNoDispose get state => _ControllerStateNoDispose();
 
   void increment() {
     counter.value++;
   }
 }
 
-/// Controller that properly disposes RxVariables in onClose
-class ControllerWithDispose extends GetxController<_ControllerState> {
+/// State for controllers that DO dispose RxVariables
+class _ControllerStateWithDispose extends GetxState {
   final counter = 0.obs;
-
-  @override
-  _ControllerState get state => _ControllerState();
-
-  void increment() {
-    counter.value++;
-  }
 
   @override
   void onClose() {
     counter.close();
-    super.onClose();
+  }
+}
+
+class ControllerWithDispose
+    extends GetxController<_ControllerStateWithDispose> {
+  @override
+  final state = _ControllerStateWithDispose();
+
+  void increment() {
+    state.counter.value++;
   }
 }
 
@@ -180,7 +182,7 @@ void main() {
       expect(state._list.isDisposed, isFalse);
       expect(state._name.isDisposed, isFalse);
 
-      state.dispose();
+      state.onClose();
 
       expect(state._counter.isDisposed, isTrue);
       expect(state._list.isDisposed, isTrue);
@@ -442,11 +444,11 @@ void main() {
         // Build widget
         await tester.pumpWidget(
           MaterialApp(
-            home: Obx(() => Text('Count: ${controller.counter.value}')),
+            home: Obx(() => Text('Count: ${controller.state.counter.value}')),
           ),
         );
 
-        expect(controller.counter.isDisposed, isFalse);
+        expect(controller.state.counter.isDisposed, isFalse);
 
         // First unmount the widget to avoid null errors during delete
         await tester.pumpWidget(
@@ -457,7 +459,7 @@ void main() {
         Get.delete<ControllerWithDispose>();
 
         // RxVariable should now be disposed (because onClose was called)
-        expect(controller.counter.isDisposed, isTrue);
+        expect(controller.state.counter.isDisposed, isTrue);
       },
     );
 
@@ -651,6 +653,153 @@ void main() {
         // RxVariable should still work
         controller.increment();
         expect(controller.counter.value, equals(1));
+      },
+    );
+  });
+
+  /// These tests verify that the GetxState pattern properly solves the memory
+  /// leak issue where RxVariables would not be automatically closed.
+  ///
+  /// KEY INSIGHT: Before GetxState, users had to manually override onClose()
+  /// in their controller and call state.dispose(). Now, GetxController
+  /// automatically calls state.onClose() when the controller is disposed.
+  group('GetxState Automatic Disposal Tests (Memory Leak Fix)', () {
+    tearDown(() {
+      Get.reset();
+    });
+
+    test(
+      'GetxState.onClose() is automatically called by GetxController.onClose()',
+      () {
+        final controller = Controller()..onStart();
+
+        // All RxVariables should be active
+        expect(controller.state._counter.isDisposed, isFalse);
+        expect(controller.state._list.isDisposed, isFalse);
+        expect(controller.state._name.isDisposed, isFalse);
+
+        // When onDelete() is called, GetxController.onClose() automatically
+        // calls state.onClose() - this is the KEY fix for memory leaks!
+        controller.onDelete();
+
+        // All RxVariables should now be disposed automatically
+        expect(controller.state._counter.isDisposed, isTrue);
+        expect(controller.state._list.isDisposed, isTrue);
+        expect(controller.state._name.isDisposed, isTrue);
+      },
+    );
+
+    testWidgets(
+      'MEMORY FIX: GetxState RxVariables are disposed when Get.delete() is called',
+      (tester) async {
+        final controller = Get.put(ControllerWithDispose());
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Obx(() => Text('Count: ${controller.state.counter.value}')),
+          ),
+        );
+
+        expect(find.text('Count: 0'), findsOneWidget);
+
+        // Update value to create some stream activity
+        controller.increment();
+        await tester.pump();
+        expect(find.text('Count: 1'), findsOneWidget);
+
+        // Verify RxVariable is active
+        expect(controller.state.counter.isDisposed, isFalse);
+
+        // Unmount widget first
+        await tester.pumpWidget(
+          const MaterialApp(home: Text('No Obx')),
+        );
+
+        // Call Get.delete() - this triggers onDelete() -> onClose() -> state.onClose()
+        Get.delete<ControllerWithDispose>();
+
+        // MEMORY LEAK FIX VERIFIED: RxVariable is now automatically disposed!
+        // Before GetxState, this would be FALSE (memory leak)
+        // After GetxState, this is TRUE (properly disposed)
+        expect(controller.state.counter.isDisposed, isTrue);
+      },
+    );
+
+    testWidgets(
+      'MEMORY FIX: Multiple RxVariables in state are all disposed',
+      (tester) async {
+        final controller = Get.put(Controller());
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Obx(
+              () => Column(
+                children: [
+                  Text('Counter: ${controller.state.counter}'),
+                  Text('Name: ${controller.state.name}'),
+                  Text('List: ${controller.state.list.length}'),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        // All RxVariables are active
+        expect(controller.state._counter.isDisposed, isFalse);
+        expect(controller.state._list.isDisposed, isFalse);
+        expect(controller.state._name.isDisposed, isFalse);
+
+        // Unmount and delete
+        await tester.pumpWidget(
+          const MaterialApp(home: Text('No Obx')),
+        );
+        Get.delete<Controller>();
+
+        // ALL RxVariables are disposed automatically!
+        expect(controller.state._counter.isDisposed, isTrue);
+        expect(controller.state._list.isDisposed, isTrue);
+        expect(controller.state._name.isDisposed, isTrue);
+      },
+    );
+
+    test(
+      'COMPARISON: Controller WITHOUT proper onClose does NOT dispose RxVariables',
+      () {
+        // This test shows what happens when state.onClose() is empty
+        final controller = ControllerWithoutDispose()..onStart();
+
+        // RxVariable is on the controller directly, not in state
+        expect(controller.counter.isDisposed, isFalse);
+
+        // Delete the controller
+        controller.onDelete();
+
+        // RxVariable is NOT disposed because:
+        // 1. It's on the controller, not in state
+        // 2. State's onClose() is empty
+        // This demonstrates the OLD behavior that causes memory leaks!
+        expect(controller.counter.isDisposed, isFalse);
+      },
+    );
+
+    test(
+      'COMPARISON: Controller WITH proper GetxState DOES dispose RxVariables',
+      () {
+        // This test shows the correct pattern with GetxState
+        final controller = ControllerWithDispose()..onStart();
+
+        // RxVariable is in the state, which extends GetxState
+        expect(controller.state.counter.isDisposed, isFalse);
+
+        // Delete the controller
+        controller.onDelete();
+
+        // RxVariable IS disposed because:
+        // 1. It's in the state which extends GetxState
+        // 2. State's onClose() closes it
+        // 3. GetxController.onClose() automatically calls state.onClose()
+        // This is the NEW behavior that prevents memory leaks!
+        expect(controller.state.counter.isDisposed, isTrue);
       },
     );
   });

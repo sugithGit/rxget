@@ -86,7 +86,12 @@ void main() {
   // );
 }
 
-class _State {}
+class _State extends GetxState {
+  @override
+  void onClose() {
+    // No RxVariables directly in state for this test
+  }
+}
 
 class Controller extends GetxController<_State> {
   static Controller get to => Get.find();

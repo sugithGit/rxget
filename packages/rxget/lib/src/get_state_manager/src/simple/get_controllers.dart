@@ -8,22 +8,66 @@ import '../../../get_instance/src/lifecycle.dart';
 import '../rx_flutter/rx_notifier.dart';
 import 'list_notifier.dart';
 
+/// Abstract base class for state objects used with [GetxController].
+///
+/// State classes must extend this class and implement [onClose] to
+/// properly dispose of RxVariables and other resources.
+///
+/// ---
+/// Example:
+/// ```dart
+/// class _CounterState extends GetxState {
+///   final counter = 0.obs;
+///   final name = 'test'.obs;
+///
+///   @override
+///   void onClose() {
+///     counter.close();
+///     name.close();
+///   }
+/// }
+/// ```
+abstract class GetxState {
+  /// Called when the controller is disposed.
+  ///
+  /// Override this method to close all RxVariables and dispose of
+  /// any resources held by this state object.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// void onClose() {
+  ///   counter.close();
+  ///   name.close();
+  /// }
+  /// ```
+  void onClose();
+}
+
 /// A base controller class that provides state management functionality.
 ///
 /// Extend this class to create a controller that can be used with GetX's
 /// state management system. This class provides methods to update the UI
 /// when the controller's state changes.
 ///
+/// The state class must extend [GetxState] and implement [GetxState.onClose]
+/// to properly dispose of RxVariables when the controller is disposed.
+///
 /// ---
 /// Example:
 /// ```dart
-/// final class _CounterState {
+/// class _CounterState extends GetxState {
 ///   final _count = 0.obs;
 ///
 ///   int get count => _count.value;
+///
+///   @override
+///   void onClose() {
+///     _count.close();
+///   }
 /// }
 ///
-/// final class CounterController extends GetxController {
+/// class CounterController extends GetxController<_CounterState> {
 ///   @override
 ///   final state = _CounterState();
 ///
@@ -34,7 +78,7 @@ import 'list_notifier.dart';
 /// }
 /// ```
 // ignore: prefer_mixin
-abstract class GetxController<T extends Object> extends ListNotifier
+abstract class GetxController<T extends GetxState> extends ListNotifier
     with GetLifeCycleMixin {
   GetxController() {
     assert(
@@ -49,18 +93,26 @@ abstract class GetxController<T extends Object> extends ListNotifier
   /// instance (for example, `final _State state = _State();`).
   ///
   /// The [state] object should contain your reactive variables (`Rx<T>` or `.obs`)
-  /// that represent the controller’s data layer.
+  /// that represent the controller's data layer.
+  ///
+  /// The [state] class must extend [GetxState] and implement [GetxState.onClose]
+  /// to handle proper resource cleanup when the controller is disposed.
   ///
   /// ---
   /// Example:
   /// ```dart
-  /// final class _CounterState {
+  /// class _CounterState extends GetxState {
   ///   final _count = 0.obs;
   ///
   ///   int get count => _count.value;
+  ///
+  ///   @override
+  ///   void onClose() {
+  ///     _count.close();
+  ///   }
   /// }
   ///
-  /// final class CounterController extends GetxController {
+  /// class CounterController extends GetxController<_CounterState> {
   ///   @override
   ///   final state = _CounterState();
   ///
@@ -74,6 +126,28 @@ abstract class GetxController<T extends Object> extends ListNotifier
   /// You can use `Obx` or `GetBuilder` in your UI to reactively rebuild
   /// widgets when fields inside [state] change.
   T get state;
+
+  /// Called when the controller is disposed.
+  ///
+  /// This method automatically calls [state.onClose()] to dispose of
+  /// all RxVariables and resources in the state object.
+  ///
+  /// If you need to perform additional cleanup in your controller,
+  /// override this method and call `super.onClose()`:
+  ///
+  /// ```dart
+  /// @override
+  /// void onClose() {
+  ///   // Your cleanup code here
+  ///   super.onClose(); // This calls state.onClose() automatically
+  /// }
+  /// ```
+  @override
+  @mustCallSuper
+  void onClose() {
+    state.onClose();
+    super.onClose();
+  }
 
   /// Notifies listeners to update the UI.
   ///

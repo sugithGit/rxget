@@ -76,7 +76,12 @@ void main() {
   });
 }
 
-class _State {}
+class _State extends GetxState {
+  @override
+  void onClose() {
+    // No RxVariables directly in state for this test
+  }
+}
 
 class Controller2 extends GetxController<_State> {
   RxInt lazy = 0.obs;
