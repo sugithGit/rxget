@@ -30,7 +30,7 @@ mixin ListNotifierSingleMixin on Listenable {
   Disposer addListener(GetStateUpdate listener) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
     _updaters!.add(listener);
-    return () => _updaters!.remove(listener);
+    return () => _updaters?.remove(listener);
   }
 
   bool containsListener(GetStateUpdate listener) {
@@ -40,7 +40,7 @@ mixin ListNotifierSingleMixin on Listenable {
   @override
   void removeListener(VoidCallback listener) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
-    _updaters!.remove(listener);
+    _updaters?.remove(listener);
   }
 
   @protected
