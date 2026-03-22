@@ -21,8 +21,6 @@ No routing, no UI helpers — just pure state management.
         - [Tips](#tips)
           - [Mockito or mocktail](#mockito-or-mocktail)
           - [Using Get.reset()](#using-getreset)
-          - [Get.testMode](#gettestmode)
-  - [Breaking changes from 2.0](#breaking-changes-from-20)
   - [Why rxget?](#why-rxget)
   - [Community](#community)
     - [Community channels](#community-channels)
@@ -426,25 +424,6 @@ class NotificationServiceMock extends GetxController with Mock implements Notifi
 
 ###### Using Get.reset()
 If you are testing widgets, or test groups, use Get.reset at the end of your test or in tearDown to reset all settings from your previous test.
-
-###### Get.testMode 
-if you are using your navigation in your controllers, use `Get.testMode = true` at the beginning of your main.
-
-
-## Breaking changes from 2.0
-
-1- Rx types:
-
-| Before  | After      |
-| ------- | ---------- |
-| StringX | `RxString` |
-| IntX    | `RxInt`    |
-| MapX    | `RxMap`    |
-| ListX   | `RxList`   |
-| NumX    | `RxNum`    |
-| DoubleX | `RxDouble` |
-
-RxController and GetBuilder now have merged, you no longer need to memorize which controller you want to use, just use GetxController, it will work for simple state management and for reactive as well.
 
 ## Why rxget?
 

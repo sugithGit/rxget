@@ -1,6 +1,6 @@
 name: rxget
 description: A lightweight reactive state management and dependency injection library for Dart and Flutter — pure and minimal.
-version: 0.1.0+3
+version: 0.1.1
 homepage: https://github.com/sugithGit/rxget
 
 environment:
@@ -10,9 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
-  web: ">=1.0.0 <2.0.0"
 
 dev_dependencies:
   flutter_lints: ^6.0.0
