@@ -53,56 +53,105 @@ dependencies:
 Import get in files that it will be used:
 
 ```dart
-import 'package:rxget/get.dart';
+import 'package:rxget/rxget.dart';
 ```
 
-## Counter App with GetX
+## rxget Architecture vs GetX
 
-The "counter" project created by default on new project on Flutter has over 100 lines (with comments). To show the power of Get, I will demonstrate how to make a "counter" changing the state with each click, switching between pages and sharing the state between screens, all in an organized way, separating the business logic from the view, in ONLY 26 LINES CODE INCLUDING COMMENTS.
+While `rxget` maintains the fast and productive syntax of GetX, it introduces a **strict separation of concerns** between Logic and State to guarantee memory safety and enforce clean code.
+
+In original GetX, developers often mixed reactive variables (`.obs`) and business logic methods within the same `GetxController`, leading to bloated classes and forgotten memory disposal.
+In `rxget`, controllers must explicitly separate their state into a `GetxState` class:
+- **`GetxState`**: Holds the reactive variables and data. It strictly enforces an `onClose()` method where you *must* dispose of your `.obs` streams, guaranteeing no memory leaks.
+- **`GetxController<State>`**: Holds pure business logic and methods, manipulating the state safely without holding variables itself.
+
+## Counter App (The rxget Way)
+
+Let's build a counter app to demonstrate this decoupled architecture!
 
 - Step 1:
-  Create your business logic class and place all variables, methods and controllers inside it.
-  You can make any variable observable using a simple ".obs".
+  Create your state class by extending `GetxState`. Here you define your reactive variables and handle their mandatory disposal.
 
 ```dart
-class Controller extends GetxController{
-  var count = 0.obs;
-  increment() => count++;
+part of 'counter_controller.dart';
+
+final class CounterState extends GetxState {
+  final _count = 0.obs;
+
+  int get count => _count.value;
+
+  @override
+  void onClose() {
+    _count.close(); // Strictly enforce memory disposal!
+  }
 }
 ```
 
 - Step 2:
-  Create your View, use StatelessWidget and save some RAM, with Get you may no longer need to use StatefulWidget.
+  Create your logic class by extending `GetxController<CounterState>`.
+
+```dart
+import 'package:rxget/rxget.dart';
+part 'counter_state.dart';
+
+class CounterController extends GetxController<CounterState> {
+  @override
+  CounterState get state => CounterState();
+
+  void increment() {
+    state._count.value++;
+  }
+}
+```
+
+- Step 3:
+  Create your View using `GetInWidget` to automatically manage the controller's lifecycle without needing complex routing.
 
 ```dart
 class Home extends StatelessWidget {
+  const Home({super.key});
 
   @override
-  Widget build(context) {
-
-    // Instantiate your class using Get.put() to make it available for all "child" routes there.
-    final Controller c = Get.put(Controller());
-
-    return Scaffold(
-      // Use Obx(()=> to update Text() whenever count is changed.
-      appBar: AppBar(title: Obx(() => Text("Clicks: ${c.count}"))),
-
-      // Replace the 8 lines Navigator.push by a simple Get.to(). You don't need context
-      body: Center(child: ElevatedButton(
-              child: Text("Go to Other"), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Other())))),
-      floatingActionButton:
-          FloatingActionButton(child: Icon(Icons.add), onPressed: c.increment));
+  Widget build(BuildContext context) {
+    // Inject the controller scoped to this widget tree
+    return GetInWidget(
+      dependencies: [GetIn(() => CounterController())],
+      child: Scaffold(
+        appBar: AppBar(
+          // Use Obx(()=> to reactively update the UI!
+          title: Obx(() {
+            final controller = Get.find<CounterController>();
+            return Text("Clicks: ${controller.state.count}");
+          }),
+        ),
+        body: Center(
+          child: ElevatedButton(
+            child: const Text("Go to Other"), 
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Other()))
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add), 
+          onPressed: () => Get.find<CounterController>().increment(),
+        ),
+      ),
+    );
   }
 }
 
 class Other extends StatelessWidget {
-  // You can ask Get to find a Controller that is being used by another page and redirect you to it.
-  final Controller c = Get.find();
+  const Other({super.key});
 
   @override
-  Widget build(context){
-     // Access the updated count variable
-     return Scaffold(body: Center(child: Text("${c.count}")));
+  Widget build(BuildContext context) {
+    // Safely find the controller provided by the parent GetInWidget
+    final controller = Get.find<CounterController>();
+    
+    return Scaffold(
+      body: Center(
+        child: Obx(() => Text("${controller.state.count}")),
+      ),
+    );
   }
 }
 ```

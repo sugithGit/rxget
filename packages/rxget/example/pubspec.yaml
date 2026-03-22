@@ -1,0 +1,17 @@
+name: rxget_example
+description: Demonstrates how to use the rxget package.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  rxget:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
