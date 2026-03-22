@@ -1,6 +1,6 @@
 # rxget
 
-rxget is a lightweight, performance-focused fork of GetX — keeping only reactivity and dependency injection.  
+RxGet is a lightweight, performance-focused fork of GetX — keeping only reactivity and dependency injection.  
 No routing, no UI helpers — just pure state management.
 
 - [rxget](#rxget)
@@ -13,10 +13,8 @@ No routing, no UI helpers — just pure state management.
       - [More details about state management](#more-details-about-state-management)
     - [Dependency management](#dependency-management)
       - [More details about dependency management](#more-details-about-dependency-management)
-      - [Widget-Scoped Dependency Injection with GetIn](#widget-scoped-dependency-injection-with-getin)
-        - [Single Dependency](#single-dependency)
-        - [Multiple Dependencies](#multiple-dependencies)
-        - [Single + Multiple](#single--multiple)
+      - [Widget-Scoped Dependency Injection with GetInWidget](#widget-scoped-dependency-injection-with-getinwidget)
+        - [Registering Dependencies](#registering-dependencies)
     - [Useful tips](#useful-tips)
         - [Tips](#tips)
           - [Mockito or mocktail](#mockito-or-mocktail)
@@ -28,29 +26,20 @@ No routing, no UI helpers — just pure state management.
 
 ## About Get
 
-- GetX is an extra-light and powerful solution for Flutter. It combines high-performance state management and intelligent dependency injection quickly and practically.
+- RxGet is an extra-light and powerful solution for Flutter. It combines high-performance state management and intelligent dependency injection quickly and practically.
 
-- GetX has 3 basic principles. This means that these are the priority for all resources in the library: **PRODUCTIVITY, PERFORMANCE AND ORGANIZATION.**
+- RxGet has 3 basic principles. This means that these are the priority for all resources in the library: **PRODUCTIVITY, PERFORMANCE AND ORGANIZATION.**
 
-  - **PERFORMANCE:** GetX is focused on performance and minimum consumption of resources. GetX does not use Streams or ChangeNotifier.
+  - **PERFORMANCE:** Focused on minimum resource consumption. The simple state manager (GetBuilder) avoids ChangeNotifier and Streams entirely in favor of highly optimized, lightweight callbacks, while the reactive state manager (Obx) uses optimized mini-streams.
 
-  - **PRODUCTIVITY:** GetX uses an easy and pleasant syntax. No matter what you want to do, there is always an easier way with GetX. It will save hours of development and will provide the maximum performance your application can deliver.
+  - **PRODUCTIVITY:** RxGet uses an easy and pleasant syntax. No matter what you want to do, there is always an easier way with RxGet. It will save hours of development and will provide the maximum performance your application can deliver.
 
-    Generally, the developer should be concerned with removing controllers from memory. With GetX this is not necessary because resources are removed from memory when they are not used by default. If you want to keep it in memory, you must explicitly declare "permanent: true" in your dependency. That way, in addition to saving time, you are less at risk of having unnecessary dependencies on memory. Dependency loading is also lazy by default.
+    Generally, the developer should be concerned with removing controllers from memory. With RxGet this is not necessary because resources are removed from memory when they are not used by default. If you want to keep it in memory, you must explicitly declare "permanent: true" in your dependency. That way, in addition to saving time, you are less at risk of having unnecessary dependencies on memory. Dependency loading is also lazy by default.
 
-  - **ORGANIZATION:** GetX allows the total decoupling of the View, presentation logic, business logic, and dependency injection. You do not need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, GetX uses its own dependency injection feature, decoupling the DI from its view completely.
-    With GetX you know where to find each feature of your application, having clean code by default. In addition to making maintenance easy, this makes the sharing of modules something that until then in Flutter was unthinkable, something totally possible.
-    BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. GetX is a natural evolution of this, not only separating the business logic but the presentation logic. Dependency injection is also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
+  - **ORGANIZATION:** RxGet allows the total decoupling of the View, presentation logic, business logic, and dependency injection. You do not need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, RxGet uses its own dependency injection feature, decoupling the DI from its view completely.
+    With RxGet you know where to find each feature of your application, having clean code by default. In addition to making maintenance easy, this makes the sharing of modules something that until then in Flutter was unthinkable, something totally possible.
+    BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. RxGet is a natural evolution of this, not only separating the business logic but the presentation logic. Dependency injection is also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
     GetX is the easiest, practical, and scalable way to build high-performance applications with the Flutter SDK. It has a large ecosystem around it that works perfectly together, it's easy for beginners, and it's accurate for experts. It is secure, stable, up-to-date, and offers a huge range of APIs built-in that are not present in the default Flutter SDK.
-
-- GetX is not bloated. It has a multitude of features that allow you to start programming without worrying about anything, but each of these features are in separate containers and are only started after use. If you only use State Management, only State Management will be compiled. If you only use routes, nothing from the state management will be compiled.
-
-- GetX has a huge ecosystem, a large community, a large number of collaborators, and will be maintained as long as the Flutter exists. GetX too is capable of running with the same code on Android, iOS, Web, Mac, Linux, Windows, and on your server.
-
-**In addition, the entire development process can be completely automated, both on the server and on the front end with [Get CLI](https://github.com/jonataslaw/get_cli)**.
-
-**In addition, to further increase your productivity, we have the
-[extension to VSCode](https://marketplace.visualstudio.com/items?itemName=get-snippets.get-snippets) and the [extension to Android Studio/Intellij](https://plugins.jetbrains.com/plugin/14975-getx-snippets)**
 
 ## Installing
 
@@ -207,47 +196,33 @@ Text(controller.textFromApi);
 
 **See a more in-depth explanation of dependency management [here](./documentation/en_US/dependency_management.md)**
 
-#### Widget-Scoped Dependency Injection with GetIn
+#### Widget-Scoped Dependency Injection with GetInWidget
 
-After removing navigator and UI features, the automatic disposal system was removed. The `GetIn` widget solves this by providing widget-scoped dependency injection with automatic disposal when the widget is removed from the tree.
+After removing the navigator and UI features of GetX, the automatic memory disposal system based on routes was removed. To solve this, `rxget` provides `GetInWidget`: a widget-scoped dependency injection system that ensures all resources, controllers, and their memory are completely and automatically disposed of when the widget is removed from the tree. This achieves excellent memory optimization out of the box without requiring manual disposal.
 
-##### Single Dependency
+##### Registering Dependencies
 
-```dart
-GetIn(
-  single: MyController(),
-  child: MyWidget(),
-)
-```
-
-When this widget is disposed, `MyController` will automatically be removed from memory.
-
-##### Multiple Dependencies
+Pass a list of `GetIn` configurations to `GetInWidget`. Each dependency uses a factory function (e.g., `() => MyController()`) to support lazy initialization.
 
 ```dart
-GetIn(
-  multiple: [
-    UserController(),
-    SettingsController(),
-    ThemeController(),
+GetInWidget(
+  dependencies: [
+    // Lazily injected dependency (only created in memory when first accessed via Get.find)
+    GetIn<MyController>(() => MyController()),
+    
+    // Dependencies can reference previously registered ones
+    GetIn<OtherController>(() => OtherController(Get.find<MyController>())),
+    
+    // Eagerly injected dependency
+    GetIn<AuthService>(() => AuthService(), lazy: false),
   ],
   child: MyWidget(),
 )
 ```
 
-All dependencies are automatically disposed when the `GetIn` widget is removed.
+When `GetInWidget` is destroyed (e.g., you navigate away or the widget is removed), *all* memory tied to the registered controllers is automatically disposed of securely.
 
-##### Single + Multiple
-
-```dart
-GetIn(
-  single: MainController(),
-  multiple: [HelperController(), UtilsController()],
-  child: MyWidget(),
-)
-```
-
-Access dependencies anywhere in the widget tree with `Get.find<Type>()`:
+Access dependencies anywhere in the widget's descending tree with `Get.find<Type>()`:
 
 ```dart
 final controller = Get.find<MyController>();
