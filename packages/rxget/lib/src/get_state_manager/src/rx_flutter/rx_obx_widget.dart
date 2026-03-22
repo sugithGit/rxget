@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../get_rx/src/rx_types/rx_types.dart';
 import '../simple/simple_builder.dart';
 
+/// A callback that returns a [Widget] with no parameters.
 typedef WidgetCallback = Widget Function();
 
 /// The [ObxWidget] is the base for all GetX reactive widgets
@@ -22,7 +23,10 @@ abstract class ObxWidget extends ObxStatelessWidget {
 /// final _name = "GetX".obs;
 /// Obx(() => Text( _name.value )),... ;
 class Obx extends ObxWidget {
+  /// Creates an [Obx] widget.
   const Obx(this.builder, {super.key});
+
+  /// The builder callback that returns the reactive widget tree.
   final WidgetCallback builder;
 
   @override
@@ -43,8 +47,13 @@ class Obx extends ObxWidget {
 ///    false.obs,
 ///   ),
 class ObxValue<T extends RxInterface> extends ObxWidget {
+  /// Creates an [ObxValue] widget.
   const ObxValue(this.builder, this.data, {super.key});
+
+  /// The builder callback that receives the reactive [data] and returns a widget.
   final Widget Function(T) builder;
+
+  /// The reactive data to observe.
   final T data;
 
   @override

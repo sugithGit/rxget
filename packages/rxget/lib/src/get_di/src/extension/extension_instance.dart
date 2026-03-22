@@ -5,7 +5,12 @@ import 'package:flutter/material.dart';
 import '../../../get_core/get_core.dart';
 import '../../../get_instance/src/lifecycle.dart';
 
+/// Holds metadata about a registered dependency instance.
+///
+/// This class provides detailed information about how an instance
+/// was registered, whether it is initialized, and its lifecycle status.
 class InstanceInfo {
+  /// Creates an [InstanceInfo] with the given lifecycle flags.
   const InstanceInfo({
     required this.isPermanent,
     required this.isSingleton,
@@ -13,11 +18,23 @@ class InstanceInfo {
     required this.isPrepared,
     required this.isInit,
   });
+
+  /// Whether the instance is marked as permanent (not auto-disposed).
   final bool? isPermanent;
+
+  /// Whether the instance is a singleton (shared across all callers).
   final bool? isSingleton;
+
+  /// Whether the instance was registered with a factory (non-singleton).
   bool get isCreate => !isSingleton!;
+
+  /// Whether the instance type is currently registered with Get.
   final bool isRegistered;
+
+  /// Whether the instance has a lazy builder registered but not yet initialized.
   final bool isPrepared;
+
+  /// Whether the instance has been initialized (its builder has been called).
   final bool? isInit;
 
   @override
@@ -43,7 +60,12 @@ extension ResetInstance on GetInterface {
   }
 }
 
+/// Extension on [GetInterface] that provides dependency injection methods.
+///
+/// This extension adds `put`, `find`, `delete`, `lazyPut`, and other
+/// instance management methods to the [GetInterface].
 extension Inst on GetInterface {
+  /// Shorthand for [find]. Allows calling `Get<MyClass>()` instead of `Get.find<MyClass>()`.
   T call<T>() => find<T>();
 
   /// Holds references to every registered Instance when using
@@ -68,6 +90,11 @@ extension Inst on GetInterface {
   //   );
   // }
 
+  /// Registers an instance of type [S] into the dependency injection system.
+  ///
+  /// The [dependency] is immediately available via `Get.find<S>()`.
+  /// - [tag]: optional string to differentiate multiple instances of the same type.
+  /// - [permanent]: if `true`, the instance will not be removed by smart management.
   S put<S>(
     S dependency, {
     String? tag,
@@ -201,6 +228,9 @@ extension Inst on GetInterface {
     return i;
   }
 
+  /// Returns detailed [InstanceInfo] about the registered instance of type [S].
+  ///
+  /// - [tag]: optional tag used during registration.
   InstanceInfo getInstanceInfo<S>({String? tag}) {
     final build = _getDependency<S>(tag: tag);
 
@@ -224,6 +254,8 @@ extension Inst on GetInterface {
     }
   }
 
+  /// Marks the instance of type [S] as dirty, allowing it to be re-created
+  /// on the next `find` call. Permanent instances are not affected.
   void markAsDirty<S>({String? tag, String? key}) {
     final newKey = key ?? _getKey(S, tag);
     if (_singl.containsKey(newKey)) {
@@ -249,6 +281,8 @@ extension Inst on GetInterface {
     return i;
   }
 
+  /// Returns the existing instance of type [S] if registered, otherwise
+  /// creates and registers a new one using [dep].
   S putOrFind<S>(InstanceBuilderCallback<S> dep, {String? tag}) {
     final key = _getKey(S, tag);
 
@@ -419,6 +453,10 @@ extension Inst on GetInterface {
     }
   }
 
+  /// Reloads all registered instances by clearing their cached values.
+  ///
+  /// The next call to `find` will re-create each instance from its builder.
+  /// - [force]: if `true`, even permanent instances will be reloaded.
   void reloadAll({bool force = false}) {
     _singl.forEach((key, value) {
       if (value.permanent && !force) {
@@ -432,6 +470,12 @@ extension Inst on GetInterface {
     });
   }
 
+  /// Reloads a specific registered instance of type [S].
+  ///
+  /// Clears the cached value so the next `find` call re-creates it.
+  /// - [tag]: optional tag used during registration.
+  /// - [key]: internal key (advanced usage).
+  /// - [force]: if `true`, reloads even if the instance is permanent.
   void reload<S>({
     String? tag,
     String? key,
@@ -487,14 +531,17 @@ extension Inst on GetInterface {
   }
 }
 
+/// A synchronous factory callback that returns an instance of type [S].
 typedef InstanceBuilderCallback<S> = S Function();
 
+/// A factory callback that receives a [BuildContext] and returns an instance of [S].
 typedef InstanceCreateBuilderCallback<S> = S Function(BuildContext _);
 
 // typedef InstanceBuilderCallback<S> = S Function();
 
 // typedef InjectorBuilderCallback<S> = S Function(Inst);
 
+/// An asynchronous factory callback that returns a [Future] of type [S].
 typedef AsyncInstanceBuilderCallback<S> = Future<S> Function();
 
 /// Internal class to register instances with `Get.put<S>()`.

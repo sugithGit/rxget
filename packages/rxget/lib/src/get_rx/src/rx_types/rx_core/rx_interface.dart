@@ -17,7 +17,12 @@ abstract class RxInterface<T> implements ValueListenable<T> {
   });
 }
 
+/// An error message class shown when [Obx] or [GetX] widgets are used improperly.
+///
+/// This typically occurs when observable variables are not placed within
+/// the correct reactive scope.
 class ObxError {
+  /// Creates a const [ObxError].
   const ObxError();
   @override
   String toString() {

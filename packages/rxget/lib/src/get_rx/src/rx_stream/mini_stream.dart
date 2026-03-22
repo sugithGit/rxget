@@ -1,13 +1,25 @@
 part of 'rx_stream.dart';
 
+/// A doubly-linked list node used internally by [FastList].
 class Node<T> {
+  /// Creates a [Node] with optional [data], [next], and [prev] pointers.
   Node({this.data, this.next, this.prev});
+
+  /// The data stored in this node.
   T? data;
+
+  /// Pointer to the next node in the list.
   Node<T>? next;
+
+  /// Pointer to the previous node in the list.
   Node<T>? prev;
 }
 
+/// A lightweight subscription returned when listening to a [MiniStream].
+///
+/// Call [cancel] to unsubscribe from the stream.
 class MiniSubscription<T> {
+  /// Creates a [MiniSubscription] with the given callbacks.
   const MiniSubscription(
     this.data,
     this.onError,
@@ -15,42 +27,67 @@ class MiniSubscription<T> {
     this.cancelOnError,
     this.listener,
   );
+
+  /// Callback invoked when new data is emitted.
   final OnData<T> data;
+
+  /// Callback invoked when an error occurs.
   final Function? onError;
+
+  /// Callback invoked when the stream is done.
   final Callback? onDone;
+
+  /// Whether to automatically cancel the subscription on error.
   final bool cancelOnError;
 
+  /// Cancels this subscription.
   Future<void> cancel() async => listener.removeListener(this);
 
+  /// Reference to the parent listener list.
   final FastList<T> listener;
 }
 
+/// A lightweight stream implementation used internally by GetX's reactive system.
+///
+/// Provides a simple pub/sub mechanism without the overhead of Dart's
+/// built-in [Stream] class.
 class MiniStream<T> {
+  /// The underlying listener list.
   FastList<T> listenable = FastList<T>();
 
   late T _value;
 
+  /// The current value held by this stream.
   T get value => _value;
 
+  /// Sets a new [val] and notifies all listeners.
   set value(T val) {
     add(val);
   }
 
+  /// Emits an [event] to all listeners.
   void add(T event) {
     _value = event;
     listenable._notifyData(event);
   }
 
+  /// Emits an error to all listeners.
   void addError(Object error, [StackTrace? stackTrace]) {
     listenable._notifyError(error, stackTrace);
   }
 
+  /// The number of active listeners.
   int get length => listenable.length;
 
+  /// Whether there are any active listeners.
   bool get hasListeners => listenable.isNotEmpty;
 
+  /// Whether this stream has been closed.
   bool get isClosed => _isClosed;
 
+  /// Subscribes to this stream with an [onData] callback.
+  ///
+  /// Returns a [MiniSubscription] that can be used to cancel the subscription.
   MiniSubscription<T> listen(
     void Function(T event) onData, {
     Function? onError,
@@ -70,6 +107,9 @@ class MiniStream<T> {
 
   bool _isClosed = false;
 
+  /// Closes this stream and notifies all listeners that the stream is done.
+  ///
+  /// Throws an [Exception] if the stream has already been closed.
   void close() {
     if (_isClosed) {
       throw Exception('You can not close a closed Stream');
@@ -81,6 +121,9 @@ class MiniStream<T> {
   }
 }
 
+/// A fast doubly-linked list implementation for managing [MiniSubscription] listeners.
+///
+/// Uses a linked list rather than a [List] for O(1) insertions and removals.
 class FastList<T> {
   Node<MiniSubscription<T>>? _head;
   Node<MiniSubscription<T>>? _tail;
@@ -112,12 +155,16 @@ class FastList<T> {
     }
   }
 
+  /// Whether the list has no listeners.
   bool get isEmpty => _length == 0;
 
+  /// Whether the list has at least one listener.
   bool get isNotEmpty => _length > 0;
 
+  /// The current number of listeners.
   int get length => _length;
 
+  /// Returns the subscription at the given [position], or `null` if out of range.
   MiniSubscription<T>? elementAt(int position) {
     if (isEmpty || position < 0 || position >= _length) {
       return null;
@@ -133,6 +180,7 @@ class FastList<T> {
     return node!.data;
   }
 
+  /// Appends a [data] subscription to the end of the list.
   void addListener(MiniSubscription<T> data) {
     final newNode = Node(data: data);
 
@@ -146,6 +194,7 @@ class FastList<T> {
     _length++;
   }
 
+  /// Returns `true` if the list contains the given [element].
   bool contains(T element) {
     var currentNode = _head;
     while (currentNode != null) {
@@ -157,6 +206,7 @@ class FastList<T> {
     return false;
   }
 
+  /// Removes the given [element] subscription from the list.
   void removeListener(MiniSubscription<T> element) {
     var currentNode = _head;
     while (currentNode != null) {
@@ -168,6 +218,7 @@ class FastList<T> {
     }
   }
 
+  /// Removes all listeners from the list.
   void clear() {
     _head = _tail = null;
     _length = 0;

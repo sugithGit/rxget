@@ -1,5 +1,6 @@
 part of '../rx_types.dart';
 
+/// Reactive extensions for non-nullable [num] types.
 extension RxNumExt<T extends num> on Rx<T> {
   /// Multiplication operator.
   num operator *(num other) => value * other;
@@ -263,6 +264,7 @@ extension RxNumExt<T extends num> on Rx<T> {
       value.toStringAsPrecision(precision);
 }
 
+/// Reactive extensions for nullable [num] types.
 extension RxnNumExt<T extends num> on Rx<T?> {
   /// Multiplication operator.
   num? operator *(num other) {
@@ -571,9 +573,12 @@ extension RxnNumExt<T extends num> on Rx<T?> {
       value?.toStringAsPrecision(precision);
 }
 
+/// A reactive wrapper for non-nullable [num] values with arithmetic operators.
 class RxNum extends Rx<num> {
+  /// Creates an [RxNum] with the given initial value.
   RxNum(super.val);
 
+  /// Addition operator.
   num operator +(num other) {
     value += other;
     return value;
@@ -586,9 +591,12 @@ class RxNum extends Rx<num> {
   }
 }
 
+/// A reactive wrapper for nullable [num] values with arithmetic operators.
 class RxnNum extends Rx<num?> {
+  /// Creates an [RxnNum] with an optional initial value.
   RxnNum([super.initial]);
 
+  /// Addition operator.
   num? operator +(num other) {
     if (value != null) {
       value = value! + other;
@@ -607,6 +615,7 @@ class RxnNum extends Rx<num?> {
   }
 }
 
+/// Reactive extensions for non-nullable [double] values.
 extension RxDoubleExt on Rx<double> {
   /// Addition operator.
   Rx<double> operator +(num other) {
@@ -623,6 +632,7 @@ extension RxDoubleExt on Rx<double> {
   /// Multiplication operator.
   double operator *(num other) => value * other;
 
+  /// Modulo operator.
   double operator %(num other) => value % other;
 
   /// Division operator.
@@ -715,6 +725,7 @@ extension RxDoubleExt on Rx<double> {
   double truncateToDouble() => value.truncateToDouble();
 }
 
+/// Reactive extensions for nullable [double] values.
 extension RxnDoubleExt on Rx<double?> {
   /// Addition operator.
   Rx<double?>? operator +(num other) {
@@ -742,6 +753,7 @@ extension RxnDoubleExt on Rx<double?> {
     return null;
   }
 
+  /// Modulo operator.
   double? operator %(num other) {
     if (value != null) {
       return value! % other;

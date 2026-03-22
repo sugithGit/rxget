@@ -32,8 +32,10 @@ import 'get_widget_cache.dart';
 abstract class GetView<T> extends StatelessWidget {
   const GetView({super.key});
 
+  /// Optional tag used to find a specific instance of [T].
   String? get tag => null;
 
+  /// The controller of type [T] retrieved from the dependency injection system.
   T get controller => Get.find<T>(tag: tag)!;
 
   @override
@@ -49,9 +51,11 @@ abstract class GetView<T> extends StatelessWidget {
 abstract class GetWidget<S extends GetLifeCycleMixin> extends GetWidgetCache {
   const GetWidget({super.key});
 
+  /// Optional tag used to find a specific instance of [S].
   @protected
   String? get tag => null;
 
+  /// The controller of type [S] cached by this widget.
   S get controller => GetWidget._cache[this] as S;
 
   // static final _cache = <GetWidget, GetLifeCycleBase>{};

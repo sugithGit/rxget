@@ -4,6 +4,10 @@ part of '../rx_types.dart';
 /// reactivity
 /// of those `Widgets` and Rx values.
 
+/// A mixin that provides reactive (Rx) object behavior for any type [T].
+///
+/// Adds stream-based reactivity, equality overrides, and convenience
+/// methods for updating values.
 mixin RxObjectMixin<T> on GetListenable<T> {
   //late T _value;
 
@@ -66,7 +70,10 @@ mixin RxObjectMixin<T> on GetListenable<T> {
     return value;
   }
 
+  /// Whether this is the first rebuild cycle for this Rx value.
   bool firstRebuild = true;
+
+  /// Whether the current value has been sent to the internal stream.
   bool sentToStream = false;
 
   /// Same as `toString()` but using a getter.
@@ -221,7 +228,9 @@ abstract class _RxImpl<T> extends GetListenable<T> with RxObjectMixin<T> {
   }
 }
 
+/// A reactive wrapper for [bool] values.
 class RxBool extends Rx<bool> {
+  /// Creates a [RxBool] with the given initial value.
   RxBool(super.val);
   @override
   String toString() {
@@ -229,7 +238,9 @@ class RxBool extends Rx<bool> {
   }
 }
 
+/// A reactive wrapper for nullable [bool] values.
 class RxnBool extends Rx<bool?> {
+  /// Creates a [RxnBool] with an optional initial value.
   RxnBool([super.initial]);
   @override
   String toString() {
@@ -237,15 +248,21 @@ class RxnBool extends Rx<bool?> {
   }
 }
 
+/// Reactive extensions for [Rx<bool>].
 extension RxBoolExt on Rx<bool> {
+  /// Returns `true` if the current [value] is `true`.
   bool get isTrue => value;
 
+  /// Returns `true` if the current [value] is `false`.
   bool get isFalse => !isTrue;
 
+  /// Logical AND with [other].
   bool operator &(bool other) => other && value;
 
+  /// Logical OR with [other].
   bool operator |(bool other) => other || value;
 
+  /// Logical XOR with [other].
   bool operator ^(bool other) => !other == value;
 
   /// Toggles the bool [value] between false and true.
@@ -256,9 +273,12 @@ extension RxBoolExt on Rx<bool> {
   }
 }
 
+/// Reactive extensions for [Rx<bool?>].
 extension RxnBoolExt on Rx<bool?> {
+  /// Returns the current nullable [value].
   bool? get isTrue => value;
 
+  /// Returns the inverse of the current [value], or `null` if value is `null`.
   bool? get isFalse {
     if (value != null) {
       return !isTrue!;
@@ -266,6 +286,7 @@ extension RxnBoolExt on Rx<bool?> {
     return null;
   }
 
+  /// Nullable logical AND with [other].
   bool? operator &(bool other) {
     if (value != null) {
       return other && value!;
@@ -273,6 +294,7 @@ extension RxnBoolExt on Rx<bool?> {
     return null;
   }
 
+  /// Nullable logical OR with [other].
   bool? operator |(bool other) {
     if (value != null) {
       return other || value!;
@@ -280,6 +302,7 @@ extension RxnBoolExt on Rx<bool?> {
     return null;
   }
 
+  /// Nullable logical XOR with [other].
   bool? operator ^(bool other) => !other == value;
 
   /// Toggles the bool [value] between false and true.
@@ -297,6 +320,7 @@ extension RxnBoolExt on Rx<bool?> {
 /// For example, any custom "Model" class, like User().obs will use `Rx` as
 /// wrapper.
 class Rx<T> extends _RxImpl<T> {
+  /// Creates an [Rx] with the given initial value.
   Rx(super.val);
 
   @override
@@ -309,7 +333,11 @@ class Rx<T> extends _RxImpl<T> {
   }
 }
 
+/// A reactive wrapper for nullable types.
+///
+/// Like [Rx] but allows `null` as the initial value.
 class Rxn<T> extends Rx<T?> {
+  /// Creates an [Rxn] with an optional nullable initial value.
   Rxn([super.initial]);
 
   @override
@@ -322,26 +350,31 @@ class Rxn<T> extends Rx<T?> {
   }
 }
 
+/// Convenience extension to make any [String] reactive.
 extension StringExtension on String {
   /// Returns a `RxString` with [this] `String` as initial value.
   RxString get obs => RxString(this);
 }
 
+/// Convenience extension to make any [int] reactive.
 extension IntExtension on int {
   /// Returns a `RxInt` with [this] `int` as initial value.
   RxInt get obs => RxInt(this);
 }
 
+/// Convenience extension to make any [double] reactive.
 extension DoubleExtension on double {
   /// Returns a `RxDouble` with [this] `double` as initial value.
   RxDouble get obs => RxDouble(this);
 }
 
+/// Convenience extension to make any [bool] reactive.
 extension BoolExtension on bool {
   /// Returns a `RxBool` with [this] `bool` as initial value.
   RxBool get obs => RxBool(this);
 }
 
+/// Convenience extension to make any [Object] reactive as `Rx<T>`.
 extension RxT<T extends Object> on T {
   /// Returns a `Rx` instance with [this] `T` as initial value.
   Rx<T> get obs => Rx<T>(this);

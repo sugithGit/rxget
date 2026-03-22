@@ -75,7 +75,7 @@ Let's build a counter app to demonstrate this decoupled architecture!
 ```dart
 part of 'counter_controller.dart';
 
-final class CounterState extends GetxState {
+final class _CounterState extends GetxState {
   final _count = 0.obs;
 
   int get count => _count.value;
@@ -94,9 +94,9 @@ final class CounterState extends GetxState {
 import 'package:rxget/rxget.dart';
 part 'counter_state.dart';
 
-class CounterController extends GetxController<CounterState> {
+class CounterController extends GetxController<_CounterState> {
   @override
-  CounterState get state => CounterState();
+  _CounterState get state => _CounterState();
 
   void increment() {
     state._count.value++;

@@ -2,13 +2,15 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-// This callback remove the listener on addListener function
+/// A callback that removes a listener. Returned by [ListNotifierSingleMixin.addListener].
 typedef Disposer = void Function();
 
-// replacing StateSetter, return if the Widget is mounted for extra validation.
-// if it brings overhead the extra call,
+/// A callback used to trigger a state update on a widget.
 typedef GetStateUpdate = void Function();
 
+/// A [Listenable] that supports both single listeners and grouped listeners by ID.
+///
+/// Combines [ListNotifierSingleMixin] and [ListNotifierGroupMixin].
 class ListNotifier extends Listenable
     with ListNotifierSingleMixin, ListNotifierGroupMixin {}
 
@@ -26,6 +28,7 @@ mixin ListNotifierSingleMixin on Listenable {
   // final int _version = 0;
   // final int _microtaskVersion = 0;
 
+  /// Registers a [listener] and returns a [Disposer] to unregister it.
   @override
   Disposer addListener(GetStateUpdate listener) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
@@ -33,6 +36,7 @@ mixin ListNotifierSingleMixin on Listenable {
     return () => _updaters?.remove(listener);
   }
 
+  /// Returns `true` if [listener] is currently registered.
   bool containsListener(GetStateUpdate listener) {
     return _updaters?.contains(listener) ?? false;
   }
@@ -43,17 +47,20 @@ mixin ListNotifierSingleMixin on Listenable {
     _updaters?.remove(listener);
   }
 
+  /// Notifies all registered listeners to trigger a rebuild.
   @protected
   void refresh() {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
     _notifyUpdate();
   }
 
+  /// Reports a read access to the [Notifier] system so reactive widgets can track dependencies.
   @protected
   void reportRead() {
     Notifier.instance.read(this);
   }
 
+  /// Reports a disposer callback to the [Notifier] system for cleanup.
   @protected
   void reportAdd(VoidCallback disposer) {
     Notifier.instance.add(disposer);
@@ -74,6 +81,7 @@ mixin ListNotifierSingleMixin on Listenable {
     // }
   }
 
+  /// Whether this notifier has been disposed.
   bool get isDisposed => _updaters == null;
 
   bool _debugAssertNotDisposed() {
@@ -89,11 +97,13 @@ mixin ListNotifierSingleMixin on Listenable {
     return true;
   }
 
+  /// The current number of registered listeners.
   int get listenersLength {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
     return _updaters!.length;
   }
 
+  /// Disposes all listeners and marks the notifier as disposed.
   @mustCallSuper
   void dispose() {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
@@ -101,6 +111,10 @@ mixin ListNotifierSingleMixin on Listenable {
   }
 }
 
+/// A mixin that adds grouped listener support identified by [Object] keys.
+///
+/// Each group maintains its own [ListNotifierSingleMixin] so listeners
+/// can be notified independently.
 mixin ListNotifierGroupMixin on Listenable {
   HashMap<Object?, ListNotifierSingleMixin>? _updatersGroupIds =
       HashMap<Object?, ListNotifierSingleMixin>();
@@ -111,16 +125,19 @@ mixin ListNotifierGroupMixin on Listenable {
     }
   }
 
+  /// Reports a read to the [Notifier] system for the group identified by [id].
   @protected
   void notifyGroupChildrens(Object id) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
     Notifier.instance.read(_updatersGroupIds![id]!);
   }
 
+  /// Returns `true` if a listener group with the given [id] exists.
   bool containsId(Object id) {
     return _updatersGroupIds?.containsKey(id) ?? false;
   }
 
+  /// Notifies all listeners in the group identified by [id].
   @protected
   void refreshGroup(Object id) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
@@ -140,6 +157,7 @@ mixin ListNotifierGroupMixin on Listenable {
     return true;
   }
 
+  /// Removes a [listener] from the group identified by [id].
   void removeListenerId(Object id, VoidCallback listener) {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
     if (_updatersGroupIds!.containsKey(id)) {
@@ -147,6 +165,7 @@ mixin ListNotifierGroupMixin on Listenable {
     }
   }
 
+  /// Disposes all listener groups and marks this mixin as disposed.
   @mustCallSuper
   void dispose() {
     assert(_debugAssertNotDisposed(), 'ListNotifier was disposed');
@@ -154,6 +173,9 @@ mixin ListNotifierGroupMixin on Listenable {
     _updatersGroupIds = null;
   }
 
+  /// Adds a [listener] to the group identified by [key].
+  ///
+  /// Creates the group if it doesn't exist. Returns a [Disposer].
   Disposer addListenerId(Object? key, GetStateUpdate listener) {
     _updatersGroupIds![key] ??= ListNotifierSingle();
     return _updatersGroupIds![key]!.addListener(listener);
@@ -168,18 +190,26 @@ mixin ListNotifierGroupMixin on Listenable {
   }
 }
 
+/// The central notification hub for `GetX` and `Obx` reactivity.
+///
+/// Tracks which reactive variables are read during a widget build
+/// and wires up the appropriate listeners for automatic rebuilds.
 class Notifier {
   Notifier._();
 
   static Notifier? _instance;
+
+  /// Returns the singleton [Notifier] instance.
   static Notifier get instance => _instance ??= Notifier._();
 
   NotifyData? _notifyData;
 
+  /// Registers a dispose [listener] for cleanup when the observer unmounts.
   void add(VoidCallback listener) {
     _notifyData?.disposers.add(listener);
   }
 
+  /// Subscribes the current observer to [updaters] changes.
   void read(ListNotifierSingleMixin updaters) {
     final listener = _notifyData?.updater;
     if (listener != null && !updaters.containsListener(listener)) {
@@ -188,6 +218,10 @@ class Notifier {
     }
   }
 
+  /// Executes [builder] within a reactive scope tracked by [data].
+  ///
+  /// Any [GetListenable] read during [builder] execution will be
+  /// automatically subscribed to [data.updater].
   T append<T>(NotifyData data, T Function() builder) {
     _notifyData = data;
     final result = builder();
@@ -199,18 +233,28 @@ class Notifier {
   }
 }
 
+/// Data payload used by [Notifier] to track reactive subscriptions.
 class NotifyData {
+  /// Creates a [NotifyData].
   const NotifyData({
     required this.updater,
     required this.disposers,
     this.throwException = true,
   });
+
+  /// The callback that triggers a widget rebuild.
   final GetStateUpdate updater;
+
+  /// Cleanup callbacks to run when the observer is unmounted.
   final List<VoidCallback> disposers;
+
+  /// Whether to throw an [ObxError] if no reactive variables are tracked.
   final bool throwException;
 }
 
+/// An error thrown when an `Obx` or `GetX` widget fails to track any observable.
 class ObxError extends Error {
+  /// Creates an [ObxError].
   ObxError();
   @override
   String toString() {

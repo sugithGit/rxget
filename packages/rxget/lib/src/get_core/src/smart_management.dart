@@ -16,7 +16,12 @@
 /// However, it will keep their factory, which means it will recreate
 /// the dependency if you need that instance again.
 enum SmartManagement {
+  /// Disposes all controllers not currently in use. This is the default.
   full,
+
+  /// Only disposes controllers started via `init:` in GetBuilder or loaded via `Get.lazyPut()`.
   onlyBuilder,
+
+  /// Like [full], but keeps the factory builders in memory so instances can be re-created.
   keepFactory,
 }
