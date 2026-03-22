@@ -1,3 +1,3 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial release of `hooks_rxget` with support for `rxget` state management via Flutter Hooks.

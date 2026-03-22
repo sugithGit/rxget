@@ -1,0 +1,5 @@
+include: analysis_options_without_plugins.yaml
+
+plugins:
+  rxget_lint:
+    path: packages/rxget_lint

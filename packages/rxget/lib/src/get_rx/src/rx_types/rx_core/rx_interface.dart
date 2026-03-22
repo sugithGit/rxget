@@ -9,8 +9,12 @@ abstract class RxInterface<T> implements ValueListenable<T> {
   void close();
 
   /// Calls `callback` with current value, when the value changes.
-  StreamSubscription<T> listen(void Function(T event) onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError});
+  StreamSubscription<T> listen(
+    void Function(T event) onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  });
 }
 
 class ObxError {

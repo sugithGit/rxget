@@ -22,7 +22,6 @@ abstract class ObxWidget extends ObxStatelessWidget {
 /// final _name = "GetX".obs;
 /// Obx(() => Text( _name.value )),... ;
 class Obx extends ObxWidget {
-
   const Obx(this.builder, {super.key});
   final WidgetCallback builder;
 
@@ -44,7 +43,6 @@ class Obx extends ObxWidget {
 ///    false.obs,
 ///   ),
 class ObxValue<T extends RxInterface> extends ObxWidget {
-
   const ObxValue(this.builder, this.data, {super.key});
   final Widget Function(T) builder;
   final T data;
