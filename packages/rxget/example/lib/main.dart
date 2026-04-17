@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'rxget Counter Example',
+      // 2. Inject the controller into memory
       home: GetInWidget(
         dependencies: [GetIn(() => CounterController())],
         child: const Home(),
@@ -27,7 +28,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 2. Inject the controller into memory
+    // 3. Find the existing controller in memory
     final controller = Get.find<CounterController>();
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +39,7 @@ class Home extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('You have pushed the button this many times:'),
-            // 3. Wrap the reactive part with Obx to automatically rebuild when count changes
+            // 4. Wrap the reactive part with Obx to automatically rebuild when count changes
             Obx(() {
               return Text(
                 '${controller.state.count}',
@@ -48,7 +49,7 @@ class Home extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navigate to another screen without context!
+                // Navigate to another screen
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const OtherScreen()),
                 );
@@ -71,7 +72,7 @@ class OtherScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 4. Find the existing controller in memory
+    // Find the existing controller in memory
     final controller = Get.find<CounterController>();
 
     return Scaffold(
