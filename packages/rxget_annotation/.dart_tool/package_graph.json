@@ -1,0 +1,14 @@
+{
+  "roots": [
+    "rxget_annotation"
+  ],
+  "packages": [
+    {
+      "name": "rxget_annotation",
+      "version": "0.0.1",
+      "dependencies": [],
+      "devDependencies": []
+    }
+  ],
+  "configVersion": 1
+}

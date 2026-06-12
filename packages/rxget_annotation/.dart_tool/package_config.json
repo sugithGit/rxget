@@ -1,0 +1,16 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "rxget_annotation",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
+    }
+  ],
+  "generator": "pub",
+  "generatorVersion": "3.11.4",
+  "flutterRoot": "file:///Users/sugithk/flutter",
+  "flutterVersion": "3.41.6",
+  "pubCache": "file:///Users/sugithk/.pub-cache"
+}

@@ -1,76 +1,307 @@
 # rxget
 
-RxGet is a lightweight, performance-focused fork of GetX — keeping only reactivity and dependency injection.  
-No routing, no UI helpers — just pure state management.
+**A lightweight, memory-safe reactive state management and dependency injection library for Flutter.**
 
-- [rxget](#rxget)
-  - [About Get](#about-get)
-  - [Installing](#installing)
-  - [Counter App with GetX](#counter-app-with-getx)
-  - [The Three pillars](#the-three-pillars)
-    - [State management](#state-management)
-      - [Reactive State Manager](#reactive-state-manager)
-      - [More details about state management](#more-details-about-state-management)
-    - [Dependency management](#dependency-management)
-      - [More details about dependency management](#more-details-about-dependency-management)
-      - [Widget-Scoped Dependency Injection with GetInWidget](#widget-scoped-dependency-injection-with-getinwidget)
-        - [Registering Dependencies](#registering-dependencies)
-    - [Useful tips](#useful-tips)
-        - [Tips](#tips)
-          - [Mockito or mocktail](#mockito-or-mocktail)
-          - [Using Get.reset()](#using-getreset)
-  - [Why rxget?](#why-rxget)
-  - [Community](#community)
-    - [Community channels](#community-channels)
-    - [How to contribute](#how-to-contribute)
+Forked from GetX. Stripped to its essence. Rebuilt with discipline.
 
-## About Get
+[![pub package](https://img.shields.io/pub/v/rxget.svg)](https://pub.dev/packages/rxget)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-- RxGet is an extra-light and powerful solution for Flutter. It combines high-performance state management and intelligent dependency injection quickly and practically.
+---
 
-- RxGet has 3 basic principles. This means that these are the priority for all resources in the library: **PRODUCTIVITY, PERFORMANCE AND ORGANIZATION.**
+## Table of Contents
 
-  - **PERFORMANCE:** Focused on minimum resource consumption. The simple state manager (GetBuilder) avoids ChangeNotifier and Streams entirely in favor of highly optimized, lightweight callbacks, while the reactive state manager (Obx) uses optimized mini-streams.
+- [The rxget Philosophy](#the-rxget-philosophy)
+- [What Changed from GetX](#what-changed-from-getx)
+- [Installing](#installing)
+- [Core Architecture](#core-architecture)
+  - [The Three-Layer Rule: State → Controller → Widget](#the-three-layer-rule-state--controller--widget)
+  - [1. GetxState — Own Your Memory](#1-getxstate--own-your-memory)
+  - [2. GetxController — Own Your Logic](#2-getxcontroller--own-your-logic)
+  - [3. GetInWidget & GetIn — Own Your Lifecycle](#3-getinwidget--getin--own-your-lifecycle)
+- [Full Counter Example](#full-counter-example)
+- [Deep Dive: GetIn — Scoped DI That Actually Works](#deep-dive-getin--scoped-di-that-actually-works)
+  - [The Problem GetIn Solves](#the-problem-getin-solves)
+  - [How GetIn Works Internally](#how-getin-works-internally)
+  - [Lazy vs Eager Injection](#lazy-vs-eager-injection)
+  - [Multiple Dependencies](#multiple-dependencies)
+  - [Tags for Multiple Instances](#tags-for-multiple-instances)
+- [Reactive Widgets](#reactive-widgets)
+  - [Obx — Rebuild the UI](#obx--rebuild-the-ui)
+  - [ObxValue — Local Reactive State](#obxvalue--local-reactive-state)
+  - [Obl — React Without Rebuilding](#obl--react-without-rebuilding)
+- [Reactive Types (.obs)](#reactive-types-obs)
+- [Workers — React to Changes Over Time](#workers--react-to-changes-over-time)
+- [Real-World Architecture Example](#real-world-architecture-example)
+- [Testing](#testing)
+- [Why rxget Over GetX?](#why-rxget-over-getx)
+- [Community](#community)
 
-  - **PRODUCTIVITY:** RxGet uses an easy and pleasant syntax. No matter what you want to do, there is always an easier way with RxGet. It will save hours of development and will provide the maximum performance your application can deliver.
+---
 
-    Generally, the developer should be concerned with removing controllers from memory. With RxGet this is not necessary because resources are removed from memory when they are not used by default. If you want to keep it in memory, you must explicitly declare "permanent: true" in your dependency. That way, in addition to saving time, you are less at risk of having unnecessary dependencies on memory. Dependency loading is also lazy by default.
+## The rxget Philosophy
 
-  - **ORGANIZATION:** RxGet allows the total decoupling of the View, presentation logic, business logic, and dependency injection. You do not need context to access your controllers/blocs through an inheritedWidget, so you completely decouple your presentation logic and business logic from your visualization layer. You do not need to inject your Controllers/Models/Blocs classes into your widget tree through `MultiProvider`s. For this, RxGet uses its own dependency injection feature, decoupling the DI from its view completely.
-    With RxGet you know where to find each feature of your application, having clean code by default. In addition to making maintenance easy, this makes the sharing of modules something that until then in Flutter was unthinkable, something totally possible.
-    BLoC was a starting point for organizing code in Flutter, it separates business logic from visualization. RxGet is a natural evolution of this, not only separating the business logic but the presentation logic. Dependency injection is also decoupled, and the data layer is out of it all. You know where everything is, and all of this in an easier way than building a hello world.
-    GetX is the easiest, practical, and scalable way to build high-performance applications with the Flutter SDK. It has a large ecosystem around it that works perfectly together, it's easy for beginners, and it's accurate for experts. It is secure, stable, up-to-date, and offers a huge range of APIs built-in that are not present in the default Flutter SDK.
+Most state management libraries ask you to learn a new paradigm. rxget asks you to follow one principle:
+
+> **Every controller owns a private state. Every state owns its own memory. Every widget owns its controller's lifecycle.**
+
+This is the **ownership chain** that makes rxget fundamentally different from GetX. In GetX, reactivity, logic, memory, and lifecycle were all tangled together inside a single `GetxController`. It worked — until it didn't. Controllers grew bloated. Streams leaked because nobody remembered to close them. Navigating back and forth between pages disposed controllers that were still alive somewhere else.
+
+rxget fixes this by enforcing a strict **separation of responsibility**:
+
+| Layer | Class | Responsibility |
+|-------|-------|----------------|
+| **State** | `GetxState` | Hold reactive variables. Dispose them in `onClose()`. |
+| **Logic** | `GetxController<T>` | Contain business methods. Manipulate state. No `.obs` variables of its own. |
+| **Lifecycle** | `GetInWidget` + `GetIn` | Inject controllers. Auto-dispose when widget leaves tree. Scope ownership. |
+
+This isn't optional architecture. It's enforced by the framework:
+- `GetxState.onClose()` is **abstract** — you *must* implement memory cleanup.
+- `GetxController<T>` requires `T` to be **private** (start with `_`) — your state can't leak to unrelated code.
+- `GetIn` tracks **registration ownership** — only the scope that created a dependency can destroy it.
+
+---
+
+## What Changed from GetX
+
+rxget is a focused fork. Here's what was **removed** and what was **added**:
+
+### ❌ Removed
+- **Routing** (`Get.to()`, `Get.off()`, `GetMaterialApp`, named routes) — Use Flutter's built-in `Navigator` or `go_router`.
+- **UI Helpers** (`Get.snackbar()`, `Get.dialog()`, `Get.bottomSheet()`) — Use the framework directly.
+- **Translations / Themes** — Use Flutter's `Localizations` and `ThemeData`.
+- **Route-based memory management** — Replaced by widget-scoped `GetInWidget`.
+- **GetConnect / GetSocket** — Use `http`, `dio`, or your preferred networking library.
+
+### ✅ Added
+- **`GetxState`** — A dedicated state container with mandatory `onClose()` for memory safety.
+- **`GetxController<T extends GetxState>`** — A typed controller that enforces private state ownership.
+- **`GetInWidget` + `GetIn`** — Widget-scoped DI with ownership-tracked lifecycle management.
+- **`Obl`** — A side-effect-only reactive widget that doesn't rebuild the UI.
+- **Registration guard** — `GetIn` prevents the "double-pop" bug where navigating back and forth disposes shared dependencies.
+
+### 🔄 Kept (Unchanged)
+- **Reactive system** — `.obs`, `Obx`, `ObxValue`, mini-streams.
+- **Global DI** — `Get.put()`, `Get.find()`, `Get.lazyPut()`, `Get.delete()`.
+- **Workers** — `ever()`, `once()`, `debounce()`, `interval()`.
+- **GetBuilder** — Simple callback-based state management.
+- **Lifecycle hooks** — `onInit()`, `onReady()`, `onClose()`.
+
+---
 
 ## Installing
 
-Add Get to your pubspec.yaml file:
+Add rxget to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  get:
+  rxget: ^0.1.3
 ```
 
-Import get in files that it will be used:
+Import it:
 
 ```dart
 import 'package:rxget/rxget.dart';
 ```
 
-## rxget Architecture vs GetX
+---
 
-While `rxget` maintains the fast and productive syntax of GetX, it introduces a **strict separation of concerns** between Logic and State to guarantee memory safety and enforce clean code.
+## Core Architecture
 
-In original GetX, developers often mixed reactive variables (`.obs`) and business logic methods within the same `GetxController`, leading to bloated classes and forgotten memory disposal.
-In `rxget`, controllers must explicitly separate their state into a `GetxState` class:
-- **`GetxState`**: Holds the reactive variables and data. It strictly enforces an `onClose()` method where you *must* dispose of your `.obs` streams, guaranteeing no memory leaks.
-- **`GetxController<State>`**: Holds pure business logic and methods, manipulating the state safely without holding variables itself.
+### The Three-Layer Rule: State → Controller → Widget
 
-## Counter App (The rxget Way)
+```
+┌──────────────────────────────────────────────────────┐
+│                     Widget Layer                      │
+│                                                      │
+│  GetInWidget                                         │
+│  ├── dependencies: [GetIn(() => CounterController())]│
+│  └── child: Scaffold(                               │
+│        body: Obx(() => Text(controller.state.count)) │
+│        fab:  onPressed: controller.increment         │
+│      )                                               │
+│                                                      │
+│  Lifecycle: inject on mount → dispose on unmount     │
+└──────────────────────┬───────────────────────────────┘
+                       │ Get.find<CounterController>()
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│                   Controller Layer                    │
+│                                                      │
+│  class CounterController                             │
+│        extends GetxController<_CounterState>          │
+│                                                      │
+│  ├── state → _CounterState()  (private!)             │
+│  ├── void increment()                                │
+│  │     └── state._count.value++                      │
+│  └── onClose() → auto-calls state.onClose()          │
+│                                                      │
+│  Responsibility: business logic only. No .obs here.  │
+└──────────────────────┬───────────────────────────────┘
+                       │ state._count.value++
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│                     State Layer                       │
+│                                                      │
+│  class _CounterState extends GetxState                │
+│                                                      │
+│  ├── final _count = 0.obs                            │
+│  ├── int get count => _count.value                   │
+│  └── onClose()                                       │
+│        └── _count.close()  ← MANDATORY               │
+│                                                      │
+│  Responsibility: hold reactive data. Dispose streams.│
+└──────────────────────────────────────────────────────┘
+```
 
-Let's build a counter app to demonstrate this decoupled architecture!
+---
 
-- Step 1:
-  Create your state class by extending `GetxState`. Here you define your reactive variables and handle their mandatory disposal.
+### 1. GetxState — Own Your Memory
+
+`GetxState` is where your reactive variables live. It has one strict contract: **you must implement `onClose()` and close every `.obs` stream you create.**
+
+```dart
+part of 'counter_controller.dart';
+
+final class _CounterState extends GetxState {
+  // All reactive variables live here
+  final _count = 0.obs;
+  final _name = 'Guest'.obs;
+  final _isLoading = false.obs;
+
+  // Public getters expose the values
+  int get count => _count.value;
+  String get name => _name.value;
+  bool get isLoading => _isLoading.value;
+
+  @override
+  void onClose() {
+    // This is NOT optional. Close every stream.
+    _count.close();
+    _name.close();
+    _isLoading.close();
+  }
+}
+```
+
+**Why this matters:**
+
+In GetX, developers would scatter `.obs` variables across controllers and forget to close them. Streams would stay in memory, listeners would accumulate, and the app would slowly leak. By making `onClose()` abstract in `GetxState`, rxget makes memory leaks a **compile-time concern** — you can't forget to add disposal because the compiler won't let you skip it.
+
+**Why the state class must be private (`_CounterState`):**
+
+rxget enforces that your state class name starts with `_`. This is a deliberate design choice:
+
+```dart
+// ✅ This works — private state
+class CounterController extends GetxController<_CounterState> { ... }
+
+// ❌ This throws an assertion error at runtime
+class CounterController extends GetxController<CounterState> { ... }
+```
+
+The reasoning: state is an **implementation detail** of the controller. External code should interact with the controller's public API (`controller.increment()`), not reach directly into state. Making the state private prevents:
+- Other controllers from depending on your internal reactive structure.
+- UI code from directly mutating state fields.
+- Tight coupling between features.
+
+Using Dart's `part` / `part of` system, the state class lives in a separate file but shares the controller's library scope, giving the controller full access while hiding internals from everyone else.
+
+---
+
+### 2. GetxController — Own Your Logic
+
+`GetxController<T>` is where your business logic lives. It has access to the state via `this.state` but **must not declare `.obs` variables itself**.
+
+```dart
+import 'package:rxget/rxget.dart';
+part 'counter_state.dart';
+
+class CounterController extends GetxController<_CounterState> {
+  @override
+  _CounterState get state => _CounterState();
+
+  // Pure business logic — manipulates state, manages flows
+  void increment() {
+    state._count.value++;
+  }
+
+  void reset() {
+    state._count.value = 0;
+    state._name.value = 'Guest';
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Lifecycle hooks are available as usual
+    ever(state._count, (count) {
+      if (count > 100) {
+        print('Count passed 100!');
+      }
+    });
+  }
+
+  // No need to override onClose() for state disposal —
+  // GetxController automatically calls state.onClose() for you.
+}
+```
+
+**The strict separation in action:**
+
+```dart
+// In GetX (the old way) — everything in one class:
+class CounterController extends GetxController {
+  final count = 0.obs;           // state mixed in
+  final name = ''.obs;           // more state
+  void increment() => count++;   // logic
+  @override
+  void onClose() {
+    count.close();               // manual disposal (easy to forget)
+    name.close();                // forgot this? memory leak.
+    super.onClose();
+  }
+}
+
+// In rxget (the new way) — strict separation:
+// _CounterState: holds .obs, mandates onClose()
+// CounterController: holds logic, auto-disposes state
+```
+
+---
+
+### 3. GetInWidget & GetIn — Own Your Lifecycle
+
+When rxget removed GetX's routing system, it also removed the route-based automatic disposal that came with it. `GetInWidget` replaces it with something better: **widget-scoped dependency injection**.
+
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetInWidget(
+      dependencies: [
+        GetIn<CounterController>(() => CounterController()),
+      ],
+      child: const HomeView(),
+    );
+  }
+}
+```
+
+**What happens here:**
+1. When `HomePage` **mounts**, `GetIn` registers `CounterController` into Get's global container.
+2. Any descendant widget can access it via `Get.find<CounterController>()`.
+3. When `HomePage` **unmounts** (e.g., popped from the navigator), `GetIn` automatically calls `Get.delete<CounterController>()`, which triggers `onClose()` on the controller, which triggers `onClose()` on the state, closing all streams.
+
+**The entire disposal chain is automatic.** You don't call `dispose()`. You don't think about cleanup. You just define your dependencies, and the widget tree handles the rest.
+
+---
+
+## Full Counter Example
+
+### File: `counter_state.dart`
 
 ```dart
 part of 'counter_controller.dart';
@@ -82,13 +313,12 @@ final class _CounterState extends GetxState {
 
   @override
   void onClose() {
-    _count.close(); // Strictly enforce memory disposal!
+    _count.close();
   }
 }
 ```
 
-- Step 2:
-  Create your logic class by extending `GetxController<CounterState>`.
+### File: `counter_controller.dart`
 
 ```dart
 import 'package:rxget/rxget.dart';
@@ -104,389 +334,499 @@ class CounterController extends GetxController<_CounterState> {
 }
 ```
 
-- Step 3:
-  Create your View using `GetInWidget` to automatically manage the controller's lifecycle without needing complex routing.
+### File: `main.dart`
 
 ```dart
+import 'package:flutter/material.dart';
+import 'package:rxget/rxget.dart';
+import 'controller/counter_controller.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: GetInWidget(
+        dependencies: [GetIn(() => CounterController())],
+        child: const Home(),
+      ),
+    );
+  }
+}
+
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Inject the controller scoped to this widget tree
-    return GetInWidget(
-      dependencies: [GetIn(() => CounterController())],
-      child: Scaffold(
-        appBar: AppBar(
-          // Use Obx(()=> to reactively update the UI!
-          title: Obx(() {
-            final controller = Get.find<CounterController>();
-            return Text("Clicks: ${controller.state.count}");
-          }),
-        ),
-        body: Center(
-          child: ElevatedButton(
-            child: const Text("Go to Other"), 
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Other()))
+    final controller = Get.find<CounterController>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Obx(() => Text('Clicks: ${controller.state.count}')),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OtherScreen()),
           ),
+          child: const Text('Go to Other Screen'),
         ),
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add), 
-          onPressed: () => Get.find<CounterController>().increment(),
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: controller.increment,
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
-class Other extends StatelessWidget {
-  const Other({super.key});
+class OtherScreen extends StatelessWidget {
+  const OtherScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Safely find the controller provided by the parent GetInWidget
     final controller = Get.find<CounterController>();
-    
+
     return Scaffold(
+      appBar: AppBar(title: const Text('Other Screen')),
       body: Center(
-        child: Obx(() => Text("${controller.state.count}")),
+        child: Obx(() => Text(
+          '${controller.state.count}',
+          style: Theme.of(context).textTheme.headlineMedium,
+        )),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: controller.increment,
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 ```
 
-Result:
+Notice: `OtherScreen` doesn't need its own `GetInWidget`. It just calls `Get.find()` because the controller is still alive — its owning `GetInWidget` is still in the widget tree (on `Home`). When `Home` is removed, the controller goes with it.
 
-![](https://raw.githubusercontent.com/jonataslaw/getx-community/master/counter-app-gif.gif)
+---
 
-This is a simple project but it already makes clear how powerful Get is. As your project grows, this difference will become more significant.
+## Deep Dive: GetIn — Scoped DI That Actually Works
 
-Get was designed to work with teams, but it makes the job of an individual developer simple.
+### The Problem GetIn Solves
 
-Improve your deadlines, deliver everything on time without losing performance. Get is not for everyone, but if you identified with that phrase, Get is for you!
+Consider a real navigation flow:
 
-## The Three pillars
-
-### State management
-
-Get has two different state managers: the simple state manager (we'll call it GetBuilder) and the reactive state manager (GetX/Obx)
-
-#### Reactive State Manager
-
-Reactive programming can alienate many people because it is said to be complicated. GetX turns reactive programming into something quite simple:
-
-- You won't need to create StreamControllers.
-- You won't need to create a StreamBuilder for each variable
-- You will not need to create a class for each state.
-- You will not need to create a get for an initial value.
-- You will not need to use code generators
-
-Reactive programming with Get is as easy as using setState.
-
-Let's imagine that you have a name variable and want that every time you change it, all widgets that use it are automatically changed.
-
-This is your count variable:
-
-```dart
-var name = 'Jonatas Borges';
+```
+Page A (has GetInWidget for ServiceX)
+  → pushes Page B (also has GetInWidget for ServiceX)
+    → user pops Page B
+      → Page A's ServiceX should still be alive!
 ```
 
-To make it observable, you just need to add ".obs" to the end of it:
+In naive implementations, when Page B pops and its `GetInWidget` disposes, it would call `Get.delete<ServiceX>()` — destroying the instance that Page A still needs. This is the **"double-pop" bug**.
 
-```dart
-var name = 'Jonatas Borges'.obs;
+### How GetIn Works Internally
+
+`GetIn` uses an **ownership guard** (`_isRegistered`) to solve this:
+
+```
+Page A mounts → GetIn registers ServiceX → _isRegistered = true  ✓ (I own it)
+Page B mounts → GetIn checks: already registered? → _isRegistered = false  ✗ (not mine)
+Page B pops   → GetIn checks: _isRegistered == false → skip deletion. Service lives.
+Page A pops   → GetIn checks: _isRegistered == true → delete. Service cleaned up.
 ```
 
-And in the UI, when you want to show that value and update the screen whenever the values changes, simply do this:
+**Only the scope that registered the dependency can delete it.** This means you can safely push pages that reference parent-scope dependencies without worrying about accidental disposal.
 
-```dart
-Obx(() => Text("${controller.name}"));
-```
-
-That's all. It's _that_ simple.
-
-#### More details about state management
-
-**See an more in-depth explanation of state management [here](./documentation/en_US/state_management.md). There you will see more examples and also the difference between the simple state manager and the reactive state manager**
-
-You will get a good idea of GetX power.
-
-### Dependency management
-
-Get has a simple and powerful dependency manager that allows you to retrieve the same class as your Bloc or Controller with just 1 lines of code, no Provider context, no inheritedWidget:
-
-```dart
-Controller controller = Get.put(Controller()); // Rather Controller controller = Controller();
-```
-
-- Note: If you are using Get's State Manager, pay more attention to the bindings API, which will make it easier to connect your view to your controller.
-
-Instead of instantiating your class within the class you are using, you are instantiating it within the Get instance, which will make it available throughout your App.
-So you can use your controller (or class Bloc) normally
-
-**Tip:** Get dependency management is decoupled from other parts of the package, so if for example, your app is already using a state manager (any one, it doesn't matter), you don't need to rewrite it all, you can use this dependency injection with no problems at all
-
-```dart
-controller.fetchApi();
-```
-
-Controller controller = Get.find();
-//Yes, it looks like Magic, Get will find your controller, and will deliver it to you. You can have 1 million controllers instantiated, Get will always give you the right controller.
-```
-
-And then you will be able to recover your controller data that was obtained back there:
-
-```dart
-Text(controller.textFromApi);
-```
-
-#### More details about dependency management
-
-**See a more in-depth explanation of dependency management [here](./documentation/en_US/dependency_management.md)**
-
-#### Widget-Scoped Dependency Injection with GetInWidget
-
-After removing the navigator and UI features of GetX, the automatic memory disposal system based on routes was removed. To solve this, `rxget` provides `GetInWidget`: a widget-scoped dependency injection system that ensures all resources, controllers, and their memory are completely and automatically disposed of when the widget is removed from the tree. This achieves excellent memory optimization out of the box without requiring manual disposal.
-
-##### Registering Dependencies
-
-Pass a list of `GetIn` configurations to `GetInWidget`. Each dependency uses a factory function (e.g., `() => MyController()`) to support lazy initialization.
+### Lazy vs Eager Injection
 
 ```dart
 GetInWidget(
   dependencies: [
-    // Lazily injected dependency (only created in memory when first accessed via Get.find)
+    // LAZY (default) — created on first Get.find() call
     GetIn<MyController>(() => MyController()),
-    
-    // Dependencies can reference previously registered ones
-    GetIn<OtherController>(() => OtherController(Get.find<MyController>())),
-    
-    // Eagerly injected dependency
+
+    // EAGER — created immediately when GetInWidget mounts
     GetIn<AuthService>(() => AuthService(), lazy: false),
   ],
   child: MyWidget(),
 )
 ```
 
-When `GetInWidget` is destroyed (e.g., you navigate away or the widget is removed), *all* memory tied to the registered controllers is automatically disposed of securely.
+Use **lazy** (default) for controllers that might not be needed immediately.
+Use **eager** (`lazy: false`) for services that must be ready before the first frame (e.g., auth, analytics).
 
-Access dependencies anywhere in the widget's descending tree with `Get.find<Type>()`:
+### Multiple Dependencies
+
+Dependencies are registered in order, so later ones can reference earlier ones:
 
 ```dart
-final controller = Get.find<MyController>();
+GetInWidget(
+  dependencies: [
+    GetIn<ApiService>(() => ApiService()),
+    GetIn<UserRepository>(() => UserRepository(Get.find<ApiService>())),
+    GetIn<ProfileController>(() => ProfileController(Get.find<UserRepository>())),
+  ],
+  child: ProfilePage(),
+)
 ```
 
+When the widget disposes, all three are cleaned up in reverse order — `ProfileController` first, then `UserRepository`, then `ApiService`.
 
-### Useful tips
+### Tags for Multiple Instances
 
-`.obs`ervables (also known as _Rx_ Types) have a wide variety of internal methods and operators.
-
-> Is very common to _believe_ that a property with `.obs` **IS** the actual value... but make no mistake!
-> We avoid the Type declaration of the variable, because Dart's compiler is smart enough, and the code
-> looks cleaner, but:
+Need two instances of the same type? Use tags:
 
 ```dart
-var message = 'Hello world'.obs;
-print( 'Message "$message" has Type ${message.runtimeType}');
+GetInWidget(
+  dependencies: [
+    GetIn<Logger>(() => Logger('auth'), tag: 'auth'),
+    GetIn<Logger>(() => Logger('network'), tag: 'network'),
+  ],
+  child: MyWidget(),
+)
+
+// Access with tag:
+final authLogger = Get.find<Logger>(tag: 'auth');
+final netLogger = Get.find<Logger>(tag: 'network');
 ```
 
-Even if `message` _prints_ the actual String value, the Type is **RxString**!
+---
 
-So, you can't do `message.substring( 0, 4 )`.
-You have to access the real `value` inside the _observable_:
-The most "used way" is `.value`, but, did you know that you can also use...
+## Reactive Widgets
+
+### Obx — Rebuild the UI
+
+`Obx` automatically tracks which `.obs` variables are read inside it and rebuilds when they change.
 
 ```dart
-final name = 'GetX'.obs;
-// only "updates" the stream, if the value is different from the current one.
-name.value = 'Hey';
+Obx(() => Text('Count: ${controller.state.count}'));
+```
 
-// All Rx properties are "callable" and returns the new value.
-// but this approach does not accepts `null`, the UI will not rebuild.
-name('Hello');
+Only the widget inside `Obx` rebuilds — not the entire page. This is surgically precise reactivity.
 
-// is like a getter, prints 'Hello'.
-name() ;
+### ObxValue — Local Reactive State
 
-/// numbers:
+For simple local state that doesn't need a controller:
 
-final count = 0.obs;
+```dart
+ObxValue<RxBool>(
+  (data) => Switch(
+    value: data.value,
+    onChanged: (flag) => data.value = flag,
+  ),
+  false.obs,
+)
+```
 
-// You can use all non mutable operations from num primitives!
-count + 1;
+### Obl — React Without Rebuilding
 
-// Watch out! this is only valid if `count` is not final, but var
-count += 1;
+`Obl` runs a side-effect when reactive values change, **without rebuilding its child widget**. Perfect for triggering navigation, showing dialogs, or logging.
 
-// You can also compare against values:
-count > 2;
+```dart
+Obl(
+  () {
+    // Read to register as a listener
+    final step = controller.state.currentStep;
+    // Side-effect — doesn't rebuild the child
+    if (step == 3) {
+      showCompletionDialog();
+    }
+  },
+  child: const StepperWidget(), // Static — never rebuilt by Obl
+)
+```
 
-/// booleans:
+---
 
-final flag = false.obs;
+## Reactive Types (.obs)
 
-// switches the value between true/false
-flag.toggle();
+Make any value reactive by appending `.obs`:
 
+```dart
+final count = 0.obs;              // RxInt
+final name = 'Flutter'.obs;       // RxString
+final isActive = false.obs;       // RxBool
+final price = 9.99.obs;           // RxDouble
+final items = <String>[].obs;     // RxList
+final config = <String, int>{}.obs; // RxMap
+final user = User().obs;          // Rx<User>
+```
 
-/// all types:
+**Access the value:**
 
-// Sets the `value` to null.
-flag.nil();
+```dart
+print(count.value);     // reads
+count.value = 42;       // writes — triggers rebuild
+count(42);              // callable shorthand
+```
 
-// All toString(), toJson() operations are passed down to the `value`
-print( count ); // calls `toString()` inside  for RxInt
+**Important:** `.obs` wraps the value. `count` is an `RxInt`, not an `int`. Access `.value` to get the underlying data.
 
-final abc = [0,1,2].obs;
-// Converts the value to a json Array, prints RxList
-// Json is supported by all Rx types!
-print('json: ${jsonEncode(abc)}, type: ${abc.runtimeType}');
+**Booleans:**
 
-// RxMap, RxList and RxSet are special Rx types, that extends their native types.
-// but you can work with a List as a regular list, although is reactive!
-abc.add(12); // pushes 12 to the list, and UPDATES the stream.
-abc[3]; // like Lists, reads the index 3.
+```dart
+final flag = true.obs;
+flag.toggle();          // flips between true/false
+```
 
+**Lists are reactive too:**
 
-// equality works with the Rx and the value, but hashCode is always taken from the value
-final number = 12.obs;
-print( number == 12 ); // prints > true
+```dart
+final list = [1, 2, 3].obs;
+list.add(4);            // triggers rebuild
+list[0] = 10;           // triggers rebuild
+```
 
-/// Custom Rx Models:
+---
 
-// toJson(), toString() are deferred to the child, so you can implement override on them, and print() the observable directly.
+## Workers — React to Changes Over Time
 
-class User {
-    String name, last;
-    int age;
-    User({this.name, this.last, this.age});
+Workers let you respond to reactive value changes with timing control:
 
-    @override
-    String toString() => '$name $last, $age years old';
+```dart
+@override
+void onInit() {
+  super.onInit();
+
+  // Run every time count changes
+  ever(state._count, (val) => print('Count is now $val'));
+
+  // Run only the first time count changes
+  once(state._count, (val) => print('First change: $val'));
+
+  // Debounce: wait 500ms after the last change
+  debounce(state._count, (val) => searchApi(val),
+    time: const Duration(milliseconds: 500));
+
+  // Interval: run at most once per second
+  interval(state._count, (val) => syncToServer(val),
+    time: const Duration(seconds: 1));
 }
-
-final user = User(name: 'John', last: 'Doe', age: 33).obs;
-
-// `user` is "reactive", but the properties inside ARE NOT!
-// So, if we change some variable inside of it...
-user.value.name = 'Roi';
-// The widget will not rebuild!,
-// `Rx` don't have any clue when you change something inside user.
-// So, for custom classes, we need to manually "notify" the change.
-user.refresh();
-
-// or we can use the `update()` method!
-user.update((value){
-  value.name='Roi';
-});
-
-print( user );
-```
 ```
 
-
-#### Tests
-
-You can test your controllers like any other class, including their lifecycles:
+Workers return a `Worker` instance that can be disposed manually:
 
 ```dart
-class Controller extends GetxController {
-  @override
-  void onInit() {
-    super.onInit();
-    //Change value to name2
-    name.value = 'name2';
-  }
+final worker = ever(state._count, (val) {
+  if (val >= 100) worker.dispose(); // self-dispose
+});
+```
+
+---
+
+## Real-World Architecture Example
+
+Here's how a feature like a user profile would look in a production app:
+
+```
+lib/
+├── features/
+│   └── profile/
+│       ├── controller/
+│       │   ├── profile_controller.dart
+│       │   └── profile_state.dart        (part of controller)
+│       ├── data/
+│       │   ├── profile_repository.dart
+│       │   └── profile_api_service.dart
+│       └── view/
+│           ├── profile_page.dart          (GetInWidget — injects deps)
+│           └── profile_view.dart          (Obx — reacts to state)
+```
+
+### profile_state.dart
+
+```dart
+part of 'profile_controller.dart';
+
+final class _ProfileState extends GetxState {
+  final _user = Rxn<User>();           // nullable — no user until loaded
+  final _isLoading = false.obs;
+  final _errorMessage = Rxn<String>();
+
+  User? get user => _user.value;
+  bool get isLoading => _isLoading.value;
+  String? get errorMessage => _errorMessage.value;
 
   @override
   void onClose() {
-    name.value = '';
-    super.onClose();
+    _user.close();
+    _isLoading.close();
+    _errorMessage.close();
+  }
+}
+```
+
+### profile_controller.dart
+
+```dart
+import 'package:rxget/rxget.dart';
+part 'profile_state.dart';
+
+class ProfileController extends GetxController<_ProfileState> {
+  ProfileController(this._repository);
+
+  final ProfileRepository _repository;
+
+  @override
+  _ProfileState get state => _ProfileState();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadProfile();
   }
 
-  final name = 'name1'.obs;
+  Future<void> loadProfile() async {
+    state._isLoading.value = true;
+    state._errorMessage.value = null;
 
-  void changeName() => name.value = 'name3';
+    try {
+      state._user.value = await _repository.fetchUser();
+    } catch (e) {
+      state._errorMessage.value = e.toString();
+    } finally {
+      state._isLoading.value = false;
+    }
+  }
 }
+```
 
+### profile_page.dart
+
+```dart
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetInWidget(
+      dependencies: [
+        GetIn<ProfileApiService>(() => ProfileApiService()),
+        GetIn<ProfileRepository>(() => ProfileRepository(Get.find())),
+        GetIn<ProfileController>(() => ProfileController(Get.find())),
+      ],
+      child: const ProfileView(),
+    );
+  }
+}
+```
+
+### profile_view.dart
+
+```dart
+class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<ProfileController>();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: Obx(() {
+        if (controller.state.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (controller.state.errorMessage != null) {
+          return Center(child: Text('Error: ${controller.state.errorMessage}'));
+        }
+        final user = controller.state.user;
+        if (user == null) return const SizedBox.shrink();
+
+        return Column(
+          children: [
+            Text(user.name, style: const TextStyle(fontSize: 24)),
+            Text(user.email),
+          ],
+        );
+      }),
+    );
+  }
+}
+```
+
+When the user navigates away from `ProfilePage`, the entire dependency graph — `ProfileController` → `ProfileRepository` → `ProfileApiService` — is disposed automatically. No manual cleanup. No leaked streams. No orphaned instances.
+
+---
+
+## Testing
+
+Controllers can be tested like plain Dart classes without needing Flutter's widget testing infrastructure:
+
+```dart
 void main() {
-  test('''
-Test the state of the reactive variable "name" across all of its lifecycles''',
-      () {
-    /// You can test the controller without the lifecycle,
-    /// but it's not recommended unless you're not using
-    ///  GetX dependency injection
-    final controller = Controller();
-    expect(controller.name.value, 'name1');
+  test('CounterController increments count', () {
+    final controller = CounterController();
 
-    /// If you are using it, you can test everything,
-    /// including the state of the application after each lifecycle.
-    Get.put(controller); // onInit was called
-    expect(controller.name.value, 'name2');
+    // Register to trigger lifecycle
+    Get.put(controller);
+    expect(controller.state.count, 0);
 
-    /// Test your functions
-    controller.changeName();
-    expect(controller.name.value, 'name3');
+    controller.increment();
+    expect(controller.state.count, 1);
 
-    /// onClose was called
-    Get.delete<Controller>();
+    controller.increment();
+    expect(controller.state.count, 2);
 
-    expect(controller.name.value, '');
+    // Clean up
+    Get.delete<CounterController>();
+  });
+
+  tearDown(() {
+    Get.reset();
   });
 }
 ```
 
-##### Tips
-
-###### Mockito or mocktail
-If you need to mock your GetxController, you should extend GetxController, and mixin it with Mock, that way
+**Mocking:**
 
 ```dart
-class NotificationServiceMock extends GetxController with Mock implements NotificationService {}
+class MockCounterController extends GetxController
+    with Mock
+    implements CounterController {}
 ```
 
-###### Using Get.reset()
-If you are testing widgets, or test groups, use Get.reset at the end of your test or in tearDown to reset all settings from your previous test.
+---
 
-## Why rxget?
+## Why rxget Over GetX?
 
-	1.	Reliability through simplicity.
-After Flutter updates, many packages break due to dependency conflicts or version mismatches. rxget minimizes this risk by focusing on just two core features — reactive state management and dependency injection. With fewer dependencies and no routing or UI helpers, maintenance becomes painless. Update rxget, and you’re ready to build again without worrying about compatibility issues.
+**1. Memory Safety by Design**
+`GetxState.onClose()` is abstract — you can't skip disposal. GetX made it optional, and developers forgot.
 
-	2.	Flutter made simpler.
-Flutter is great but can sometimes feel verbose. rxget keeps things simple and expressive. You can turn any variable reactive with .obs and use Obx to automatically rebuild widgets. No boilerplate, no complex setup — just reactive code that works seamlessly.
-	3.	Performance without overhead.
-rxget removes the extra layers found in larger frameworks. It manages memory efficiently, ensuring unused dependencies are disposed of automatically. You write less, focus more on logic, and still get optimal performance with minimal resource usage.
-	4.	Clean decoupling.
-With rxget, business logic and UI stay truly separate. Controllers can initialize data, perform async work, and update reactive variables — all without depending on the view’s context. This creates a cleaner architecture where UI developers and logic developers can work independently while keeping everything reactive and synchronized.
+**2. No Dependency Bloat**
+rxget has zero third-party dependencies beyond Flutter itself. GetX pulls in routing, translations, HTTP clients, and more. Fewer dependencies = fewer breaking changes on Flutter upgrades.
 
-⸻
+**3. Widget-Scoped Lifecycle**
+GetX tied controller disposal to routes. If you used custom navigation or `Navigator 2.0`, disposal broke silently. rxget ties disposal to the widget tree — the one thing Flutter guarantees.
 
-In short
+**4. Ownership-Tracked DI**
+`GetIn`'s registration guard prevents the double-pop bug that plagued GetX apps with nested navigation. Only the scope that created a dependency can destroy it.
 
-rxget brings you the essence of GetX — reactivity and DI — without the noise.
-No routes, no snackbars, no context gymnastics. Just clean, reactive, and efficient Flutter development.
-This library will always be updated and implementing new features. Feel free to offer PRs and contribute to them.
+**5. Enforced Architecture**
+The private state requirement, the abstract `onClose()`, the typed controller generic — these aren't suggestions. They're compiler-enforced guardrails that prevent the most common GetX mistakes.
+
+**6. Stability on Flutter Updates**
+By focusing on just reactivity and DI, there's less surface area to break. Update Flutter, update rxget, move on.
+
+---
 
 ## Community
 
-### Community channels
+### Community Channels
 
-GetX has a highly active and helpful community. If you have questions, or would like any assistance regarding the use of this framework, please join our community channels, your question will be answered more quickly, and it will be the most suitable place. This repository is exclusive for opening issues, and requesting resources, but feel free to be part of GetX Community.
-
-| **Slack**                                                                                                                   | **Discord**                                                                                                                 | **Telegram**                                                                                                          |
-| :-------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| **Slack** | **Discord** | **Telegram** |
+| :--- | :--- | :--- |
 | [![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](https://communityinviter.com/apps/getxworkspace/getx) | [![Discord Shield](https://img.shields.io/discord/722900883784073290.svg?logo=discord)](https://discord.com/invite/9Hpt99N) | [![Telegram](https://img.shields.io/badge/chat-on%20Telegram-blue.svg)](https://t.me/joinchat/PhdbJRmsZNpAqSLJL6bH7g) |
 
-### How to contribute
+### How to Contribute
 
-_Want to contribute to the project? We will be proud to highlight you as one of our collaborators. Here are some points where you can contribute and make Get (and Flutter) even better._
+- Report bugs and request features via GitHub Issues.
+- Submit PRs for code, tests, or documentation improvements.
+- Write articles or tutorials about rxget.
+- Help translate documentation.
 
-- Helping to translate the readme into other languages.
-- Adding documentation to the readme (a lot of Get's functions haven't been documented yet).
-- Write articles or make videos teaching how to use Get (they will be inserted in the Readme and in the future in our Wiki).
-- Offering PRs for code/tests.
-- Including new functions.
-
-Any contribution is welcome!
+Every contribution is welcome!

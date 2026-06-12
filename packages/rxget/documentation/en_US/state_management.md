@@ -1,5 +1,5 @@
-* [State Management](#state-management)
-  + [Reactive State Manager](#reactive-state-manager)
+- [State Management](#state-management)
+  - [Reactive State Manager](#reactive-state-manager)
     - [Advantages](#advantages)
     - [Maximum performance:](#maximum-performance)
     - [Declaring a reactive variable](#declaring-a-reactive-variable)
@@ -11,7 +11,7 @@
     - [Why i have to use .value](#why-i-have-to-use-value)
     - [Obx()](#obx)
     - [Workers](#workers)
-  + [Simple State Manager](#simple-state-manager)
+  - [Simple State Manager](#simple-state-manager)
     - [Advantages](#advantages-1)
     - [Usage](#usage)
     - [How it handles controllers](#how-it-handles-controllers)
@@ -19,8 +19,9 @@
     - [Why it exists](#why-it-exists)
     - [Other ways of using it](#other-ways-of-using-it)
     - [Unique IDs](#unique-ids)
-  + [Mixing the two state managers](#mixing-the-two-state-managers)
-  + [GetBuilder vs GetX vs Obx vs MixinBuilder](#getbuilder-vs-getx-vs-obx-vs-mixinbuilder)
+  - [Mixing the two state managers](#mixing-the-two-state-managers)
+  - [StateMixin](#statemixin)
+  - [GetBuilder vs GetX vs Obx vs MixinBuilder](#getbuilder-vs-getx-vs-obx-vs-mixinbuilder)
 
 # State Management
 
@@ -71,7 +72,7 @@ From now on, we might refer to this reactive-".obs"(ervables) variables as _Rx_.
 
 What did we do under the hood? We created a `Stream` of `String` s, assigned the initial value `"Jonatas Borges"` , we notified all widgets that use `"Jonatas Borges"` that they now "belong" to this variable, and when the _Rx_ value changes, they will have to change as well. 
 
-This is the **magic of GetX**, thanks to Dart's capabilities.
+This is the **magic of RxGet**, thanks to Dart's capabilities.
 
 But, as we know, a `Widget` can only be changed if it is inside a function, because static classes do not have the power to "auto-change". 
 

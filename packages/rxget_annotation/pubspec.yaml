@@ -1,0 +1,13 @@
+name: rxget_annotation
+description: Annotations for rxget code generation. Use with rxget_generator to eliminate GetxState boilerplate.
+version: 0.0.1
+homepage: https://github.com/sugithGit/rxget
+repository: https://github.com/sugithGit/rxget
+issue_tracker: https://github.com/sugithGit/rxget/issues
+topics:
+  - state-management
+  - rxget
+  - code-generation
+
+environment:
+  sdk: ">=3.9.0 <4.0.0"
