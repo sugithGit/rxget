@@ -13,10 +13,12 @@ class CounterState {
     this.count = 0,
     this.title = 'Counter',
     this.isEditing = false,
+    this.testingA,
   });
 
   int count;
   String title;
   @update
   bool isEditing;
+  bool? testingA;
 }

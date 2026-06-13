@@ -11,8 +11,10 @@ class _CounterState extends GetxState {
     int count = 0,
     String title = 'Counter',
     bool isEditing = false,
+    bool? testingA,
   }) : _count = Rx<int>(count),
        _title = Rx<String>(title),
+       _testingA = Rxn<bool>(testingA),
        _isEditing = isEditing;
 
   // --- Reactive fields ---
@@ -24,6 +26,10 @@ class _CounterState extends GetxState {
   final Rx<String> _title;
   String get title => _title.value;
   set title(String value) => _title.value = value;
+
+  final Rxn<bool> _testingA;
+  bool? get testingA => _testingA.value;
+  set testingA(bool? value) => _testingA.value = value;
 
   // --- Update fields (non-reactive) ---
 
@@ -37,5 +43,6 @@ class _CounterState extends GetxState {
   void onClose() {
     _count.close();
     _title.close();
+    _testingA.close();
   }
 }
