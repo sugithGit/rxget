@@ -364,9 +364,10 @@ packages:
   rxget_annotation:
     dependency: "direct main"
     description:
-      path: "../rxget_annotation"
-      relative: true
-    source: path
+      name: rxget_annotation
+      sha256: "3fe6375b2412b5a663b2c94792703ec0fdd066fb9c6554e34ee047c4ddc09fec"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1"
   shelf:
     dependency: transitive

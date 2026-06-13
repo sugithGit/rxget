@@ -273,7 +273,7 @@
     },
     {
       "name": "rxget_annotation",
-      "rootUri": "../../rxget_annotation",
+      "rootUri": "file:///Users/sugithk/.pub-cache/hosted/pub.dev/rxget_annotation-0.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.9"
     },
@@ -442,7 +442,5 @@
   ],
   "generator": "pub",
   "generatorVersion": "3.11.4",
-  "flutterRoot": "file:///Users/sugithk/flutter",
-  "flutterVersion": "3.41.6",
   "pubCache": "file:///Users/sugithk/.pub-cache"
 }
