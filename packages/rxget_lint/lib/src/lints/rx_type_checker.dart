@@ -26,17 +26,17 @@ bool isGetxStateSubclass(ClassDeclaration classDecl) {
   final extendsClause = classDecl.extendsClause;
   if (extendsClause == null) return false;
 
-  final superName = extendsClause.superclass.name2.lexeme;
+  final superName = extendsClause.superclass.name.lexeme;
   if (superName == 'GetxState') return true;
 
   // Also check resolved type chain for GetxState.
   final classElement = classDecl.declaredFragment?.element;
   if (classElement != null) {
     for (final supertype in classElement.allSupertypes) {
-      final name = supertype.element3.name3;
+      final name = supertype.element.name;
       if (name == 'GetxState') {
-        final source = supertype.element3.firstFragment.libraryFragment?.source;
-        if (source != null && source.uri.toString().contains('rxget')) {
+        final source = supertype.element.firstFragment.libraryFragment.source;
+        if (source.uri.toString().contains('rxget')) {
           return true;
         }
       }
@@ -70,7 +70,7 @@ bool isRxVariable(VariableDeclaration variable) {
   if (parent is VariableDeclarationList) {
     final typeAnnotation = parent.type;
     if (typeAnnotation is NamedType) {
-      final typeName = typeAnnotation.name2.lexeme;
+      final typeName = typeAnnotation.name.lexeme;
       if (rxTypeNames.contains(typeName)) return true;
     }
   }
@@ -81,25 +81,21 @@ bool isRxVariable(VariableDeclaration variable) {
 /// Checks if a resolved DartType is an Rx type from the rxget package.
 bool isDartTypeRx(DartType type) {
   if (type is InterfaceType) {
-    final element = type.element3;
-    final className = element.name3;
+    final element = type.element;
+    final className = element.name;
     if (className != null && rxTypeNames.contains(className)) {
-      final source = element.firstFragment.libraryFragment?.source;
-      if (source != null) {
-        final uri = source.uri.toString();
-        if (uri.contains('rxget')) return true;
-      }
+      final source = element.firstFragment.libraryFragment.source;
+      final uri = source.uri.toString();
+      if (uri.contains('rxget')) return true;
     }
 
     // Check supertype chain: the variable's type might extend Rx.
     for (final supertype in element.allSupertypes) {
-      final superName = supertype.element3.name3;
+      final superName = supertype.element.name;
       if (superName != null && rxTypeNames.contains(superName)) {
-        final source = supertype.element3.firstFragment.libraryFragment?.source;
-        if (source != null) {
-          final uri = source.uri.toString();
-          if (uri.contains('rxget')) return true;
-        }
+        final source = supertype.element.firstFragment.libraryFragment.source;
+        final uri = source.uri.toString();
+        if (uri.contains('rxget')) return true;
       }
     }
   }
@@ -126,7 +122,7 @@ bool isObsCall(Expression expression) {
 /// e.g.: `Rx<int>(0)`, `RxInt(0)`, `RxBool(false)`
 bool isRxConstructorCall(Expression expression) {
   if (expression is InstanceCreationExpression) {
-    final typeName = expression.constructorName.type.name2.lexeme;
+    final typeName = expression.constructorName.type.name.lexeme;
     return rxTypeNames.contains(typeName);
   }
   // Function reference style: `RxInt(0)` can also parse as

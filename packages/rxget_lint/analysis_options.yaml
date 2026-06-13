@@ -1,4 +1,8 @@
-include: ../../analysis_options.yaml
+include: ../../analysis_options_without_plugins.yaml
+
+analyzer:
+  errors:
+    include_file_not_found: ignore
 linter:
   rules:
     # rxget_lint has no public API

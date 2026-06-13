@@ -5,8 +5,6 @@ import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer_plugin/utilities/change_builder/change_builder_core.dart';
 import 'package:analyzer_plugin/utilities/fixes/fixes.dart';
@@ -95,13 +93,13 @@ class _Visitor extends SimpleAstVisitor<void> {
 // ---------------------------------------------------------------------------
 
 class MakeRxVariablePrivate extends ResolvedCorrectionProducer {
+  MakeRxVariablePrivate({required super.context});
+
   static const _fixKind = FixKind(
     'rxget_lint.fix.makeRxVariablePrivate',
     DartFixKindPriority.standard,
     'Make Rx variable private by adding "_" prefix',
   );
-
-  MakeRxVariablePrivate({required super.context});
 
   @override
   CorrectionApplicability get applicability =>

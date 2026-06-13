@@ -72,25 +72,25 @@ class _Visitor extends SimpleAstVisitor<void> {
     // Check direct superclass name.
     if (!_extendsGetxState(node)) return;
 
-    final className = node.name.lexeme;
+    final className = node.namePart.typeName.lexeme;
     if (!className.startsWith('_')) {
-      rule.reportAtToken(node.name);
+      rule.reportAtToken(node.namePart.typeName);
     }
   }
 
   bool _extendsGetxState(ClassDeclaration node) {
-    final superName = node.extendsClause?.superclass.name2.lexeme;
+    final superName = node.extendsClause?.superclass.name.lexeme;
     if (superName == 'GetxState') return true;
 
     // Also check resolved supertypes.
     final classElement = node.declaredFragment?.element;
     if (classElement != null) {
       for (final supertype in classElement.allSupertypes) {
-        final name = supertype.element3.name3;
+        final name = supertype.element.name;
         if (name == 'GetxState') {
           final source =
-              supertype.element3.firstFragment.libraryFragment?.source;
-          if (source != null && source.uri.toString().contains('rxget')) {
+              supertype.element.firstFragment.libraryFragment.source;
+          if (source.uri.toString().contains('rxget')) {
             return true;
           }
         }
