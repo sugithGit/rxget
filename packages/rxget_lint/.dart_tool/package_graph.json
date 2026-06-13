@@ -25,7 +25,7 @@
     },
     {
       "name": "test",
-      "version": "1.30.0",
+      "version": "1.31.1",
       "dependencies": [
         "analyzer",
         "async",
@@ -56,7 +56,7 @@
     },
     {
       "name": "analyzer_plugin",
-      "version": "0.13.11",
+      "version": "0.14.12",
       "dependencies": [
         "analyzer",
         "collection",
@@ -68,7 +68,7 @@
     },
     {
       "name": "analyzer",
-      "version": "9.0.0",
+      "version": "13.3.0",
       "dependencies": [
         "_fe_analyzer_shared",
         "collection",
@@ -86,10 +86,11 @@
     },
     {
       "name": "analysis_server_plugin",
-      "version": "0.3.4",
+      "version": "0.3.18",
       "dependencies": [
         "analyzer",
         "analyzer_plugin",
+        "collection",
         "meta",
         "yaml",
         "yaml_edit"
@@ -131,7 +132,7 @@
     },
     {
       "name": "test_core",
-      "version": "0.6.16",
+      "version": "0.6.18",
       "dependencies": [
         "analyzer",
         "args",
@@ -158,7 +159,7 @@
     },
     {
       "name": "test_api",
-      "version": "0.7.10",
+      "version": "0.7.12",
       "dependencies": [
         "async",
         "boolean_selector",
@@ -334,7 +335,7 @@
     },
     {
       "name": "dart_style",
-      "version": "3.1.3",
+      "version": "3.1.9",
       "dependencies": [
         "analyzer",
         "args",
@@ -356,7 +357,7 @@
     },
     {
       "name": "meta",
-      "version": "1.18.1",
+      "version": "1.18.3",
       "dependencies": []
     },
     {
@@ -386,7 +387,7 @@
     },
     {
       "name": "_fe_analyzer_shared",
-      "version": "92.0.0",
+      "version": "103.0.0",
       "dependencies": [
         "meta"
       ]
