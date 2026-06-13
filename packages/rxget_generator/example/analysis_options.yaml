@@ -1,0 +1,6 @@
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+  errors:
+    unreachable_from_main: ignore
+    avoid_print: ignore

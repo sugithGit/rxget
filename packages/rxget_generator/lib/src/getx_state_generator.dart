@@ -35,7 +35,21 @@ import 'field_info.dart';
 /// }
 /// ```
 class GetxStateGenerator extends GeneratorForAnnotation<GetxStateAnnotation> {
-  static const _updateChecker = TypeChecker.fromRuntime(UpdateAnnotation);
+  /// Creates a new [GetxStateGenerator] instance.
+  const GetxStateGenerator({
+    super.throwOnUnresolved,
+  });
+
+  static const _updateChecker = TypeChecker.fromUrl(
+      'package:rxget_annotation/src/annotations.dart#UpdateAnnotation');
+
+  /// Whether to throw an exception if an annotated element cannot be resolved.
+  @override
+  bool get throwOnUnresolved => super.throwOnUnresolved;
+
+  /// The type checker used to match the annotation.
+  @override
+  TypeChecker get typeChecker => super.typeChecker;
 
   @override
   String generateForAnnotatedElement(
@@ -94,25 +108,28 @@ class GetxStateGenerator extends GeneratorForAnnotation<GetxStateAnnotation> {
 
     for (final field in classElement.fields) {
       // Skip static fields, synthetic fields, and inherited fields
-      if (field.isStatic || field.isSynthetic) continue;
+      if (field.isStatic || !field.isOriginDeclaration) continue;
 
       final fieldType = field.type;
       final isUpdate = _updateChecker.hasAnnotationOfExact(field);
 
+      final fieldName = field.name;
+      if (fieldName == null) continue;
+
       // Also check constructor parameter for @update annotation
       final isUpdateFromConstructor =
-          _hasUpdateOnConstructorParam(classElement, field.name);
+          _hasUpdateOnConstructorParam(classElement, fieldName);
 
       fields.add(
         FieldInfo(
-          name: field.name,
+          name: fieldName,
           typeName: _getTypeName(fieldType),
           isNullable: fieldType.nullabilitySuffix == NullabilitySuffix.question,
-          isRequired: _isFieldRequired(classElement, field.name),
+          isRequired: _isFieldRequired(classElement, fieldName),
           isUpdate: isUpdate || isUpdateFromConstructor,
           collectionKind: _getCollectionKind(fieldType),
           defaultValueCode:
-              _getDefaultValue(classElement, field.name),
+              _getDefaultValue(classElement, fieldName),
           typeArguments: _getTypeArguments(fieldType),
         ),
       );
@@ -126,7 +143,7 @@ class GetxStateGenerator extends GeneratorForAnnotation<GetxStateAnnotation> {
     final constructor = classElement.unnamedConstructor;
     if (constructor == null) return false;
 
-    for (final param in constructor.parameters) {
+    for (final param in constructor.formalParameters) {
       if (param.name == fieldName) {
         return _updateChecker.hasAnnotationOfExact(param);
       }
@@ -160,7 +177,7 @@ class GetxStateGenerator extends GeneratorForAnnotation<GetxStateAnnotation> {
     final constructor = classElement.unnamedConstructor;
     if (constructor == null) return false;
 
-    for (final param in constructor.parameters) {
+    for (final param in constructor.formalParameters) {
       if (param.name == fieldName) {
         return param.isRequired;
       }
@@ -173,7 +190,7 @@ class GetxStateGenerator extends GeneratorForAnnotation<GetxStateAnnotation> {
     final constructor = classElement.unnamedConstructor;
     if (constructor == null) return null;
 
-    for (final param in constructor.parameters) {
+    for (final param in constructor.formalParameters) {
       if (param.name == fieldName && param.hasDefaultValue) {
         return param.defaultValueCode;
       }
