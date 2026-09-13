@@ -217,8 +217,8 @@ Obl(
       </p>
 
       <PageNav
-        prev={{ title: "Obx, ObxValue, Observer", href: "/docs/widgets/obx" }}
-        next={{ title: "GetBuilder & Bind", href: "/docs/widgets/get-builder" }}
+        prev={{ title: "Obx", href: "/docs/widgets/obx" }}
+        next={{ title: "GetBuilder", href: "/docs/widgets/get-builder" }}
       />
     </>
   );

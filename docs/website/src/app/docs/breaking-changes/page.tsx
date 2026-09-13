@@ -107,6 +107,63 @@ Obx(() => Text('\${controller.state.count}'));`}</CodeBlock>
 
       <h2>Unreleased</h2>
 
+      <h3>The widget surface is now four widgets</h3>
+      <p>
+        rxget ships <code>Obx</code>, <code>Obl</code>,{" "}
+        <code>GetBuilder</code> and <code>GetInWidget</code>. Everything else
+        was removed — each was a thin wrapper over one of those four, and
+        several were unusable.
+      </p>
+
+      <div className="not-prose my-6 overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="py-2 pr-4 font-semibold">Removed</th>
+              <th className="py-2 font-semibold">Replace with</th>
+            </tr>
+          </thead>
+          <tbody className="text-muted-foreground text-xs">
+            {[
+              ["GetView<T>", "StatelessWidget + Get.find<T>() — it needs no context"],
+              ["GetWidget<S>", "Get.create plus a StatelessWidget"],
+              ["GetX<T>", "GetInWidget for the lifetime, Obx for the rebuild"],
+              ["ObxValue<T>", "Obx reading an Rx you hold in a State"],
+              ["Observer", "Obx — the enclosing build already has the context"],
+              ["ValueBuilder<T>", "StatefulWidget + setState"],
+              ["MixinBuilder<T>", "GetBuilder wrapping an Obx"],
+              ["Bind, Binds, Bind.of", "GetInWidget"],
+              ["GetWidgetCache, WidgetCache", "no replacement — internal to GetWidget"],
+              ["StateController<T>", "GetxController<_S> with StateMixin<T>"],
+              ["SuperController<T>", "GetxController<_S> with WidgetsBindingObserver, StateMixin<T>"],
+              ["FullLifeCycleController, FullLifeCycleMixin", "GetxController<_S> with WidgetsBindingObserver"],
+              ["ScrollMixin", "a ScrollController you own"],
+              ["GetSingleTickerProviderStateMixin, GetTickerProviderStateMixin", "Flutter's own ticker mixins on a State"],
+              ["StateMixin.obx()", "Obx branching on controller.status"],
+              ["Value<T>, GetNotifier<T>", "GetxController with StateMixin"],
+              ["MiniStream, FastList", "no replacement — unused GetX carry-over"],
+            ].map(([a, b]) => (
+              <tr key={a} className="border-b border-border/50 align-top">
+                <td className="py-2 pr-4 font-mono text-foreground">{a}</td>
+                <td className="py-2">{b}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <Callout variant="warning" title="Four of these never worked">
+        <p>
+          <code>StateController</code>, <code>SuperController</code>,{" "}
+          <code>FullLifeCycleController</code> and{" "}
+          <code>FullLifeCycleMixin</code> all extended the bare{" "}
+          <code>GetxController</code>, which resolves to{" "}
+          <code>GetxController&lt;GetxState&gt;</code>. The private-state
+          assertion then rejected them, so constructing any of them threw in
+          every debug build.
+        </p>
+      </Callout>
+
       <h3>Reactive widgets release dependencies they stop reading</h3>
       <p>
         An <code>Obx</code>, <code>Obl</code> or <code>GetX</code> now

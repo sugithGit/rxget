@@ -72,8 +72,8 @@ Get.lazyPut<CartController>(() => CartController(), fenix: true);`}</CodeBlock>
       <h3>Get.create — a new instance per request</h3>
       <p>
         Where <code>put</code> and <code>lazyPut</code> are singletons,{" "}
-        <code>create</code> runs its builder on every <code>Get.find</code>.
-        Useful with <code>GetWidget</code>, where each widget wants its own
+        <code>create</code> runs its builder on every <code>Get.find</code> —
+        useful when each instance of a repeated component needs its own
         controller.
       </p>
 

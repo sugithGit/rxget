@@ -253,7 +253,7 @@ diagnostics:
               <td className="py-2">identical</td>
             </tr>
             <tr className="border-b border-border/50">
-              <td className="py-2 pr-4">Obx, ObxValue</td>
+              <td className="py-2 pr-4">Obx</td>
               <td className="py-2">identical</td>
             </tr>
             <tr className="border-b border-border/50">
@@ -261,8 +261,8 @@ diagnostics:
               <td className="py-2">identical</td>
             </tr>
             <tr className="border-b border-border/50">
-              <td className="py-2 pr-4">GetView, GetWidget</td>
-              <td className="py-2">identical</td>
+              <td className="py-2 pr-4">GetIn scoping</td>
+              <td className="py-2">new — replaces Bindings</td>
             </tr>
             <tr className="border-b border-border/50">
               <td className="py-2 pr-4">ever, once, debounce, interval</td>
@@ -319,9 +319,33 @@ diagnostics:
               <td className="py-2 pr-4 font-mono">Get.changeTheme</td>
               <td className="py-2">A ThemeController plus Obx</td>
             </tr>
-            <tr>
+            <tr className="border-b border-border/50">
               <td className="py-2 pr-4 font-mono">context.width, GetUtils</td>
               <td className="py-2">MediaQuery, your own helpers</td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4 font-mono">GetView, GetWidget</td>
+              <td className="py-2">StatelessWidget + Get.find</td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4 font-mono">GetX widget</td>
+              <td className="py-2">GetInWidget + Obx</td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4 font-mono">ObxValue, Observer</td>
+              <td className="py-2">Obx</td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4 font-mono">MixinBuilder</td>
+              <td className="py-2">GetBuilder wrapping an Obx</td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4 font-mono">ValueBuilder</td>
+              <td className="py-2">StatefulWidget + setState</td>
+            </tr>
+            <tr>
+              <td className="py-2 pr-4 font-mono">Bind, Binds</td>
+              <td className="py-2">GetInWidget</td>
             </tr>
           </tbody>
         </table>

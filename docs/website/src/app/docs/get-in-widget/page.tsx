@@ -243,9 +243,7 @@ void _disposeLogic() {
 }),`}</CodeBlock>
 
       <p>
-        And for a whole screen, <code>GetView</code> supplies the{" "}
-        <code>controller</code> getter so <code>Get.find</code> disappears
-        entirely:
+        For a whole screen, resolve once at the top of <code>build</code>:
       </p>
 
       <CodeBlock>{`GetInWidget(
@@ -253,12 +251,17 @@ void _disposeLogic() {
   child: const CounterView(),
 )
 
-class CounterView extends GetView<CounterController> {
+class CounterView extends StatelessWidget {
   const CounterView({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      Obx(() => Text('\${controller.state.count}'));
+  Widget build(BuildContext context) {
+    final c = Get.find<CounterController>();
+    return Column(children: [
+      Obx(() => Text('\${c.state.count}')),
+      ElevatedButton(onPressed: c.increment, child: const Text('+')),
+    ]);
+  }
 }`}</CodeBlock>
 
       <Callout variant="note" title="Resolving on every rebuild is fine">
@@ -337,11 +340,8 @@ class CounterView extends GetView<CounterController> {
       </div>
 
       <PageNav
-        prev={{
-          title: "ValueBuilder & MixinBuilder",
-          href: "/docs/widgets/value-builder",
-        }}
-        next={{ title: "Ticker Providers", href: "/docs/widgets/tickers" }}
+        prev={{ title: "GetBuilder", href: "/docs/widgets/get-builder" }}
+        next={{ title: "Code Generation", href: "/docs/codegen" }}
       />
     </>
   );

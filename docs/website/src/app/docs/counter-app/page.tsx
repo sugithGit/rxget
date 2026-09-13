@@ -105,15 +105,18 @@ class CounterApp extends StatelessWidget {
 
       <h2>Step 4 — the view</h2>
       <p>
-        <code>GetView</code> supplies the typed <code>controller</code> getter,
-        so there is no <code>Get.find</code> in the build method.
+        <code>Get.find</code> takes no <code>BuildContext</code>, so resolve the
+        controller wherever you need it — here, once at the top of{" "}
+        <code>build</code>.
       </p>
 
-      <CodeBlock title="lib/main.dart">{`class CounterPage extends GetView<CounterController> {
+      <CodeBlock title="lib/main.dart">{`class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<CounterController>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('rxget counter')),
       body: Center(

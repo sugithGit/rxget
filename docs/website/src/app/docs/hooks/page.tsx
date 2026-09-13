@@ -161,7 +161,7 @@ final archive = useGetIn(
                 Returns the instance
               </td>
               <td className="py-2 pr-4">Yes, directly</td>
-              <td className="py-2">No — use Get.find or GetView</td>
+              <td className="py-2">No — use Get.find</td>
             </tr>
             <tr>
               <td className="py-2 pr-4 text-foreground">Best for</td>

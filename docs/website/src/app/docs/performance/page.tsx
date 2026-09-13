@@ -154,47 +154,22 @@ export default function PerformancePage() {
 
       <h2>Reactive values vs Streams</h2>
       <p>
-        The one place the difference is not subtle. From the same benchmark,
-        60,000 notifications:
+        The library used to ship <code>MiniStream</code>, a hand-rolled
+        synchronous stream, and benchmarked it against{" "}
+        <code>dart:async</code>. It was removed along with the other unused
+        GetX carry-overs, so that comparison is gone — but the reason it was
+        lopsided still matters.
       </p>
-
-      <div className="not-prose my-6 overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th className="py-2 pr-4 font-semibold">Implementation</th>
-              <th className="py-2 font-semibold">Time</th>
-            </tr>
-          </thead>
-          <tbody className="text-muted-foreground font-mono text-xs">
-            <tr className="border-b border-border/50">
-              <td className="py-2 pr-4 text-foreground">rxget MiniStream</td>
-              <td className="py-2">~1,448 ms</td>
-            </tr>
-            <tr>
-              <td className="py-2 pr-4 text-foreground">dart:async Stream</td>
-              <td className="py-2">~181,225 ms</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <p>
-        Two orders of magnitude, because a <code>Stream</code> delivers
-        asynchronously — every event is a microtask, with the zone machinery
-        that implies — while a reactive notification is a direct synchronous
-        call through a list.
+        A <code>Stream</code> delivers asynchronously: every event is a
+        microtask, with the zone machinery that implies. A reactive
+        notification is a direct synchronous call through a listener list. That
+        is why <code>Obx</code> beats <code>StreamBuilder</code> for UI state,
+        and it is why an <code>Rx</code> only allocates a{" "}
+        <code>StreamController</code> if something actually asks for{" "}
+        <code>.stream</code> or attaches a worker. Observed only by{" "}
+        <code>Obx</code>, no stream exists at all.
       </p>
-
-      <Callout variant="note" title="The practical consequence">
-        <p>
-          This is the argument for <code>Obx</code> over{" "}
-          <code>StreamBuilder</code> for UI state. An <code>Rx</code> only
-          allocates a <code>StreamController</code> if something asks for{" "}
-          <code>.stream</code> or attaches a worker; observed only by{" "}
-          <code>Obx</code>, no stream exists at all.
-        </p>
-      </Callout>
 
       <h2>What actually costs you frames</h2>
       <p>

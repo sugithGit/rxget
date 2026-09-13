@@ -1,5 +1,4 @@
 import { CodeBlock } from "@/components/docs/CodeBlock";
-import { Callout } from "@/components/docs/Callout";
 import { PageNav } from "@/components/docs/PageNav";
 
 export const metadata = {
@@ -57,29 +56,24 @@ _l.removeWhere(f); _l.insert(0, x);   _l.clear();   _l.sort();
 _l.addIf(cond, x); _l.addAllIf(cond, xs);  _l.addNonNull(x);
 _l.assign(x);      _l.assignAll(xs);`}</CodeBlock>
 
-      <h2>Widgets</h2>
+      <h2>Widgets — all four of them</h2>
 
-      <CodeBlock>{`Obx(() => Text('\${c.state.count}'));
-Observer(builder: (context) => Text('\${c.state.count}'));
-ObxValue<RxBool>((d) => Switch(value: d.value, onChanged: (v) => d.value = v), rx);
+      <CodeBlock>{`Obx(() => Text('\${c.state.count}'));            // reactive rebuild
 
-Obl(() { if (c.state.done) navigate(); }, child: const Form());
+Obl(() { if (c.state.done) go(); },            // side effect, no rebuild
+    child: const Form());
 
 GetBuilder<C>(builder: (c) => Text('\${c.state.count}'));
 GetBuilder<C>(id: 'header', builder: (c) => Text(c.state.title));
 GetBuilder<C>(init: C(), filter: (c) => c.state.count, builder: ...);
 
-GetX<C>(init: C(), builder: (c) => Text('\${c.state.count}'));
-
-MixinBuilder<C>(id: 'x', builder: (c) => ...);
-
-ValueBuilder<bool>(
-  initialValue: false,
-  builder: (v, update) => Switch(value: v, onChanged: update),
+GetInWidget(                                   // scoped injection
+  dependencies: [GetIn<C>(() => C())],
+  child: const View(),
 );
 
-class V extends GetView<C> { ... controller ... }
-class W extends GetWidget<C> { ... controller ... }   // with Get.create`}</CodeBlock>
+// The controller: Get.find needs no BuildContext
+Obx(() => Text('\${Get.find<C>().state.count}'));`}</CodeBlock>
 
       <h2>Dependency injection</h2>
 
@@ -147,13 +141,12 @@ controller.initialized;   controller.isClosed;`}</CodeBlock>
 
 setLoading();  setSuccess(d);  setError(e);  setEmpty();
 
-controller.obx(
-  (state) => Profile(user: state),
-  onLoading: const Spinner(),
-  onError: (e) => Text('\$e'),
-  onEmpty: const Text('nothing'),
-  onCustom: (context) => const Offline(),
-);
+Obx(() {
+  final s = controller.status;
+  if (s.isLoading) return const Spinner();
+  if (s.isError)   return Text(s.errorMessage);
+  return Profile(user: controller.getState);
+});
 
 status.isLoading  status.isSuccess  status.isError
 status.isEmpty    status.isCustom
@@ -164,24 +157,8 @@ status.data       status.error      status.errorMessage`}</CodeBlock>
       <CodeBlock>{`GetxController<_State>       // state + update() + lifecycle
 RxController                 // lifecycle only, no listeners
 
-// Async status — mix in, do not use StateController (see note)
-class C extends GetxController<_S> with StateMixin<T> { ... }
-
-// App lifecycle — mix in, do not use FullLifeCycleController
-class C extends GetxController<_S> with WidgetsBindingObserver { ... }
-
-with ScrollMixin                       // onEndScroll / onTopScroll
-with GetSingleTickerProviderStateMixin // one AnimationController
-with GetTickerProviderStateMixin       // several`}</CodeBlock>
-
-      <Callout variant="danger" title="StateController, SuperController, FullLifeCycleController">
-        <p>
-          All three extend the bare <code>GetxController</code> and throw the
-          private-state assertion when constructed in a debug build. Use the
-          mixin forms above. See{" "}
-          <a href="/docs/controllers">Controllers &amp; State</a>.
-        </p>
-      </Callout>
+with StateMixin<T>             // loading / error / empty / success
+with WidgetsBindingObserver    // app foreground / background`}</CodeBlock>
 
       <h2>Code generation</h2>
 

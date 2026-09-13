@@ -5,7 +5,7 @@ import { PageNav } from "@/components/docs/PageNav";
 export const metadata = {
   title: "Controllers & State — rxget",
   description:
-    "GetxState, GetxController, RxController, StateController, SuperController, FullLifeCycleController and ScrollMixin — what each one is for.",
+    "GetxState and GetxController: the split between data and behaviour, what you get for free, and how to add async status or app lifecycle.",
 };
 
 export default function ControllersPage() {
@@ -176,39 +176,13 @@ class SocketService extends RxController {
   }
 }`}</CodeBlock>
 
-      <h3>StateController&lt;T&gt;, SuperController&lt;T&gt; and
-      FullLifeCycleController</h3>
-
-      <Callout variant="danger" title="These three do not currently work">
-        <p>
-          All three extend the bare <code>GetxController</code>, which resolves
-          to <code>GetxController&lt;GetxState&gt;</code>. The private-state
-          assertion then checks whether <code>&quot;GetxState&quot;</code>{" "}
-          starts with an underscore, which it does not — so constructing any of
-          them throws in debug builds:
-        </p>
-        <p className="font-mono text-xs">
-          State class for MyController must be private (start with
-          &quot;_&quot;)
-        </p>
-        <p>
-          Asserts are stripped in release, so these classes appear to work in a
-          release build and fail in development. Use the mixin form below
-          instead.
-        </p>
-      </Callout>
-
+      <h3>Adding async status</h3>
       <p>
-        Everything the three convenience classes offer is available by mixing
-        the same mixins into a correctly typed controller. This form works:
+        Mix in <a href="/docs/async-status">StateMixin</a> for the
+        loading / error / empty / success cycle.
       </p>
 
-      <CodeBlock title="instead of StateController<User>">{`class _UserState extends GetxState {
-  @override
-  void onClose() {}
-}
-
-class UserController extends GetxController<_UserState>
+      <CodeBlock>{`class UserController extends GetxController<_UserState>
     with StateMixin<User> {
   @override
   final state = _UserState();
@@ -216,8 +190,14 @@ class UserController extends GetxController<_UserState>
   Future<void> load() => futurize(() => api.fetchUser());
 }`}</CodeBlock>
 
-      <CodeBlock title="instead of FullLifeCycleController / SuperController">{`class AnalyticsController extends GetxController<_AnalyticsState>
-    with WidgetsBindingObserver, StateMixin<Report> {
+      <h3>Adding app lifecycle</h3>
+      <p>
+        Mix in Flutter&apos;s own <code>WidgetsBindingObserver</code> for
+        foreground and background events.
+      </p>
+
+      <CodeBlock>{`class AnalyticsController extends GetxController<_AnalyticsState>
+    with WidgetsBindingObserver {
   @override
   final state = _AnalyticsState();
 
@@ -228,8 +208,9 @@ class UserController extends GetxController<_UserState>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _refresh();
+  void didChangeAppLifecycleState(AppLifecycleState s) {
+    if (s == AppLifecycleState.resumed) analytics.startSession();
+    if (s == AppLifecycleState.paused) analytics.endSession();
   }
 
   @override
@@ -239,33 +220,18 @@ class UserController extends GetxController<_UserState>
   }
 }`}</CodeBlock>
 
-      <h3>ScrollMixin</h3>
-      <p>
-        Infinite scroll without writing the listener. Mix it into any class that
-        has the lifecycle.
-      </p>
-
-      <CodeBlock>{`class FeedController extends GetxController<_FeedState> with ScrollMixin {
-  @override
-  final state = _FeedState();
-
-  @override
-  Future<void> onEndScroll() async {
-    state._posts.addAll(await api.nextPage());
-  }
-
-  @override
-  Future<void> onTopScroll() async {}
-}
-
-// in the view
-ListView(controller: controller.scroll, children: [...])`}</CodeBlock>
-
-      <p>
-        The mixin owns the <code>ScrollController</code>, attaches its listener
-        in <code>onInit</code>, disposes it in <code>onClose</code>, and guards
-        against overlapping fetches while one is in flight.
-      </p>
+      <Callout variant="note" title="Removed convenience classes">
+        <p>
+          <code>StateController</code>, <code>SuperController</code>,{" "}
+          <code>FullLifeCycleController</code>, <code>FullLifeCycleMixin</code>{" "}
+          and <code>ScrollMixin</code> have been removed. The first four could
+          not be constructed at all — they extended the bare{" "}
+          <code>GetxController</code>, so the private-state assertion always
+          rejected them. The mixin forms above are the replacement, and{" "}
+          <code>ScrollMixin</code> was a plain{" "}
+          <code>ScrollController</code> helper with no reactive content.
+        </p>
+      </Callout>
 
       <h2>Which one to extend</h2>
 

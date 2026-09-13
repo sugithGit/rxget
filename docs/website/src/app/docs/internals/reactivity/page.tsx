@@ -316,12 +316,10 @@ int get hashCode => value.hashCode;   // delegates to the value`}</CodeBlock>
 
       <h2>Who uses the scope</h2>
       <p>
-        Four widgets share this machinery — <code>Obx</code> and{" "}
-        <code>Observer</code> through <code>ObxElement</code>,{" "}
-        <code>Obl</code> through <code>OblElement</code>, and{" "}
-        <code>GetX</code> through its <code>State</code>. All four get the
-        dependency diff, the coalescing and the unmount guards from the same
-        implementation.
+        Two widgets share this machinery — <code>Obx</code> through{" "}
+        <code>ObxElement</code> and <code>Obl</code> through{" "}
+        <code>OblElement</code>. Both get the dependency diff, the coalescing
+        and the unmount guards from the same implementation.
       </p>
 
       <PageNav

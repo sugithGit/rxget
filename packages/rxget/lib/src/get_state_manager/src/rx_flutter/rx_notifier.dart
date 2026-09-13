@@ -27,12 +27,6 @@ mixin StateMixin<T> on ListNotifier {
   T? _value;
   GetStatus<T>? _status;
 
-  void _fillInitialStatus() {
-    _status = (_value == null || _value!._isEmpty())
-        ? GetStatus<T>.loading()
-        : GetStatus<T>.success(_value as T);
-  }
-
   GetStatus<T> get status {
     reportRead();
     return _status ??= _status = GetStatus.loading();
@@ -198,86 +192,6 @@ class GetListenable<T> extends ListNotifierSingle implements RxInterface<T> {
   @override
   String toString() => value.toString();
 }
-
-class Value<T> extends ListNotifier
-    with StateMixin<T>
-    implements ValueListenable<T?> {
-  Value(T val) {
-    _value = val;
-    _fillInitialStatus();
-  }
-
-  @override
-  T get value {
-    reportRead();
-    return _value as T;
-  }
-
-  @override
-  set value(T newValue) {
-    if (_value == newValue) {
-      return;
-    }
-    _value = newValue;
-    refresh();
-  }
-
-  T? call([T? v]) {
-    if (v != null) {
-      value = v;
-    }
-    return value;
-  }
-
-  void update(T Function(T? value) fn) {
-    value = fn(value);
-    // refresh();
-  }
-
-  @override
-  String toString() => value.toString();
-
-  dynamic toJson() => (value as dynamic)?.toJson();
-}
-
-/// GetNotifier has a native status and state implementation, with the
-/// Get Lifecycle
-abstract class GetNotifier<T> extends Value<T> with GetLifeCycleMixin {
-  GetNotifier(super.val);
-}
-
-extension StateExt<T> on StateMixin<T> {
-  Widget obx(
-    NotifierBuilder<T> widget, {
-    Widget Function(String? error)? onError,
-    Widget? onLoading,
-    Widget? onEmpty,
-    WidgetBuilder? onCustom,
-  }) {
-    return Observer(
-      builder: (context) {
-        if (status.isLoading) {
-          return onLoading ?? const Center(child: CircularProgressIndicator());
-        } else if (status.isError) {
-          return onError != null
-              ? onError(status.errorMessage)
-              : Center(child: Text('A error occurred: ${status.errorMessage}'));
-        } else if (status.isEmpty) {
-          return onEmpty ??
-              const SizedBox.shrink(); // Also can be widget(null); but is risky
-        } else if (status.isSuccess) {
-          return widget(value);
-        } else if (status.isCustom) {
-          return onCustom?.call(context) ??
-              const SizedBox.shrink(); // Also can be widget(null); but is risky
-        }
-        return widget(value);
-      },
-    );
-  }
-}
-
-typedef NotifierBuilder<T> = Widget Function(T state);
 
 abstract class GetStatus<T> with Equatable {
   const GetStatus();

@@ -35,13 +35,15 @@ class CounterPage extends StatelessWidget {
   }
 }
 
-/// [GetView] supplies the typed `controller` getter, so there is no
-/// `Get.find` and no `Builder` in the view itself.
-class CounterView extends GetView<CounterController> {
+/// `Get.find` needs no BuildContext, so the controller is resolved right where
+/// it is used — no provider, consumer or builder in between.
+class CounterView extends StatelessWidget {
   const CounterView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<CounterController>();
+
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => Text(controller.state.title)),

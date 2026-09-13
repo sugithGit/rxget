@@ -84,22 +84,25 @@ void main() => runApp(MaterialApp(
       ),
     ));
 
-class CounterView extends GetView<CounterController> {
+class CounterView extends StatelessWidget {
   const CounterView({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Center(child: Obx(() => Text('\${controller.state.count}'))),
-        floatingActionButton: FloatingActionButton(
-          onPressed: controller.increment,
-          child: const Icon(Icons.add),
-        ),
-      );
+  Widget build(BuildContext context) {
+    final c = Get.find<CounterController>();
+    return Scaffold(
+      body: Center(child: Obx(() => Text('\${c.state.count}'))),
+      floatingActionButton: FloatingActionButton(
+        onPressed: c.increment,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 }`}</CodeBlock>
 
       <p>
-        <code>Get.find</code> needs no context, so if you would rather skip{" "}
-        <code>GetView</code> the whole view collapses to one line:
+        And when the controller is used just once, the view collapses to a
+        single line:
       </p>
 
       <CodeBlock>{`child: Obx(() => Text('\${Get.find<CounterController>().state.count}')),`}</CodeBlock>

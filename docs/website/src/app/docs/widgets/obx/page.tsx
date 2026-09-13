@@ -3,24 +3,18 @@ import { Callout } from "@/components/docs/Callout";
 import { PageNav } from "@/components/docs/PageNav";
 
 export const metadata = {
-  title: "Obx, ObxValue, Observer — rxget",
+  title: "Obx — rxget",
   description:
-    "The three reactive rebuild widgets: how dependency tracking works, the ObxError, and every pattern for using them well.",
+    "The reactive rebuild widget: how dependency tracking works, the ObxError, and every pattern for using it well.",
 };
 
 export default function ObxPage() {
   return (
     <>
-      <h1>Obx, ObxValue, Observer</h1>
+      <h1>Obx</h1>
       <p className="lead">
-        Three widgets that rebuild when a reactive value changes. They share one
-        engine and differ only in what they hand to the builder.
-      </p>
-
-      <h2>Obx</h2>
-      <p>
-        A builder with no arguments. Any <code>Rx</code> read while it runs
-        becomes a dependency.
+        A builder with no arguments that rebuilds when any reactive value read
+        inside it changes. It is the widget you will use most.
       </p>
 
       <CodeBlock>{`Obx(() => Text('\${controller.state.count}'))`}</CodeBlock>
@@ -52,13 +46,15 @@ Obx(() {
   return Text('\${c.state.count} of \${c.state.total}');
 })
 
-// For a whole screen, GetView removes Get.find entirely
-class CounterView extends GetView<CounterController> {
+// For a whole screen, resolve once at the top of build
+class CounterView extends StatelessWidget {
   const CounterView({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      Obx(() => Text('\${controller.state.count}'));
+  Widget build(BuildContext context) {
+    final c = Get.find<CounterController>();
+    return Obx(() => Text('\${c.state.count}'));
+  }
 }`}</CodeBlock>
 
       <Callout variant="tip" title="No context plumbing">
@@ -133,67 +129,20 @@ for (var i = 0; i < 100; i++) {
         rebuild, not three.
       </p>
 
-      <h2>ObxValue</h2>
+      <h2>Needing the BuildContext</h2>
       <p>
-        Takes a reactive value as an argument and passes it to the builder. The
-        state is local to the widget — no controller needs to own it.
+        <code>Obx</code> passes no context to its builder, but it is an
+        ordinary widget — the surrounding <code>build</code> already has one.
       </p>
 
-      <CodeBlock>{`ObxValue<RxBool>(
-  (data) => Switch(
-    value: data.value,
-    onChanged: (flag) => data.value = flag,
-  ),
-  false.obs,
-)`}</CodeBlock>
-
-      <Callout variant="danger" title="Do not build the Rx inline in a rebuilt widget">
-        <p>
-          <code>false.obs</code> above is created every time the enclosing build
-          runs, which resets the switch and leaks the old variable. Hold it in a{" "}
-          <code>State</code> field, or use{" "}
-          <a href="/docs/widgets/value-builder">ValueBuilder</a>, which manages
-          the lifetime for you.
-        </p>
-      </Callout>
-
-      <CodeBlock title="the safe shape">{`class _FilterBarState extends State<FilterBar> {
-  final _showArchived = false.obs;
-
-  @override
-  void dispose() {
-    _showArchived.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => ObxValue<RxBool>(
-        (data) => Switch(
-          value: data.value,
-          onChanged: (v) => data.value = v,
-        ),
-        _showArchived,
-      );
-}`}</CodeBlock>
-
-      <h2>Observer</h2>
-      <p>
-        Identical to <code>Obx</code> except the builder receives a{" "}
-        <code>BuildContext</code>.
-      </p>
-
-      <CodeBlock>{`Observer(
-  builder: (context) => Text(
-    '\${controller.state.count}',
+      <CodeBlock>{`@override
+Widget build(BuildContext context) {
+  final c = Get.find<CounterController>();
+  return Obx(() => Text(
+    '\${c.state.count}',
     style: Theme.of(context).textTheme.headlineMedium,
-  ),
-)`}</CodeBlock>
-
-      <p>
-        This is what <code>StateMixin.obx()</code> is built on. Reach for it
-        when the builder needs <code>Theme.of</code>,{" "}
-        <code>MediaQuery.of</code> or a <code>Navigator</code>.
-      </p>
+  ));
+}`}</CodeBlock>
 
       <h2>Patterns</h2>
 

@@ -138,6 +138,30 @@ Obx(() => Text('\${controller.state.count}'));`}</CodeBlock>
 GetIn<C>(() => C(userId: id));`}</CodeBlock>
       </Q>
 
+      <Q q="Where did GetView / GetX / ObxValue go?">
+        <p>
+          Removed. rxget ships four widgets — <code>Obx</code>,{" "}
+          <code>Obl</code>, <code>GetBuilder</code> and{" "}
+          <code>GetInWidget</code> — because everything else was a thin wrapper
+          over one of them. <code>Get.find</code> needs no{" "}
+          <code>BuildContext</code>, so a plain <code>StatelessWidget</code>{" "}
+          replaces <code>GetView</code> with no loss:
+        </p>
+        <CodeBlock>{`class CounterView extends StatelessWidget {
+  const CounterView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.find<CounterController>();
+    return Obx(() => Text('\${c.state.count}'));
+  }
+}`}</CodeBlock>
+        <p>
+          <a href="/docs/breaking-changes">Breaking Changes</a> lists the
+          replacement for each removed API.
+        </p>
+      </Q>
+
       <Q q="Obx or GetBuilder?">
         <p>
           <code>Obx</code> when one value changes often and a small widget shows

@@ -228,10 +228,10 @@ Obx(() => Text(currentItem.title))
             </tr>
             <tr>
               <td className="py-2 pr-4 font-mono text-xs text-foreground">
-                ScrollController (ScrollMixin)
+                ScrollController
               </td>
-              <td className="py-2 pr-4">rxget</td>
-              <td className="py-2">ScrollMixin.onClose()</td>
+              <td className="py-2 pr-4">You</td>
+              <td className="py-2">controller.onClose()</td>
             </tr>
           </tbody>
         </table>

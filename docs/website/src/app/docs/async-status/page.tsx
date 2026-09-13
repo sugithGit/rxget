@@ -5,7 +5,7 @@ import { PageNav } from "@/components/docs/PageNav";
 export const metadata = {
   title: "Async Status — rxget",
   description:
-    "StateMixin, GetStatus and the .obx() builder: modelling loading, error, empty and success without writing the branches by hand.",
+    "StateMixin and GetStatus: modelling loading, error, empty and success on a controller, and rendering the branches with Obx.",
 };
 
 export default function AsyncStatusPage() {
@@ -62,18 +62,10 @@ export default function AsyncStatusPage() {
 
       <h2>Adding it to a controller</h2>
 
-      <Callout variant="danger" title="Do not use StateController or SuperController">
-        <p>
-          Both extend the bare <code>GetxController</code>, which resolves to{" "}
-          <code>GetxController&lt;GetxState&gt;</code> — and the private-state
-          assertion then rejects <code>&quot;GetxState&quot;</code>.
-          Constructing either throws in debug builds. Mix{" "}
-          <code>StateMixin</code> into a properly typed controller instead, as
-          below. See <a href="/docs/controllers">Controllers &amp; State</a>.
-        </p>
-      </Callout>
-
       <p>
+        <code>StateMixin&lt;T&gt;</code> mixes into any{" "}
+        <code>GetxController</code>:
+      </p>      <p>
         <code>StateMixin&lt;T&gt;</code> applies to any{" "}
         <code>GetxController</code>:
       </p>
@@ -120,23 +112,18 @@ class UserController extends GetxController<_UserState>
         </p>
       </Callout>
 
-      <h2>Rendering with .obx()</h2>
+      <h2>Rendering</h2>
       <p>
-        <code>StateMixin</code> gets an <code>obx()</code> extension that
-        renders the right branch for the current status.
+        Branch on the status inside an <code>Obx</code>.
       </p>
 
-      <CodeBlock>{`controller.obx(
-  (state) => UserProfile(user: state),
-  onLoading: const Center(child: CircularProgressIndicator()),
-  onEmpty: const Text('No profile yet'),
-  onError: (error) => Text('Failed: \$error'),
-)`}</CodeBlock>
-
-      <p>
-        Every parameter but the first is optional. Omitted branches fall back to
-        a centred spinner for loading, and an empty box for empty and custom.
-      </p>
+      <CodeBlock>{`Obx(() {
+  final status = controller.status;
+  if (status.isLoading) return const Center(child: CircularProgressIndicator());
+  if (status.isError)   return Text('Failed: \${status.errorMessage}');
+  if (status.isEmpty)   return const Text('No profile yet');
+  return UserProfile(user: controller.getState);
+})`}</CodeBlock>
 
       <h3>Custom states</h3>
 
@@ -149,10 +136,10 @@ class UserController extends GetxController<_UserState>
 change(OfflineStatus<User>());
 
 // in the view
-controller.obx(
-  (state) => UserProfile(user: state),
-  onCustom: (context) => const OfflineBanner(),
-)`}</CodeBlock>
+Obx(() {
+  if (controller.status.isCustom) return const OfflineBanner();
+  return UserProfile(user: controller.getState);
+})`}</CodeBlock>
 
       <h2>Reading status directly</h2>
       <p>

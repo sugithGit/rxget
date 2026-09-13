@@ -61,25 +61,7 @@ export default function ApiReferencePage() {
             "Main controller. Generic over a private GetxState.",
           ],
           ["RxController", "Lifecycle only, no listeners."],
-          [
-            "StateController<T>",
-            "Broken — extends the bare GetxController and fails the private-state assertion. Use GetxController<_S> with StateMixin<T>.",
-          ],
-          [
-            "SuperController<T>",
-            "Broken, same cause. Use GetxController<_S> with WidgetsBindingObserver, StateMixin<T>.",
-          ],
-          [
-            "FullLifeCycleController",
-            "Broken, same cause. Use GetxController<_S> with WidgetsBindingObserver.",
-          ],
-          [
-            "FullLifeCycleMixin",
-            "onResumed, onPaused, onMemoryPressure — requires FullLifeCycleController, so unusable for now.",
-          ],
-          ["ScrollMixin", "onEndScroll / onTopScroll with a ScrollController."],
           ["GetLifeCycleMixin", "onStart, onInit, onReady, onClose, onDelete."],
-          ["GetNotifier<T>", "Value<T> with the lifecycle."],
         ]}
       />
 
@@ -98,7 +80,6 @@ export default function ApiReferencePage() {
           ["RxSet<E>", "Reactive Set."],
           ["RxInterface<T>", "Contract implemented by every Rx."],
           ["GetListenable<T>", "Notifier holding a value and a lazy stream."],
-          ["Value<T>", "ListNotifier with StateMixin."],
           [".obs", "Extension on int, double, bool, String, List, Map, Set, Object."],
         ]}
       />
@@ -108,18 +89,14 @@ export default function ApiReferencePage() {
         href="/docs/widgets"
         rows={[
           ["Obx", "Rebuilds when any Rx read inside changes."],
-          ["ObxValue<T>", "Obx with a local Rx passed to the builder."],
-          ["Observer", "Obx whose builder receives a BuildContext."],
-          ["ObxWidget / ObxStatelessWidget", "Base classes for reactive widgets."],
           ["Obl", "Runs a side effect on change without rebuilding."],
           ["GetBuilder<T>", "Rebuilds on update()."],
-          ["GetX<T>", "Reactive rebuild plus controller management."],
-          ["GetView<T>", "StatelessWidget with a typed controller getter."],
-          ["GetWidget<S>", "GetView caching one controller per widget."],
-          ["MixinBuilder<T>", "GetBuilder and Obx combined."],
-          ["ValueBuilder<T>", "Local setState-style state."],
-          ["Bind / Binds / Binder", "Lower-level dependency binding widgets."],
-          ["GetWidgetCache / WidgetCache", "Element-level widget caching."],
+          ["GetInWidget", "Registers dependencies for a subtree."],
+          [
+            "ObxStatelessWidget / OblStatelessWidget",
+            "Base classes for the two reactive widgets.",
+          ],
+          ["Binder<T> / BindElement<T>", "The element GetBuilder is built on."],
         ]}
       />
 
@@ -179,7 +156,6 @@ export default function ApiReferencePage() {
             "The five statuses.",
           ],
           ["futurize", "Runs a future and sets the status for you."],
-          [".obx()", "Extension rendering the right branch per status."],
           ["StatusDataExt", "isLoading, isSuccess, data, errorMessage, ..."],
         ]}
       />
@@ -200,15 +176,6 @@ export default function ApiReferencePage() {
           ["RxObserverScope", "Per-widget dependency tracking and diff."],
           ["ObxError", "Thrown when a reactive builder observes nothing."],
           ["Disposer / GetStateUpdate", "Callback typedefs."],
-        ]}
-      />
-
-      <Group
-        title="Tickers"
-        href="/docs/widgets/tickers"
-        rows={[
-          ["GetSingleTickerProviderStateMixin", "One AnimationController."],
-          ["GetTickerProviderStateMixin", "Several AnimationControllers."],
         ]}
       />
 

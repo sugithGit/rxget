@@ -75,7 +75,7 @@ export default function FromGetXPage() {
               note="Identical. RxInt, RxString, RxList, RxMap, RxSet, Rx<T>, Rxn<T>."
             />
             <Row
-              feature="Obx / ObxValue"
+              feature="Obx"
               getx
               rxget
               note="Same API. Dependency tracking underneath was rewritten."
@@ -89,10 +89,33 @@ export default function FromGetXPage() {
             <Row
               feature="GetX widget"
               getx
-              rxget
-              note="Same API."
+              rxget={false}
+              note="Removed. Use GetInWidget for the lifetime and Obx for the rebuild."
             />
-            <Row feature="GetView / GetWidget" getx rxget note="Same API." />
+            <Row
+              feature="GetView / GetWidget"
+              getx
+              rxget={false}
+              note="Removed. Get.find needs no context, so a plain StatelessWidget does."
+            />
+            <Row
+              feature="ObxValue / Observer / ValueBuilder / MixinBuilder"
+              getx
+              rxget={false}
+              note="Removed. Each was a thin wrapper over Obx or GetBuilder."
+            />
+            <Row
+              feature="Bind / Binds"
+              getx
+              rxget={false}
+              note="Removed. GetInWidget covers scoping."
+            />
+            <Row
+              feature="ScrollMixin / ticker mixins"
+              getx
+              rxget={false}
+              note="Removed. Not state management."
+            />
             <Row
               feature="Workers"
               getx

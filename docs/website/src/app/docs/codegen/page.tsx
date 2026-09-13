@@ -293,7 +293,7 @@ class CounterState {
       </Callout>
 
       <PageNav
-        prev={{ title: "Ticker Providers", href: "/docs/widgets/tickers" }}
+        prev={{ title: "GetIn Widget", href: "/docs/get-in-widget" }}
         next={{ title: "Lint Rules", href: "/docs/lint" }}
       />
     </>

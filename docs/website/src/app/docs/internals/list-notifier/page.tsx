@@ -28,8 +28,6 @@ export default function ListNotifierPage() {
         ├── ListNotifierGroup          id-keyed listeners only
         ├── GetListenable<T>           adds a value and a stream
         │     └── _RxImpl<T>  →  Rx<T>, RxInt, RxString, RxList, ...
-        ├── Value<T>                   adds StateMixin
-        │     └── GetNotifier<T>       adds the lifecycle
         └── GetxController<T>          adds state + update()`}</CodeBlock>
 
       <h2>ListNotifierSingleMixin</h2>

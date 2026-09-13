@@ -152,17 +152,18 @@ class App extends StatelessWidget {
   }
 }
 
-class CounterPage extends GetView<CounterController> {
+class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.find<CounterController>();
     return Scaffold(
       body: Center(
-        child: Obx(() => Text('\${controller.state.count}')),
+        child: Obx(() => Text('\${c.state.count}')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: controller.increment,
+        onPressed: c.increment,
         child: const Icon(Icons.add),
       ),
     );

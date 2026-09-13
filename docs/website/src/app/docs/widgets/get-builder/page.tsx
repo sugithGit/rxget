@@ -3,15 +3,15 @@ import { Callout } from "@/components/docs/Callout";
 import { PageNav } from "@/components/docs/PageNav";
 
 export const metadata = {
-  title: "GetBuilder & Bind — rxget",
+  title: "GetBuilder — rxget",
   description:
-    "GetBuilder, id-scoped rebuilds, filters, the init/global/autoRemove options, and the Bind/Binder/Binds family underneath.",
+    "GetBuilder: rebuilding on update(), id-scoped rebuilds, filters, and the init/global/autoRemove options.",
 };
 
 export default function GetBuilderPage() {
   return (
     <>
-      <h1>GetBuilder &amp; Bind</h1>
+      <h1>GetBuilder</h1>
       <p className="lead">
         <code>GetBuilder</code> rebuilds when a controller calls{" "}
         <code>update()</code>. Nothing is observed and nothing is tracked — it
@@ -179,46 +179,6 @@ GetBuilder<PageController>(
   builder: (controller) => FeedList(items: controller.state.items),
 )`}</CodeBlock>
 
-      <h2>The Bind family</h2>
-      <p>
-        <code>GetBuilder</code> is a thin wrapper over{" "}
-        <code>Binder</code>, an <code>InheritedWidget</code> whose{" "}
-        <code>BindElement</code> owns the controller and its subscription. The
-        family is exposed for cases where you want the dependency without the
-        builder.
-      </p>
-
-      <h3>Bind</h3>
-
-      <CodeBlock>{`Bind<AuthController>(
-  init: () => AuthController(),
-  child: const LoginForm(),
-)`}</CodeBlock>
-
-      <h3>Binds — several at once</h3>
-
-      <CodeBlock>{`Binds(
-  binds: [
-    Bind<AuthController>(init: () => AuthController()),
-    Bind<ThemeController>(init: () => ThemeController()),
-  ],
-  child: const AppShell(),
-)`}</CodeBlock>
-
-      <p>
-        The list folds outward-in, so later binds can resolve earlier ones.
-      </p>
-
-      <Callout variant="tip" title="Prefer GetInWidget for scoping">
-        <p>
-          <code>Bind</code> and <code>Binds</code> come from GetX and are kept
-          for compatibility. For new code,{" "}
-          <a href="/docs/get-in-widget">GetInWidget</a> is the scoping tool —
-          it has the registration guard that prevents a nested scope from
-          deleting a parent&apos;s dependency.
-        </p>
-      </Callout>
-
       <h2>GetBuilder or Obx?</h2>
 
       <CodeBlock>{`// Many fields change together → GetBuilder, one rebuild
@@ -242,7 +202,7 @@ Obx(() => Text('\${controller.state.unreadCount}'))`}</CodeBlock>
 
       <PageNav
         prev={{ title: "Obl (Effects)", href: "/docs/widgets/obl" }}
-        next={{ title: "GetX Widget", href: "/docs/widgets/getx" }}
+        next={{ title: "GetIn Widget", href: "/docs/get-in-widget" }}
       />
     </>
   );

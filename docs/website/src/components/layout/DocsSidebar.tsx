@@ -47,15 +47,11 @@ export const docsConfig: SidebarSection[] = [
   {
     title: "Widgets",
     items: [
-      { title: "Choosing a Widget", href: "/docs/widgets" },
-      { title: "Obx, ObxValue, Observer", href: "/docs/widgets/obx" },
+      { title: "The Four Widgets", href: "/docs/widgets" },
+      { title: "Obx", href: "/docs/widgets/obx" },
       { title: "Obl (Effects)", href: "/docs/widgets/obl" },
-      { title: "GetBuilder & Bind", href: "/docs/widgets/get-builder" },
-      { title: "GetX Widget", href: "/docs/widgets/getx" },
-      { title: "GetView & GetWidget", href: "/docs/widgets/get-view" },
-      { title: "ValueBuilder & MixinBuilder", href: "/docs/widgets/value-builder" },
-      { title: "GetIn Widget", href: "/docs/get-in-widget" },
-      { title: "Ticker Providers", href: "/docs/widgets/tickers" },
+      { title: "GetBuilder", href: "/docs/widgets/get-builder" },
+      { title: "GetInWidget", href: "/docs/get-in-widget" },
     ],
   },
   {

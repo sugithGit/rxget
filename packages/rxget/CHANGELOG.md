@@ -4,6 +4,43 @@
 * Added: `RxLifecycleDebug` to control that debug-only tracking — `captureStackTraces` (on by default in debug builds) and `stackFrameCount`.
 * Added: `debugLabel` on reactive objects, for naming a variable in those error messages.
 
+### Removed
+
+The widget surface is now four widgets: `Obx`, `Obl`, `GetBuilder` and
+`GetInWidget`. Everything below was a thin wrapper over one of those, or did
+not work at all.
+
+* Removed `GetView<T>` and `GetWidget<S>`. `Get.find` takes no `BuildContext`,
+  so a plain `StatelessWidget` that resolves the controller in `build` does the
+  same job with no base class.
+* Removed the `GetX<T>` widget. Use `GetInWidget` for the lifetime and `Obx`
+  for the rebuild.
+* Removed `ObxValue<T>` and `Observer`. `Obx` covers both — the enclosing
+  `build` already has the `BuildContext` that `Observer` passed along.
+* Removed `ValueBuilder<T>` (a `setState` wrapper with no reactive content) and
+  `MixinBuilder<T>` (a `GetBuilder` wrapping an `Obx`).
+* Removed `Bind`, `Binds` and `Bind.of`. `GetInWidget` covers scoping;
+  `GetBuilder` now resolves its controller through a private helper.
+* Removed `GetWidgetCache`, `WidgetCache` and `GetWidgetCacheElement`, which
+  existed only to support `GetWidget`.
+* Removed `StateController<T>`, `SuperController<T>`, `FullLifeCycleController`
+  and `FullLifeCycleMixin`. **None of these could be constructed:** they
+  extended the bare `GetxController`, which resolves to
+  `GetxController<GetxState>`, so the private-state assertion rejected them in
+  every debug build. Use `GetxController<_State> with StateMixin<T>` and
+  Flutter's own `WidgetsBindingObserver` instead.
+* Removed `ScrollMixin` and the ticker mixins
+  (`GetSingleTickerProviderStateMixin`, `GetTickerProviderStateMixin`) — a
+  `ScrollController` helper and animation plumbing, neither of which is state
+  management.
+* Removed `StateMixin.obx()`. Branch on `controller.status` inside an `Obx`.
+* Removed `Value<T>` and `GetNotifier<T>`, which had no users.
+* Removed `MiniStream`, `FastList` and the rest of `get_rx/src/rx_stream/`, an
+  unused GetX carry-over.
+
+`StateMixin`, `GetStatus`, `RxController`, the `Rx` types, workers, the
+lifecycle and the DI container are unchanged.
+
 ### Performance and memory
 
 * Fixed: an `Obx`, `Obl` or `GetX` now unsubscribes from reactive variables its latest build did not read. Previously a reactive widget kept every subscription it had ever made, holding a strong reference to each variable it had once touched — so a widget rebound to new data (a recycled list row, a branch behind a flag) leaked the old variables and rebuilt on changes it no longer displayed.
