@@ -231,7 +231,9 @@ GetBuilder<ProfileController>(
               <td className="py-2 pr-4">
                 A loading / error / empty / success cycle
               </td>
-              <td className="py-2 font-mono text-xs">StateMixin + Obx</td>
+              <td className="py-2 font-mono text-xs">
+                Reactive fields + Obx
+              </td>
             </tr>
           </tbody>
         </table>

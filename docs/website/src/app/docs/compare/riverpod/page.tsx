@@ -104,7 +104,7 @@ controller.increment();`}</CodeBlock>
             <tr className="border-b border-border/50">
               <td className="py-2 pr-4 text-foreground">Async</td>
               <td className="py-2 pr-4">AsyncValue, built in</td>
-              <td className="py-2">StateMixin, opt in</td>
+              <td className="py-2">Plain reactive fields</td>
             </tr>
             <tr className="border-b border-border/50">
               <td className="py-2 pr-4 text-foreground">Overrides for tests</td>

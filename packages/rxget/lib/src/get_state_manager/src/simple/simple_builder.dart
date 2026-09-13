@@ -4,11 +4,6 @@ import 'package:flutter/widgets.dart';
 
 import 'list_notifier.dart';
 
-typedef ValueBuilderUpdateCallback<T> = void Function(T snapshot);
-
-typedef ValueBuilderBuilder<T> =
-    Widget Function(T snapshot, ValueBuilderUpdateCallback<T> updater);
-
 /// Element that tracks reactive disposers
 class ObxElement = StatelessElement with StatelessObserverComponent;
 

@@ -156,7 +156,7 @@ Scaffold(
 )`}</CodeBlock>
 
       <PageNav
-        prev={{ title: "Async Status", href: "/docs/async-status" }}
+        prev={{ title: "Workers", href: "/docs/workers" }}
         next={{ title: "Obx", href: "/docs/widgets/obx" }}
       />
     </>

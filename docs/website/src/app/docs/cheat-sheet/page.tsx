@@ -79,12 +79,12 @@ Obx(() => Text('\${Get.find<C>().state.count}'));`}</CodeBlock>
 
       <CodeBlock>{`Get.put(C());                         Get.put(C(), permanent: true);
 Get.lazyPut(() => C());               Get.lazyPut(() => C(), fenix: true);
-await Get.putAsync(() async => C());  Get.create(() => C());
-Get.spawn(() => C());
+Get.spawn(() => C());                 Get.putOrFind(() => C());
 
 Get.find<C>();                        Get.find<C>(tag: 't');
+Get<C>();                             Get.findOrNull<C>();
 Get.isRegistered<C>();                Get.isPrepared<C>();
-Get.getInstanceInfo<C>();
+Get.getInstanceInfo<C>();             Get.markAsDirty<C>();
 
 Get.delete<C>();                      Get.delete<C>(force: true);
 Get.deleteAll();                      Get.reset();
@@ -130,34 +130,50 @@ ever(_rx, cb, condition: () => enabled, onError: ..., onDone: ...);`}</CodeBlock
 
 controller.initialized;   controller.isClosed;`}</CodeBlock>
 
-      <h2>Async status</h2>
+      <h2>Loading and errors</h2>
 
-      <CodeBlock>{`class C extends GetxController<_S> with StateMixin<User> {
+      <CodeBlock>{`// No status union — plain reactive fields
+class _UserState extends GetxState {
+  final _user = Rxn<User>();
+  final _isLoading = false.obs;
+  final _error = Rxn<String>();
+
+  User? get user => _user.value;
+  bool get isLoading => _isLoading.value;
+  String? get error => _error.value;
+
   @override
-  final state = _S();
-
-  Future<void> load() => futurize(() => api.user());
+  void onClose() {
+    _user.close();
+    _isLoading.close();
+    _error.close();
+  }
 }
 
-setLoading();  setSuccess(d);  setError(e);  setEmpty();
+Future<void> load() async {
+  state._isLoading.value = true;
+  state._error.value = null;
+  try {
+    state._user.value = await api.user();
+  } catch (e) {
+    state._error.value = '$e';
+  } finally {
+    state._isLoading.value = false;
+  }
+}
 
+// in the view
 Obx(() {
-  final s = controller.status;
-  if (s.isLoading) return const Spinner();
-  if (s.isError)   return Text(s.errorMessage);
-  return Profile(user: controller.getState);
-});
-
-status.isLoading  status.isSuccess  status.isError
-status.isEmpty    status.isCustom
-status.data       status.error      status.errorMessage`}</CodeBlock>
+  if (c.state.isLoading) return const Spinner();
+  if (c.state.error != null) return Text(c.state.error!);
+  return Profile(user: c.state.user!);
+});`}</CodeBlock>
 
       <h2>Controller base classes</h2>
 
       <CodeBlock>{`GetxController<_State>       // state + update() + lifecycle
 RxController                 // lifecycle only, no listeners
 
-with StateMixin<T>             // loading / error / empty / success
 with WidgetsBindingObserver    // app foreground / background`}</CodeBlock>
 
       <h2>Code generation</h2>

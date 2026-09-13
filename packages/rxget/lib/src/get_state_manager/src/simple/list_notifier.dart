@@ -197,9 +197,6 @@ class ListNotifier extends Listenable
 /// A Notifier with single listeners
 class ListNotifierSingle = ListNotifier with ListNotifierSingleMixin;
 
-/// A notifier with group of listeners identified by id
-class ListNotifierGroup = ListNotifier with ListNotifierGroupMixin;
-
 /// This mixin add to Listenable the addListener, removerListener and
 /// containsListener implementation
 mixin ListNotifierSingleMixin on Listenable {

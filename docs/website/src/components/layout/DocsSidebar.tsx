@@ -41,7 +41,6 @@ export const docsConfig: SidebarSection[] = [
       { title: "Lifecycle", href: "/docs/lifecycle" },
       { title: "Dependency Injection", href: "/docs/dependency-injection" },
       { title: "Workers", href: "/docs/workers" },
-      { title: "Async Status", href: "/docs/async-status" },
     ],
   },
   {

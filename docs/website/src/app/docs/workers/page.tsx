@@ -232,7 +232,7 @@ ever(state._count, (int c) => analytics.log('count', c));
 
       <PageNav
         prev={{ title: "Dependency Injection", href: "/docs/dependency-injection" }}
-        next={{ title: "Async Status", href: "/docs/async-status" }}
+        next={{ title: "The Four Widgets", href: "/docs/widgets" }}
       />
     </>
   );

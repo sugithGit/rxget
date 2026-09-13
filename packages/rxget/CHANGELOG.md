@@ -33,13 +33,33 @@ not work at all.
   (`GetSingleTickerProviderStateMixin`, `GetTickerProviderStateMixin`) — a
   `ScrollController` helper and animation plumbing, neither of which is state
   management.
-* Removed `StateMixin.obx()`. Branch on `controller.status` inside an `Obx`.
+* Removed `StateMixin<T>`, `GetStatus<T>` and its five subclasses
+  (`LoadingStatus`, `SuccessStatus`, `ErrorStatus`, `EmptyStatus`,
+  `CustomStatus`), `StatusDataExt`, `futurize()` and `StateMixin.obx()`. Model
+  loading and errors with ordinary reactive fields — a `bool` and a nullable
+  `String` say the same thing without a status union to learn. This also
+  removes the package's last third-party dependency: **rxget now depends on
+  nothing but the Flutter SDK.**
 * Removed `Value<T>` and `GetNotifier<T>`, which had no users.
 * Removed `MiniStream`, `FastList` and the rest of `get_rx/src/rx_stream/`, an
   unused GetX carry-over.
+* Removed the unused `ListNotifierGroup` alias and the orphan typedefs
+  `ValueUpdater`, `OnData`, `Callback`, `AsyncInstanceBuilderCallback`,
+  `ValueBuilderBuilder` and `ValueBuilderUpdateCallback`. `Get.putAsync` and
+  `Get.create` never existed; `AsyncInstanceBuilderCallback` was left over from
+  one of them.
 
-`StateMixin`, `GetStatus`, `RxController`, the `Rx` types, workers, the
-lifecycle and the DI container are unchanged.
+`RxController`, the `Rx` types, workers, the lifecycle and the DI container are
+unchanged.
+
+### Fixed
+
+* `ObxError` is now the class that is actually thrown. Two different
+  `ObxError` classes existed: the one `Notifier` throws lives in
+  `list_notifier.dart`, which was exported `show RxLifecycleDebug` and so kept
+  it private, while the `ObxError` reachable from `package:rxget/rxget.dart`
+  was an unrelated dead class in `rx_interface.dart`. Catching `ObxError` by
+  name could never match. The dead class is gone and the real one is exported.
 
 ### Performance and memory
 

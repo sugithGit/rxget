@@ -105,15 +105,17 @@ export default function ApiReferencePage() {
         href="/docs/dependency-injection"
         rows={[
           ["Get", "The global container instance."],
-          ["Get.put / putAsync", "Register eagerly."],
+          ["Get.put", "Register eagerly."],
           ["Get.lazyPut", "Register a factory, built on first find."],
-          ["Get.create", "A new instance on every find."],
+          ["Get.putOrFind", "Register only if nothing is registered yet."],
           ["Get.spawn", "An independent instance."],
-          ["Get.find", "Resolve by type and optional tag."],
+          ["Get.find / Get<T>()", "Resolve by type and optional tag."],
+          ["Get.findOrNull", "Resolve, or null when not registered."],
           ["Get.delete / deleteAll / reset", "Remove registrations."],
           ["Get.replace / lazyReplace", "Swap an implementation."],
           ["Get.reload / reloadAll", "Dispose and rebuild."],
           ["Get.isRegistered / isPrepared", "Query the container."],
+          ["Get.markAsDirty", "Rebuild on next find without deleting now."],
           ["Get.getInstanceInfo", "InstanceInfo for a registration."],
           ["SmartManagement", "full, onlyBuilder, keepFactory."],
           ["Get.asap / Get.toEnd", "Defer work past the current turn."],
@@ -142,21 +144,6 @@ export default function ApiReferencePage() {
           ["interval", "Fires at most once per window."],
           ["Worker", "Handle with dispose(); also callable."],
           ["Workers", "Disposes a group of workers."],
-        ]}
-      />
-
-      <Group
-        title="Async status"
-        href="/docs/async-status"
-        rows={[
-          ["StateMixin<T>", "Adds a value plus a status to a notifier."],
-          ["GetStatus<T>", "Base for the status union."],
-          [
-            "LoadingStatus / SuccessStatus / ErrorStatus / EmptyStatus / CustomStatus",
-            "The five statuses.",
-          ],
-          ["futurize", "Runs a future and sets the status for you."],
-          ["StatusDataExt", "isLoading, isSuccess, data, errorMessage, ..."],
         ]}
       />
 

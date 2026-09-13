@@ -176,20 +176,6 @@ class SocketService extends RxController {
   }
 }`}</CodeBlock>
 
-      <h3>Adding async status</h3>
-      <p>
-        Mix in <a href="/docs/async-status">StateMixin</a> for the
-        loading / error / empty / success cycle.
-      </p>
-
-      <CodeBlock>{`class UserController extends GetxController<_UserState>
-    with StateMixin<User> {
-  @override
-  final state = _UserState();
-
-  Future<void> load() => futurize(() => api.fetchUser());
-}`}</CodeBlock>
-
       <h3>Adding app lifecycle</h3>
       <p>
         Mix in Flutter&apos;s own <code>WidgetsBindingObserver</code> for
@@ -223,13 +209,12 @@ class SocketService extends RxController {
       <Callout variant="note" title="Removed convenience classes">
         <p>
           <code>StateController</code>, <code>SuperController</code>,{" "}
-          <code>FullLifeCycleController</code>, <code>FullLifeCycleMixin</code>{" "}
-          and <code>ScrollMixin</code> have been removed. The first four could
-          not be constructed at all — they extended the bare{" "}
-          <code>GetxController</code>, so the private-state assertion always
-          rejected them. The mixin forms above are the replacement, and{" "}
-          <code>ScrollMixin</code> was a plain{" "}
-          <code>ScrollController</code> helper with no reactive content.
+          <code>FullLifeCycleController</code>, <code>FullLifeCycleMixin</code>,{" "}
+          <code>ScrollMixin</code> and the whole{" "}
+          <code>StateMixin</code> / <code>GetStatus</code> family have been
+          removed. Model loading and errors with ordinary reactive fields —
+          a <code>bool</code> and a nullable <code>String</code> are clearer
+          than a five-case status union, and cost nothing to learn.
         </p>
       </Callout>
 
@@ -259,7 +244,7 @@ class SocketService extends RxController {
             <tr className="border-b border-border/50">
               <td className="py-2 pr-4">A load / error / success cycle</td>
               <td className="py-2 font-mono text-xs">
-                GetxController&lt;_State&gt; with StateMixin&lt;T&gt;
+                Reactive fields on your own state class
               </td>
             </tr>
             <tr>

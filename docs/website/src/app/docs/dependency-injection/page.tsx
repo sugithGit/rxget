@@ -5,7 +5,7 @@ import { PageNav } from "@/components/docs/PageNav";
 export const metadata = {
   title: "Dependency Injection — rxget",
   description:
-    "The complete Get container API: put, lazyPut, putAsync, create, spawn, find, delete, replace, reload, tags, permanence and SmartManagement.",
+    "The complete Get container API: put, lazyPut, spawn, find, findOrNull, putOrFind, delete, replace, reload, tags, permanence and SmartManagement.",
 };
 
 export default function DependencyInjectionPage() {
@@ -61,26 +61,14 @@ Get.lazyPut<CartController>(() => CartController(), fenix: true);`}</CodeBlock>
         </p>
       </Callout>
 
-      <h3>Get.putAsync — async construction</h3>
+      <h3>Get.putOrFind — register only if absent</h3>
 
-      <CodeBlock>{`await Get.putAsync<Database>(() async {
-  final db = Database();
-  await db.open();
-  return db;
-});`}</CodeBlock>
+      <CodeBlock>{`final controller = Get.putOrFind<CartController>(() => CartController());`}</CodeBlock>
 
-      <h3>Get.create — a new instance per request</h3>
       <p>
-        Where <code>put</code> and <code>lazyPut</code> are singletons,{" "}
-        <code>create</code> runs its builder on every <code>Get.find</code> —
-        useful when each instance of a repeated component needs its own
-        controller.
+        Returns the existing instance when one is registered, and registers the
+        builder&apos;s result otherwise.
       </p>
-
-      <CodeBlock>{`Get.create<RowController>(() => RowController());
-
-Get.find<RowController>();   // instance A
-Get.find<RowController>();   // instance B — a different object`}</CodeBlock>
 
       <h3>Get.spawn — an independent instance</h3>
 
@@ -90,6 +78,12 @@ Get.find<RowController>();   // instance B — a different object`}</CodeBlock>
 
       <CodeBlock>{`final controller = Get.find<CounterController>();
 final wishlist  = Get.find<CartController>(tag: 'wishlist');
+
+// Get is callable — Get<T>() is shorthand for Get.find<T>()
+final same = Get<CounterController>();
+
+// Null instead of a throw when nothing is registered
+final maybe = Get.findOrNull<CounterController>();
 
 // Check before resolving
 if (Get.isRegistered<AuthController>()) { ... }
@@ -121,6 +115,7 @@ Get.deleteAll(force: true);            // everything
 
 Get.reload<AuthController>();          // dispose and rebuild from the factory
 Get.reloadAll();
+Get.markAsDirty<AuthController>();     // rebuild on next find, keep it for now
 
 Get.reset();                           // clear the entire container`}</CodeBlock>
 

@@ -126,7 +126,7 @@ Obx(() => Text('\${controller.state.count}'));`}</CodeBlock>
           <tbody className="text-muted-foreground text-xs">
             {[
               ["GetView<T>", "StatelessWidget + Get.find<T>() — it needs no context"],
-              ["GetWidget<S>", "Get.create plus a StatelessWidget"],
+              ["GetWidget<S>", "a StatelessWidget that resolves its own controller"],
               ["GetX<T>", "GetInWidget for the lifetime, Obx for the rebuild"],
               ["ObxValue<T>", "Obx reading an Rx you hold in a State"],
               ["Observer", "Obx — the enclosing build already has the context"],
@@ -134,13 +134,15 @@ Obx(() => Text('\${controller.state.count}'));`}</CodeBlock>
               ["MixinBuilder<T>", "GetBuilder wrapping an Obx"],
               ["Bind, Binds, Bind.of", "GetInWidget"],
               ["GetWidgetCache, WidgetCache", "no replacement — internal to GetWidget"],
-              ["StateController<T>", "GetxController<_S> with StateMixin<T>"],
-              ["SuperController<T>", "GetxController<_S> with WidgetsBindingObserver, StateMixin<T>"],
+              ["StateController<T>", "reactive fields on your own state class"],
+              ["SuperController<T>", "GetxController<_S> with WidgetsBindingObserver"],
               ["FullLifeCycleController, FullLifeCycleMixin", "GetxController<_S> with WidgetsBindingObserver"],
               ["ScrollMixin", "a ScrollController you own"],
               ["GetSingleTickerProviderStateMixin, GetTickerProviderStateMixin", "Flutter's own ticker mixins on a State"],
-              ["StateMixin.obx()", "Obx branching on controller.status"],
-              ["Value<T>, GetNotifier<T>", "GetxController with StateMixin"],
+              ["StateMixin<T>, StateMixin.obx()", "a bool and a nullable String on your state"],
+              ["GetStatus and Loading/Success/Error/Empty/CustomStatus", "same — plain reactive fields"],
+              ["futurize()", "an async method that sets those fields"],
+              ["Value<T>, GetNotifier<T>", "GetxController"],
               ["MiniStream, FastList", "no replacement — unused GetX carry-over"],
             ].map(([a, b]) => (
               <tr key={a} className="border-b border-border/50 align-top">

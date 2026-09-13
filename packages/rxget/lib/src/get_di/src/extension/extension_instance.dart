@@ -542,8 +542,6 @@ typedef InstanceCreateBuilderCallback<S> = S Function(BuildContext _);
 // typedef InjectorBuilderCallback<S> = S Function(Inst);
 
 /// An asynchronous factory callback that returns a [Future] of type [S].
-typedef AsyncInstanceBuilderCallback<S> = Future<S> Function();
-
 /// Internal class to register instances with `Get.put<S>()`.
 class _InstanceBuilderFactory<S> {
   _InstanceBuilderFactory({
