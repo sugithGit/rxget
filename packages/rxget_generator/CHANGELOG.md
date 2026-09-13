@@ -1,3 +1,8 @@
+## 1.0.2
+
+* Release metadata and dependency alignment for the current rxget/rxget_annotation package set.
+* Updated generator package references to the published annotation package.
+
 ## 1.0.1
 
 * Broaden analyzer and build runner constraints for better ecosystem compatibility.

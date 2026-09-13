@@ -253,17 +253,17 @@ packages:
     dependency: "direct main"
     description:
       name: rxget_annotation
-      sha256: "3fe6375b2412b5a663b2c94792703ec0fdd066fb9c6554e34ee047c4ddc09fec"
+      sha256: ab7aaac290c5cc142357fd2e5adae6aeef5c2c00a7ef0799e070e3be858a8730
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   rxget_generator:
     dependency: "direct dev"
     description:
       path: ".."
       relative: true
     source: path
-    version: "1.0.1"
+    version: "1.0.2"
   shelf:
     dependency: transitive
     description:

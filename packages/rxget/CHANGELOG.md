@@ -1,3 +1,8 @@
+## 1.0.0
+
+* Release of the rxget package with the public API and dependency metadata aligned for pub.dev publication.
+* Includes the updated state management API, DI lifecycle fixes, and generator-compatible package setup.
+
 ## Unreleased
 
 * Improved: the "used after close" error on a reactive variable now names the variable, the line it was declared on and the line that closed it, instead of only reporting `A RxInt was used after being disposed`. No new errors are thrown — only the existing ones say more.
