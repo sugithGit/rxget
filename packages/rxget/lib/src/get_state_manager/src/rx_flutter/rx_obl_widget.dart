@@ -46,19 +46,30 @@ class OblElement = StatelessElement with StatelessOblObserverComponent;
 /// Component that sets up Notifier tracking and invokes the single `effect`
 /// when observables change.
 mixin StatelessOblObserverComponent on StatelessElement {
-  List<Disposer>? disposers = <Disposer>[];
+  RxObserverScope? _scope;
+  bool _effectScheduled = false;
+
+  /// Cleanup callbacks collected by this element's reactive scope.
+  List<Disposer>? get disposers => _scope?.disposers;
 
   void _onReactiveUpdate() {
+    final scope = _scope;
+    if (scope == null || scope.isClosed || _effectScheduled) {
+      return;
+    }
+    // Coalesce a burst of writes into a single run of the effect, rather than
+    // re-running it once per notification.
+    _effectScheduled = true;
     // Call the combined effect asynchronously to avoid re-entrancy issues.
     scheduleMicrotask(() {
-      if (disposers == null) {
+      _effectScheduled = false;
+      if (_scope == null || _scope!.isClosed) {
         return;
       }
 
       if (widget is Obl) {
         try {
-          Notifier.instance.append(
-            NotifyData(disposers: disposers!, updater: _onReactiveUpdate),
+          _scope!.run(
             () {
               (widget as Obl).effect();
             },
@@ -83,22 +94,13 @@ mixin StatelessOblObserverComponent on StatelessElement {
   Widget build() {
     // Wrap the build with Notifier so any Rx reads inside the widget's build
     // (i.e. inside Obl.effect()) are registered; disposers will be collected.
-    return Notifier.instance.append(
-      NotifyData(disposers: disposers!, updater: _onReactiveUpdate),
-      super.build,
-    );
+    return (_scope ??= RxObserverScope(_onReactiveUpdate)).run(super.build);
   }
 
   @override
   void unmount() {
-    // Dispose collected disposers
-    if (disposers != null) {
-      for (final d in disposers!) {
-        d();
-      }
-      disposers!.clear();
-      disposers = null;
-    }
+    _scope?.close();
+    _scope = null;
     super.unmount();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -112,11 +114,7 @@ class GetXState<T extends GetLifeCycleMixin> extends State<GetX<T>> {
       }
     }
 
-    for (final disposer in disposers) {
-      disposer();
-    }
-
-    disposers.clear();
+    _scope.close();
 
     controller = null;
     _isCreator = null;
@@ -124,18 +122,32 @@ class GetXState<T extends GetLifeCycleMixin> extends State<GetX<T>> {
   }
 
   void _update() {
-    if (mounted) {
-      setState(() {});
+    if (_scope.isClosed || _updateScheduled || !mounted) {
+      return;
     }
+    // A controller that writes to several reactive variables in one method
+    // notifies once per write; without this guard each one schedules its own
+    // setState.
+    _updateScheduled = true;
+    scheduleMicrotask(() {
+      _updateScheduled = false;
+      if (_scope.isClosed || !mounted) {
+        return;
+      }
+      setState(() {});
+    });
   }
 
-  final disposers = <Disposer>[];
+  bool _updateScheduled = false;
+
+  late final RxObserverScope _scope = RxObserverScope(_update);
+
+  /// Cleanup callbacks collected by this widget's reactive scope.
+  List<Disposer> get disposers => _scope.disposers;
 
   @override
-  Widget build(BuildContext context) => Notifier.instance.append(
-    NotifyData(disposers: disposers, updater: _update),
-    () => widget.builder(controller!),
-  );
+  Widget build(BuildContext context) =>
+      _scope.run(() => widget.builder(controller!));
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {

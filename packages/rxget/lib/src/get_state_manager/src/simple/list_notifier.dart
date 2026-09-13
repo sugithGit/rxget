@@ -267,18 +267,25 @@ mixin ListNotifierSingleMixin on Listenable {
   }
 
   void _notifyUpdate() {
-    // if (_microtaskVersion == _version) {
-    //   _microtaskVersion++;
-    //   scheduleMicrotask(() {
-    //     _version++;
-    //     _microtaskVersion = _version;
-    final list = _updaters?.toList() ?? [];
-
-    for (var element in list) {
+    final updaters = _updaters;
+    if (updaters == null) {
+      return;
+    }
+    final length = updaters.length;
+    // A reactive variable is notified on every write, so the two common cases
+    // — nothing is observing it, and exactly one widget is — are worth keeping
+    // allocation-free. Copying only matters when a listener can add or remove
+    // listeners while the list is being walked.
+    if (length == 0) {
+      return;
+    }
+    if (length == 1) {
+      updaters[0]();
+      return;
+    }
+    for (final element in List<GetStateUpdate>.of(updaters, growable: false)) {
       element();
     }
-    //   });
-    // }
   }
 
   /// Whether this notifier has been disposed.
@@ -330,19 +337,35 @@ mixin ListNotifierSingleMixin on Listenable {
 /// Each group maintains its own [ListNotifierSingleMixin] so listeners
 /// can be notified independently.
 mixin ListNotifierGroupMixin on Listenable {
-  HashMap<Object?, ListNotifierSingleMixin>? _updatersGroupIds =
-      HashMap<Object?, ListNotifierSingleMixin>();
+  /// Allocated on first use. Most controllers only ever call `update()` with
+  /// no ids, and every [ListNotifier] mixes this in, so an eagerly created
+  /// [HashMap] is a per-controller allocation that usually stays empty.
+  HashMap<Object?, ListNotifierSingleMixin>? _updatersGroupIds;
 
-  /// Where this object was created. Captured in debug mode only.
-  final StackTrace? _debugGroupCreationStack = debugCaptureLifecycleStack();
+  /// Whether [dispose] has run. Tracked separately from [_updatersGroupIds]
+  /// now that a null map only means "no group has been used yet".
+  bool _groupDisposed = false;
 
   /// Where [dispose] was called. Captured in debug mode only.
   StackTrace? _debugGroupDisposeStack;
 
-  void _notifyGroupUpdate(Object id) {
-    if (_updatersGroupIds!.containsKey(id)) {
-      _updatersGroupIds![id]!._notifyUpdate();
+  /// Where this object was created, borrowed from [ListNotifierSingleMixin]
+  /// when it is present. Capturing a second trace here would double the cost
+  /// of creating a [ListNotifier] in debug mode for the same information.
+  StackTrace? get _debugGroupCreationStack {
+    final Object self = this;
+    if (self is ListNotifierSingleMixin) {
+      return self._debugCreationStack;
     }
+    return null;
+  }
+
+  /// The group map, creating it on first use.
+  HashMap<Object?, ListNotifierSingleMixin> get _groupIds =>
+      _updatersGroupIds ??= HashMap<Object?, ListNotifierSingleMixin>();
+
+  void _notifyGroupUpdate(Object id) {
+    _updatersGroupIds?[id]?._notifyUpdate();
   }
 
   /// Reports a read to the [Notifier] system for the group identified by [id].
@@ -352,7 +375,9 @@ mixin ListNotifierGroupMixin on Listenable {
       _debugAssertGroupNotDisposed('notifyGroupChildrens'),
       'ListNotifier was disposed',
     );
-    Notifier.instance.read(_updatersGroupIds![id]!);
+    Notifier.instance.read(
+      _groupIds.putIfAbsent(id, ListNotifierSingle.new),
+    );
   }
 
   /// Returns `true` if a listener group with the given [id] exists.
@@ -374,7 +399,7 @@ mixin ListNotifierGroupMixin on Listenable {
   /// listeners held by this mixin.
   bool _debugAssertGroupNotDisposed([String member = 'value']) {
     assert(() {
-      if (_updatersGroupIds == null) {
+      if (_groupDisposed) {
         throw debugRxUseAfterCloseError(
           type: '$runtimeType',
           member: member,
@@ -393,9 +418,7 @@ mixin ListNotifierGroupMixin on Listenable {
       _debugAssertGroupNotDisposed('removeListenerId'),
       'ListNotifier was disposed',
     );
-    if (_updatersGroupIds!.containsKey(id)) {
-      _updatersGroupIds![id]!.removeListener(listener);
-    }
+    _updatersGroupIds?[id]?.removeListener(listener);
   }
 
   /// Disposes all listener groups and marks this mixin as disposed.
@@ -406,6 +429,7 @@ mixin ListNotifierGroupMixin on Listenable {
       'ListNotifier was disposed',
     );
     _debugGroupDisposeStack = debugCaptureLifecycleStack();
+    _groupDisposed = true;
     _updatersGroupIds?.forEach((key, value) => value.dispose());
     _updatersGroupIds = null;
   }
@@ -414,16 +438,16 @@ mixin ListNotifierGroupMixin on Listenable {
   ///
   /// Creates the group if it doesn't exist. Returns a [Disposer].
   Disposer addListenerId(Object? key, GetStateUpdate listener) {
-    _updatersGroupIds![key] ??= ListNotifierSingle();
-    return _updatersGroupIds![key]!.addListener(listener);
+    return _groupIds.putIfAbsent(key, ListNotifierSingle.new).addListener(
+      listener,
+    );
   }
 
   /// To dispose an [id] from future updates(), this ids are registered
   /// by `GetBuilder()` or similar, so is a way to unlink the state change with
   /// the Widget from the Controller.
   void disposeId(Object id) {
-    _updatersGroupIds?[id]?.dispose();
-    _updatersGroupIds!.remove(id);
+    _updatersGroupIds?.remove(id)?.dispose();
   }
 }
 
@@ -448,10 +472,19 @@ class Notifier {
 
   /// Subscribes the current observer to [updaters] changes.
   void read(ListNotifierSingleMixin updaters) {
-    final listener = _notifyData?.updater;
-    if (listener != null && !updaters.containsListener(listener)) {
+    final data = _notifyData;
+    if (data == null) {
+      return;
+    }
+    // Recording the read first makes every repeat read of the same variable
+    // within one pass a single hash lookup, instead of a linear scan of that
+    // variable's listener list.
+    if (!data.observed.add(updaters)) {
+      return;
+    }
+    final listener = data.updater;
+    if (!updaters.containsListener(listener)) {
       updaters.addListener(listener);
-      add(() => updaters.removeListener(listener));
     }
   }
 
@@ -460,13 +493,103 @@ class Notifier {
   /// Any [GetListenable] read during [builder] execution will be
   /// automatically subscribed to [data.updater].
   T append<T>(NotifyData data, T Function() builder) {
+    final previous = _notifyData;
     _notifyData = data;
-    final result = builder();
-    if (data.disposers.isEmpty && data.throwException) {
-      throw ObxError();
+    try {
+      final result = builder();
+      if (data.observed.isEmpty && data.disposers.isEmpty &&
+          data.throwException) {
+        throw ObxError();
+      }
+      return result;
+    } finally {
+      // Restored rather than cleared, so a nested reactive scope hands the
+      // outer one back intact, and a build that throws cannot leave reads from
+      // unrelated widgets attaching themselves to a dead scope.
+      _notifyData = previous;
     }
-    _notifyData = null;
-    return result;
+  }
+}
+
+/// Keeps one reactive widget subscribed to exactly the reactive objects its
+/// most recent pass read.
+///
+/// A reactive scope re-registers its dependencies every time it runs. Without
+/// a diff between passes, a widget that reads a different set of variables
+/// each time — a list row rebound to another model, a branch behind a flag —
+/// keeps the subscriptions it no longer needs, and with them a strong
+/// reference to every reactive object it has ever touched. [run] drops the
+/// ones the latest pass did not read.
+class RxObserverScope {
+  /// Creates a scope that calls [updater] when an observed object changes.
+  RxObserverScope(this.updater);
+
+  /// Called when any currently observed object notifies.
+  final GetStateUpdate updater;
+
+  /// Cleanups that are not observations, such as `bindStream` subscriptions.
+  /// These live as long as the scope does.
+  final List<VoidCallback> disposers = <VoidCallback>[];
+
+  // Identity, not equality: an Rx delegates `hashCode` and `==` to its value,
+  // so a normal Set would call `value` on insertion, which reports another
+  // read and recurses. Tracking is about distinct objects anyway — two
+  // variables that happen to hold equal values are still two dependencies.
+  Set<ListNotifierSingleMixin> _observed =
+      LinkedHashSet<ListNotifierSingleMixin>.identity();
+
+  bool _closed = false;
+
+  /// Whether [close] has run, meaning the widget owning this scope is gone.
+  bool get isClosed => _closed;
+
+  /// Runs [body] as a reactive pass, then rewires the subscriptions to match
+  /// what it actually read.
+  T run<T>(T Function() body, {bool throwException = true}) {
+    if (_closed) {
+      return body();
+    }
+    final previous = _observed;
+    final current = LinkedHashSet<ListNotifierSingleMixin>.identity();
+    _observed = current;
+    try {
+      return Notifier.instance.append(
+        NotifyData(
+          updater: updater,
+          disposers: disposers,
+          observed: current,
+          throwException: throwException,
+        ),
+        body,
+      );
+    } finally {
+      for (final notifier in previous) {
+        if (!current.contains(notifier) && !notifier.isDisposed) {
+          notifier.removeListener(updater);
+        }
+      }
+    }
+  }
+
+  /// Unsubscribes from everything and runs the collected [disposers].
+  void close() {
+    if (_closed) {
+      return;
+    }
+    _closed = true;
+    for (final notifier in _observed) {
+      // A reactive variable is often closed by its controller before the
+      // widget observing it unmounts, and removing a listener from a closed
+      // notifier trips its own dispose assertion.
+      if (!notifier.isDisposed) {
+        notifier.removeListener(updater);
+      }
+    }
+    _observed = LinkedHashSet<ListNotifierSingleMixin>.identity();
+    for (final disposer in disposers) {
+      disposer();
+    }
+    disposers.clear();
   }
 }
 
@@ -476,6 +599,7 @@ class NotifyData {
   const NotifyData({
     required this.updater,
     required this.disposers,
+    required this.observed,
     this.throwException = true,
   });
 
@@ -484,6 +608,11 @@ class NotifyData {
 
   /// Cleanup callbacks to run when the observer is unmounted.
   final List<VoidCallback> disposers;
+
+  /// The reactive objects read during this pass, filled in by
+  /// [Notifier.read]. [RxObserverScope] diffs it against the previous pass to
+  /// release subscriptions that are no longer needed.
+  final Set<ListNotifierSingleMixin> observed;
 
   /// Whether to throw an [ObxError] if no reactive variables are tracked.
   final bool throwException;
