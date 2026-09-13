@@ -24,3 +24,19 @@ Simply define your schema with the `@getxState` annotation and run the builder:
 dart run build_runner build -d
 ```
 (or `flutter pub run build_runner build -d` for Flutter projects)
+
+## Example
+```
+@getxState
+class CounterState {
+  CounterState({
+    this.count = 0,
+    this.title = 'Counter',
+  });
+
+  int count;
+
+  @update
+  String title;
+}
+```

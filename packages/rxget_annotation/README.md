@@ -13,10 +13,14 @@ import 'package:rxget_annotation/rxget_annotation.dart';
 class CounterState {
   CounterState({
     this.count = 0,
-    @update this.isEditing = false,
+    this.isEditing = false,
   });
 
+  // Reactive 
   int count;
+
+  // Non reactive variable for manuel updates
+  @update
   bool isEditing;
 }
 ```

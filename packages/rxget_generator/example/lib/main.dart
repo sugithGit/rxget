@@ -16,10 +16,7 @@ class Rx<T> {
 
 @getxState
 class CounterState {
-  CounterState({
-    this.count = 0,
-    @update this.title = 'Counter',
-  });
+  CounterState({this.count = 0, this.title = 'Counter'});
 
   int count;
 
@@ -29,6 +26,7 @@ class CounterState {
 
 void main() {
   final state = _CounterState(count: 10, title: 'My Counter');
+
   print('Title: ${state.title}, Count: ${state.count}');
   state.count = 11;
   print('Updated Count: ${state.count}');
