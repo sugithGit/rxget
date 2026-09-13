@@ -283,7 +283,7 @@ mixin ListNotifierSingleMixin on Listenable {
       updaters[0]();
       return;
     }
-    for (final element in List<GetStateUpdate>.of(updaters, growable: false)) {
+    for (final element in updaters.toList()) {
       element();
     }
   }

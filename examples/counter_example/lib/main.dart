@@ -30,52 +30,58 @@ class CounterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetInWidget(
       dependencies: [GetIn(() => CounterController())],
-      child: Builder(
-        builder: (context) {
-          final controller = Get.find<CounterController>();
-          return Scaffold(
-            appBar: AppBar(
-              title: Obx(() => Text(controller.state.title)),
-            ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('You have pushed the button this many times:'),
-                  Obx(
-                    () => Text(
-                      '${controller.state.count}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: controller.decrement,
-                        icon: const Icon(Icons.remove),
-                      ),
-                      IconButton(
-                        onPressed: controller.reset,
-                        icon: const Icon(Icons.refresh),
-                      ),
-                      IconButton(
-                        onPressed: controller.increment,
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  ),
-                ],
+      child: const CounterView(),
+    );
+  }
+}
+
+/// [GetView] supplies the typed `controller` getter, so there is no
+/// `Get.find` and no `Builder` in the view itself.
+class CounterView extends GetView<CounterController> {
+  const CounterView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Obx(() => Text(controller.state.title)),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('You have pushed the button this many times:'),
+            Obx(
+              () => Text(
+                '${controller.state.count}',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: controller.increment,
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: controller.decrement,
+                  icon: const Icon(Icons.remove),
+                ),
+                IconButton(
+                  onPressed: controller.reset,
+                  icon: const Icon(Icons.refresh),
+                ),
+                IconButton(
+                  onPressed: controller.increment,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
             ),
-          );
-        },
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: controller.increment,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }

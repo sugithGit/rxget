@@ -20,7 +20,7 @@ export function Navbar() {
               Documentation
             </Link>
             <Link
-              href="https://github.com/rxget/rxget" 
+              href="https://github.com/sugithGit/rxget" 
               target="_blank"
               rel="noreferrer"
               className="text-foreground/60 transition-colors hover:text-foreground/80"

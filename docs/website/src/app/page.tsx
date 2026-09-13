@@ -41,7 +41,7 @@ export default function Home() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
           <Link
-            href="https://github.com/rxget/rxget"
+            href="https://github.com/sugithGit/rxget"
             target="_blank"
             className="inline-flex h-12 items-center justify-center rounded-md border border-input bg-background/50 backdrop-blur-sm px-8 text-sm font-medium shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
@@ -54,20 +54,20 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <FeatureCard 
             icon={<Zap className="h-10 w-10 text-primary" />}
-            title="Blazing Fast"
-            description="Built for performance. No streams, no ChangeNotifier. Just pure, lightweight reactivity."
+            title="Fine-grained rebuilds"
+            description="A widget subscribes to exactly the values it reads, and releases them when it stops. No StreamBuilder, no setState."
             delay={0.3}
           />
           <FeatureCard 
             icon={<Layers className="h-10 w-10 text-primary" />}
             title="Dependency Injection"
-            description="Decouple your logic from your UI. Inject dependencies lazily and accessing them anywhere."
+            description="Resolve dependencies anywhere, with no BuildContext — and scope their lifetime to a subtree so they dispose themselves."
             delay={0.4}
           />
           <FeatureCard 
             icon={<Box className="h-10 w-10 text-primary" />}
             title="Zero Bloat"
-            description="No routing, no snackbars, no validation utils. Just the core state management you need."
+            description="No routing, no dialogs, no HTTP client, no localization. A library you use, not a framework you adopt."
             delay={0.5}
           />
         </div>
@@ -76,25 +76,34 @@ export default function Home() {
       <section className="container py-12 md:py-24 mx-auto px-4 border-t border-muted">
         <div className="mx-auto max-w-4xl space-y-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-foreground">Write Less, Do More</h2>
-                <p className="mt-4 text-muted-foreground text-lg">Reactive state management has never been this simple.</p>
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-foreground">State with an owner</h2>
+                <p className="mt-4 text-muted-foreground text-lg">Reactive variables live in a private state class. The controller is the only writer, and disposal is not optional.</p>
             </div>
             
             <div className="rounded-xl border border-border bg-card p-6 shadow-xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-linear-to-tr from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <pre className="overflow-x-auto text-sm md:text-base font-mono leading-relaxed text-foreground">
                     <code className="language-dart">
-{`// 1. Create a controller
-class CountController extends GetxController {
-  var count = 0.obs;
-  increment() => count++;
+{`// 1. State — private, owned, and it says what it closes
+class _CountState extends GetxState {
+  final _count = 0.obs;
+
+  int get count => _count.value;
+
+  @override
+  void onClose() => _count.close();
 }
 
-// 2. Inject it
-final controller = Get.put(CountController());
+// 2. Controller — the only thing that writes
+class CountController extends GetxController<_CountState> {
+  @override
+  final state = _CountState();
 
-// 3. Use it in UI
-Obx(() => Text("Clicks: \${controller.count}"));`}
+  void increment() => state._count.value++;
+}
+
+// 3. View — reads a plain int; only this Text rebuilds
+Obx(() => Text("Clicks: \${controller.state.count}"));`}
                     </code>
                 </pre>
             </div>
