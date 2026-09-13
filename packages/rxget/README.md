@@ -95,7 +95,7 @@ Add rxget to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rxget: ^0.1.3
+  rxget: ^1.0.0
 ```
 
 Import it:
